@@ -7,10 +7,36 @@
  * Classname: Color
  * Purpose: A class that contains colors for objects
  */
-enum class Color {
-	RED,
-	BLUE,
-	WHITE,
-	BLACK,
-	GREEN
+class Color {
+	public: 
+		Color(Colors c) {
+			switch(c) {
+				case RED :
+					color = new Vec3<int>(255, 0, 0);
+					break;
+				case BLUE :
+					color = new Vec3<int>(0, 0, 255);
+					break;
+				case GREEN :
+					color = new Vec3<int>(0, 255, 0);
+					break;
+				case WHITE :
+					color = new Vec3<int>(255, 255, 255);
+					break;
+				case BLACK :
+					color = new Vec3<int>(0, 0, 0);
+					break;
+				default :
+					color = new Vec3<int>(255, 255, 255);
+			}
+		}
+
+		~Color() {
+			delete color;
+		}
+
+		enum Colors { RED, BLUE, WHITE, BLACK, GREEN };
+		
+	private :
+		Vec3<int> * color = null;
 };

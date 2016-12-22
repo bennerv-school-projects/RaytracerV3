@@ -6,12 +6,12 @@ Triangle::Triangle(Vec3<float> * a, Vec3<float> * b, Vec3<float> * c) {
 	vertexC = Vec3<float>::vec3(c->x, c->y, c->z);
 }
 
-Triangle::Triangle(Vec3<float> * a, Vec3<float> * b, Vec3<float> * c, Material mat, Color c) {
+Triangle::Triangle(Vec3<float> * a, Vec3<float> * b, Vec3<float> * c, Material mat, Colors c) {
 	vertexA = Vec3<float>::vec3(a->x, a->y, a->z);
 	vertexB = Vec3<float>::vec3(b->x, b->y, b->z);
 	vertexC = Vec3<float>::vec3(c->x, c->y, c->z);
 	material = mat;
-	color = c;	
+	color = Color(c);	
 }
 
 Triangle::Triangle(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz) {
@@ -20,12 +20,12 @@ Triangle::Triangle(float ax, float ay, float az, float bx, float by, float bz, f
 	vertexC = Vec3<float>::vec3(cx, cy, cz);
 }
 
-Triangle::Triangle(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, Material mat, Color c) {
+Triangle::Triangle(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, Material mat, Colors c) {
 	vertexA = Vec3<float>::vec3(ax, ay, az);
 	vertexB = Vec3<float>::vec3(bx, by, bz);
 	vertexC = Vec3<float>::vec3(cx, cy, cz);
 	material = mat;
-	color = c;
+	color = Color(c);
 }
 
 
