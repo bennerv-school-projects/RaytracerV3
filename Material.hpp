@@ -10,5 +10,5 @@ enum class Material {
 	REFLECTIVE,
 	SPECULAR,
 	GLASS,
-	NORMAL
+	NONE
 };
