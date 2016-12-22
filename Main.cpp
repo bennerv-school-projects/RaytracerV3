@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "Vector.hpp"
 
+
 int main(int argc, char * argv[]) {
 	Vec3<float> * vector = Vec3<float>::vec3(1, 1, 1);
 	Vec3<float> * vector2 = Vec3<float>::vec3(2, 5, 23);
