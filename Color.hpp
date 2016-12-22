@@ -1,6 +1,9 @@
 #pragma once
 #include "Vector.hpp"
 
+enum Colors { RED, BLUE, WHITE, BLACK, GREEN };
+
+
 /*
  * Author: Ben Vesel
  * Date: 12/20/16
@@ -35,8 +38,7 @@ class Color {
 			delete color;
 		}
 
-		enum Colors { RED, BLUE, WHITE, BLACK, GREEN };
 		
 	private :
-		Vec3<int> * color = null;
+		Vec3<int> * color;
 };

@@ -1,31 +1,20 @@
 #include "Triangle.hpp"
+#include "Vector.hpp"
+#include "Color.hpp"
+#include "Material.hpp"
 
-Triangle::Triangle(Vec3<float> * a, Vec3<float> * b, Vec3<float> * c) {
-	vertexA = Vec3<float>::vec3(a->x, a->y, a->z);
-	vertexB = Vec3<float>::vec3(b->x, b->y, b->z);
-	vertexC = Vec3<float>::vec3(c->x, c->y, c->z);
-}
-
-Triangle::Triangle(Vec3<float> * a, Vec3<float> * b, Vec3<float> * c, Material mat, Colors c) {
+Triangle::Triangle(Vec3<float> * a, Vec3<float> * b, Vec3<float> * c, Material mat, Colors col) : color(col) {
 	vertexA = Vec3<float>::vec3(a->x, a->y, a->z);
 	vertexB = Vec3<float>::vec3(b->x, b->y, b->z);
 	vertexC = Vec3<float>::vec3(c->x, c->y, c->z);
 	material = mat;
-	color = Color(c);	
 }
 
-Triangle::Triangle(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz) {
-	vertexA = Vec3<float>::vec3(ax, ay, az);
-	vertexB = Vec3<float>::vec3(bx, by, bz);
-	vertexC = Vec3<float>::vec3(cx, cy, cz);
-}
-
-Triangle::Triangle(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, Material mat, Colors c) {
+Triangle::Triangle(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, Material mat, Colors col) : color(col) {
 	vertexA = Vec3<float>::vec3(ax, ay, az);
 	vertexB = Vec3<float>::vec3(bx, by, bz);
 	vertexC = Vec3<float>::vec3(cx, cy, cz);
 	material = mat;
-	color = Color(c);
 }
 
 
@@ -35,8 +24,11 @@ Triangle::~Triangle() {
 	delete vertexC;
 }
 
+void Triangle::setMaterial(Material mat) {
+	material = mat;
+}
 
-float intersect(Vec3<float> * ray, Vec3<float> * startingPos) {
+float Triangle::intersect(Vec3<float> * ray, Vec3<float> * startingPos) {
 	float A = vertexA->x - vertexB->x;
 	float B = vertexA->y - vertexB->y;
 	float C = vertexA->z - vertexB->z;
