@@ -28,7 +28,7 @@ void Triangle::setMaterial(Material mat) {
 	material = mat;
 }
 
-float Triangle::intersect(Vec3<float> * ray, Vec3<float> * startingPos) {
+RayHit * Triangle::intersect(Vec3<float> * ray, Vec3<float> * startingPos) {
 	float A = vertexA->x - vertexB->x;
 	float B = vertexA->y - vertexB->y;
 	float C = vertexA->z - vertexB->z;

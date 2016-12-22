@@ -2,7 +2,7 @@
 CC = g++
 EXEC = raytracer
 CCFLAGS = -g -Wall
-OBJS = Main.o Triangle.o
+OBJS = Main.o Triangle.o RayHit.o
 
 ${EXEC}: ${OBJS}
 	${CC} ${CCFLAGS} -lm -o ${EXEC} ${OBJS}
@@ -18,3 +18,4 @@ clean:
 
 Main.o: Main.cpp 
 Triangle.o: Triangle.cpp
+RayHit.o: RayHit.cpp
