@@ -1,12 +1,10 @@
 #include "Triangle.hpp"
-#include "Vector.hpp"
-#include "Color.hpp"
-#include "Material.hpp"
 
 Triangle::Triangle(Vec3<float> * a, Vec3<float> * b, Vec3<float> * c, Material mat, Colors col) : color(col) {
 	vertexA = Vec3<float>::vec3(a->x, a->y, a->z);
 	vertexB = Vec3<float>::vec3(b->x, b->y, b->z);
 	vertexC = Vec3<float>::vec3(c->x, c->y, c->z);
+	normal = Vec3<float>::cross(Vec3<float>::sub(vertexB, vertexA), Vec3<float>::sub(vertexC, vertexA));
 	material = mat;
 }
 
@@ -14,14 +12,15 @@ Triangle::Triangle(float ax, float ay, float az, float bx, float by, float bz, f
 	vertexA = Vec3<float>::vec3(ax, ay, az);
 	vertexB = Vec3<float>::vec3(bx, by, bz);
 	vertexC = Vec3<float>::vec3(cx, cy, cz);
+	normal = Vec3<float>::cross(Vec3<float>::sub(vertexB, vertexA), Vec3<float>::sub(vertexC, vertexA));
 	material = mat;
 }
-
 
 Triangle::~Triangle() {
 	delete vertexA;
 	delete vertexB;
 	delete vertexC;
+	delete normal;
 }
 
 void Triangle::setMaterial(Material mat) {

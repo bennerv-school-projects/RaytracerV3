@@ -5,6 +5,8 @@
  */
 
 
+enum Delete { DELETE_FIRST, DELETE_SECOND, DELETE_ALL, DELETE_NONE };
+
 /*
  * Author: Ben Vesel
  * Date: 12/20/16
@@ -59,8 +61,24 @@ class Vec3 {
 		 * Purpose: Computes the cross product of the two vectors 
 		 * Return Value: Vec3<T>
 		 */
-		static Vec3<T> * cross(Vec3 * a, Vec3 * b) {
-			return Vec3::vec3(a->y * b->z - a->z * b->y, a->z * b->x - a->x * b->z, a->x * b->y - a->y * b->x);
+		static Vec3<T> * cross(Vec3 * a, Vec3 * b, Delete del = DELETE_NONE) {
+			Vec3<T> * vector =  Vec3::vec3(a->y * b->z - a->z * b->y, a->z * b->x - a->x * b->z, a->x * b->y - a->y * b->x);
+			switch(del) {
+				case DELETE_FIRST :
+					delete a;
+					break;
+				case DELETE_SECOND :
+					delete b;
+					break;
+				case DELETE_ALL :
+					delete a;
+					delete b;
+					break;
+				case DELETE_NONE :
+				default :
+					break;
+			}
+			return vector;
 		}
 
 		/* 
@@ -72,8 +90,26 @@ class Vec3 {
 		 * Purpose: Computes the dot product of the two vectors 
 		 * Return Value: T
 		 */
-		static T dot(Vec3 * a, Vec3 * b) {
-			return a->x * b->x + a->y * b->y + a->z * b->z;
+		static T dot(Vec3 * a, Vec3 * b, Delete del = DELETE_NONE) {
+			T temp =  a->x * b->x + a->y * b->y + a->z * b->z;
+			
+			switch(del) {
+				case DELETE_FIRST :
+					delete a;
+					break;
+				case DELETE_SECOND :
+					delete b;
+					break;
+				case DELETE_ALL :
+					delete a;
+					delete b;
+					break;
+				case DELETE_NONE :
+				default :
+					break;
+			}
+
+			return temp;
 		}
 
 		/* 
@@ -85,8 +121,26 @@ class Vec3 {
 		 * Purpose: Computes the addition of the two vectors 
 		 * Return Value: Vec3<T>
 		 */
-		static Vec3<T> * add(Vec3 * a, Vec3 * b) {
-			return Vec3::vec3(a->x + b->x, a->y + b->y, a->z + b->z);
+		static Vec3<T> * add(Vec3 * a, Vec3 * b, Delete del = DELETE_NONE) {
+			Vec3<T> *  vector =  Vec3::vec3(a->x + b->x, a->y + b->y, a->z + b->z);
+			
+			switch(del) {
+				case DELETE_FIRST :
+					delete a;
+					break;
+				case DELETE_SECOND :
+					delete b;
+					break;
+				case DELETE_ALL :
+					delete a;
+					delete b;
+					break;
+				case DELETE_NONE :
+				default :
+					break;
+			}
+
+			return vector;
 		}
 
 		/* 
@@ -98,8 +152,26 @@ class Vec3 {
 		 * Purpose: Computes the difference of the two vectors 
 		 * Return Value: Vec3<T>
 		 */
-		static Vec3<T> * sub(Vec3 * a, Vec3 * b) {
-			return Vec3::vec3(a->x - b->x, a->y - b->y, a->z - b->z);
+		static Vec3<T> * sub(Vec3 * a, Vec3 * b, Delete del = DELETE_NONE) {
+			Vec3<T> * vector =  Vec3::vec3(a->x - b->x, a->y - b->y, a->z - b->z);
+				
+			switch(del) {
+				case DELETE_FIRST :
+					delete a;
+					break;
+				case DELETE_SECOND :
+					delete b;
+					break;
+				case DELETE_ALL :
+					delete a;
+					delete b;
+					break;
+				case DELETE_NONE :
+				default :
+					break;
+			}
+
+			return vector;
 		}
 
 		/* 
@@ -110,9 +182,25 @@ class Vec3 {
 		 * Purpose: Computes the normal or unit vector of a given vector
 		 * Return Value: Vec3<T>
 		 */
-		static Vec3<T> * normalize(Vec3 * a) {
+		static Vec3<T> * normalize(Vec3 * a, Delete del = DELETE_NONE) {
 			double temp = Vec3::magnitude(a);
-			return Vec3::vec3(a->x / temp, a->y / temp, a->z / temp);
+			Vec3<T> * vector =  Vec3::vec3(a->x / temp, a->y / temp, a->z / temp);
+			
+			switch(del) {
+				case DELETE_FIRST :
+					delete a;
+					break;
+					break;
+				case DELETE_ALL :
+					delete a;
+					break;
+				case DELETE_SECOND :
+				case DELETE_NONE :
+				default :
+					break;
+			}
+
+			return vector;
 		}
 
 		/* 

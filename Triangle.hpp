@@ -16,6 +16,7 @@ class Triangle {
 		Vec3<float> * vertexA;
 		Vec3<float> * vertexB;
 		Vec3<float> * vertexC;
+		Vec3<float> * normal;
 
 		Material material;
 		Color color;

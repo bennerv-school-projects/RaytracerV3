@@ -18,4 +18,4 @@ clean:
 
 Main.o: Main.cpp 
 Triangle.o: Triangle.cpp
-RayHit.o: RayHit.cpp
+RayHit.o : RayHit.cpp
