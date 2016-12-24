@@ -1,6 +1,8 @@
 #include <stdio.h>
-#include "Vector.hpp"
 
+#include "Vector.hpp"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 
 int main(int argc, char * argv[]) {
 	Vec3<float> * vector = Vec3<float>::vec3(1, 1, 1);
