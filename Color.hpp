@@ -15,30 +15,37 @@ class Color {
 		Color(Colors c) {
 			switch(c) {
 				case RED :
-					color = new Vec3<int>(255, 0, 0);
+					color = new Vec3<unsigned char>(255, 0, 0);
 					break;
 				case BLUE :
-					color = new Vec3<int>(0, 0, 255);
+					color = new Vec3<unsigned char>(0, 0, 255);
 					break;
 				case GREEN :
-					color = new Vec3<int>(0, 255, 0);
+					color = new Vec3<unsigned char>(0, 255, 0);
 					break;
 				case WHITE :
-					color = new Vec3<int>(255, 255, 255);
+					color = new Vec3<unsigned char>(255, 255, 255);
 					break;
 				case BLACK :
-					color = new Vec3<int>(0, 0, 0);
+					color = new Vec3<unsigned char>(0, 0, 0);
 					break;
 				default :
-					color = new Vec3<int>(255, 255, 255);
+					color = new Vec3<unsigned char>(255, 255, 255);
 			}
+		}
+
+		Color(Vec3<unsigned char> * col) {
+			color = new Vec3<unsigned char>(col->x, col->y, col->z);
 		}
 
 		~Color() {
 			delete color;
 		}
 
-		
+		Vec3<unsigned char> * getColor() {
+			return color;
+		}
+
 	private :
-		Vec3<int> * color;
+		Vec3<unsigned char> * color;
 };
