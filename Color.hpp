@@ -20,7 +20,7 @@ class Color {
 		 * Purpose: Constructor 
 		 * Return Value: void
 		 */
-		Color(Colors c) {
+		Color(Colors c) : color(0, 0, 0) {
 			switch(c) {
 				case RED :
 					color = Vec3<unsigned char>(255, 0, 0);
@@ -50,12 +50,8 @@ class Color {
 		 * Purpose: Constructor 
 		 * Return Value: void
 		 */
-		Color(Vec3<unsigned char> * col) {
-			color = Vec3<unsigned char>(col->x, col->y, col->z);
-		}
-
-		Color() {
-			color = Vec3<unsigned char>(0, 0, 0);
+		Color(Vec3<unsigned char> col) : color(0, 0, 0) {
+			color = Vec3<unsigned char>(col.x, col.y, col.z);
 		}
 
 		/* 
