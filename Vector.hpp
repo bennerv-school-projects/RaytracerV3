@@ -1,9 +1,5 @@
 #pragma once
 #include <math.h>
-/* 
- * Notes: Must free all memory allocated using the delete keyword on every vec3 or vec2 function call.
- */
-
 
 enum Delete { DELETE_FIRST, DELETE_SECOND, DELETE_ALL, DELETE_NONE };
 
@@ -29,7 +25,7 @@ class Vec3 {
 		 *     T - generic second vector component
 		 *     T - generic third vector component
 		 * Purpose: Constructor 
-		 * Return Value: 
+		 * Return Value: void
 		 */
 		Vec3(T a, T b, T c) {
 			x = a;
@@ -45,7 +41,7 @@ class Vec3 {
 		 *     T - generic second vector component
 		 *     T - generic third vector component
 		 * Purpose: Creates and returns a new three dimmensional vector 
-		 * Return Value: Vec3<T>
+		 * Return Value: Vec3<T> *
 		 */
 		static Vec3<T> * vec3(T x, T y, T z) {
 			Vec3<T> * vector = new Vec3<T>(x, y, z);
@@ -56,10 +52,11 @@ class Vec3 {
 		 * Date: 12/20/16
 		 * Function Name: cross
 		 * Arguments:
-		 *     Vec3 - The first vector
-		 *     Vec3 - The second vector
+		 *     Vec3   - The first vector
+		 *     Vec3   - The second vector
+		 *     Delete - An enum to decide whether to delete the arguments
 		 * Purpose: Computes the cross product of the two vectors 
-		 * Return Value: Vec3<T>
+		 * Return Value: Vec3<T> *
 		 */
 		static Vec3<T> * cross(Vec3 * a, Vec3 * b, Delete del = DELETE_NONE) {
 			Vec3<T> * vector =  Vec3::vec3(a->y * b->z - a->z * b->y, a->z * b->x - a->x * b->z, a->x * b->y - a->y * b->x);
@@ -85,8 +82,9 @@ class Vec3 {
 		 * Date: 12/20/16
 		 * Function Name: dot
 		 * Arguments:
-		 *     Vec3 - The first vector
-		 *     Vec3 - The second vector
+		 *     Vec3   - The first vector
+		 *     Vec3   - The second vector
+		 *     Delete - An enum to decide whether to delete the arguments
 		 * Purpose: Computes the dot product of the two vectors 
 		 * Return Value: T
 		 */
@@ -116,10 +114,11 @@ class Vec3 {
 		 * Date: 12/20/16
 		 * Function Name: add
 		 * Arguments:
-		 *     Vec3 - The first vector
-		 *     Vec3 - The second vector
+		 *     Vec3   - The first vector
+		 *     Vec3   - The second vector
+		 *     Delete - An enum to decide whether to delete the arguments
 		 * Purpose: Computes the addition of the two vectors 
-		 * Return Value: Vec3<T>
+		 * Return Value: Vec3<T> *
 		 */
 		static Vec3<T> * add(Vec3 * a, Vec3 * b, Delete del = DELETE_NONE) {
 			Vec3<T> *  vector =  Vec3::vec3(a->x + b->x, a->y + b->y, a->z + b->z);
@@ -150,7 +149,7 @@ class Vec3 {
 		 *     Vec3 - The first vector
 		 *     Vec3 - The second vector
 		 * Purpose: Computes the difference of the two vectors 
-		 * Return Value: Vec3<T>
+		 * Return Value: Vec3<T> *
 		 */
 		static Vec3<T> * sub(Vec3 * a, Vec3 * b, Delete del = DELETE_NONE) {
 			Vec3<T> * vector =  Vec3::vec3(a->x - b->x, a->y - b->y, a->z - b->z);
@@ -180,12 +179,18 @@ class Vec3 {
 		 * Arguments:
 		 *     Vec3 - The vector to normalize
 		 * Purpose: Computes the normal or unit vector of a given vector
-		 * Return Value: Vec3<T>
+		 * Return Value: Vec3<T> *
 		 */
 		static Vec3<T> * normalize(Vec3 * a, Delete del = DELETE_NONE) {
 			double temp = Vec3::magnitude(a);
-			Vec3<T> * vector =  Vec3::vec3(a->x / temp, a->y / temp, a->z / temp);
-			
+			Vec3<T> * vector;
+			if( temp == 0 ) {
+				vector = Vec3::vec3(0, 0, 0);
+			} else {
+				vector = Vec3::vec3(a->x / temp, a->y / temp, a->z / temp);
+			}
+
+			// Delete parameters
 			switch(del) {
 				case DELETE_FIRST :
 					delete a;
@@ -230,6 +235,15 @@ class Vec2 {
 		T x;
 		T y;
 
+		/* 
+		 * Date: 12/20/16
+		 * Function Name: Vec2 (constructor)
+		 * Arguments:
+		 *     T - generic first vector component
+		 *     T - generic second vector component
+		 * Purpose: Constructor 
+		 * Return Value: void
+		 */
 		Vec2(T a, T b) {
 			x = a;
 			y = b;
@@ -299,6 +313,11 @@ class Vec2 {
 		 */
 		static Vec2<T> * normalize(Vec2 * a) {
 			double temp = Vec2::magnitude(a);
+
+			// Check for divide by zero exception
+			if( temp == 0 ) {
+				return Vec2::vec2(0, 0, 0);
+			}
 			return Vec2::vec2(a->x / temp, a->y / temp);
 		}
 

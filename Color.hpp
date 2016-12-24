@@ -3,7 +3,6 @@
 
 enum Colors { RED, BLUE, WHITE, BLACK, GREEN };
 
-
 /*
  * Author: Ben Vesel
  * Date: 12/20/16
@@ -12,40 +11,65 @@ enum Colors { RED, BLUE, WHITE, BLACK, GREEN };
  */
 class Color {
 	public: 
+
+		/* 
+		 * Date: 12/24/16
+		 * Function Name: Color (constructor)
+		 * Arguments:
+		 *     Colors - a color enumeration
+		 * Purpose: Constructor 
+		 * Return Value: void
+		 */
 		Color(Colors c) {
 			switch(c) {
 				case RED :
-					color = new Vec3<unsigned char>(255, 0, 0);
+					color = Vec3<unsigned char>(255, 0, 0);
 					break;
 				case BLUE :
-					color = new Vec3<unsigned char>(0, 0, 255);
+					color = Vec3<unsigned char>(0, 0, 255);
 					break;
 				case GREEN :
-					color = new Vec3<unsigned char>(0, 255, 0);
+					color = Vec3<unsigned char>(0, 255, 0);
 					break;
 				case WHITE :
-					color = new Vec3<unsigned char>(255, 255, 255);
+					color = Vec3<unsigned char>(255, 255, 255);
 					break;
 				case BLACK :
-					color = new Vec3<unsigned char>(0, 0, 0);
+					color = Vec3<unsigned char>(0, 0, 0);
 					break;
 				default :
-					color = new Vec3<unsigned char>(255, 255, 255);
+					color = Vec3<unsigned char>(255, 255, 255);
 			}
 		}
 
+		/* 
+		 * Date: 12/24/16
+		 * Function Name: Color (constructor)
+		 * Arguments:
+		 *     Vec3<unsigned char> * - the color to use
+		 * Purpose: Constructor 
+		 * Return Value: void
+		 */
 		Color(Vec3<unsigned char> * col) {
-			color = new Vec3<unsigned char>(col->x, col->y, col->z);
+			color = Vec3<unsigned char>(col->x, col->y, col->z);
 		}
 
-		~Color() {
-			delete color;
+		Color() {
+			color = Vec3<unsigned char>(0, 0, 0);
 		}
 
-		Vec3<unsigned char> * getColor() {
+		/* 
+		 * Date: 12/24/16
+		 * Function Name: getColor
+		 * Arguments:
+		 *     void
+		 * Purpose: Constructor 
+		 * Return Value: Vec3<unsigned char>
+		 */
+		Vec3<unsigned char> getColor() {
 			return color;
 		}
 
 	private :
-		Vec3<unsigned char> * color;
+		Vec3<unsigned char> color;
 };

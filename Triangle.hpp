@@ -1,10 +1,19 @@
 #pragma once
-#include "Vector.hpp"
+
+#include <stddef.h>
+
 #include "Color.hpp"
 #include "Material.hpp"
 #include "RayHit.hpp"
-#include <stddef.h>
+#include "Vector.hpp"
 
+
+/*
+ * Author: Ben Vesel
+ * Date: 12/24/16
+ * Classname: Triangle
+ * Purpose: A triangle geometry class used for raytracing
+ */
 class Triangle {
 
 	public :
@@ -13,7 +22,8 @@ class Triangle {
 		~Triangle();
 		RayHit * intersect(Vec3<float> * ray, Vec3<float> * startingPos);
 		void setMaterial(Material mat);
-	private: 
+
+	private : 
 		Vec3<float> * vertexA;
 		Vec3<float> * vertexB;
 		Vec3<float> * vertexC;

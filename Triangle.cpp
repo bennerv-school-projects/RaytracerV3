@@ -1,5 +1,17 @@
 #include "Triangle.hpp"
 
+/* 
+ * Date: 12/24/16
+ * Function Name: Triangle (constructor)
+ * Arguments:
+ *     Vec3<float> - the first vertex
+ *     Vec3<float> - the second vertex
+ *     Vec3<float> - the third vertex
+ *     Material    - the material of the triangle
+ *     Colors      - the color of the triangle
+ * Purpose: Constructor 
+ * Return Value: void
+ */
 Triangle::Triangle(Vec3<float> * a, Vec3<float> * b, Vec3<float> * c, Material mat, Colors col) : color(col) {
 	vertexA = Vec3<float>::vec3(a->x, a->y, a->z);
 	vertexB = Vec3<float>::vec3(b->x, b->y, b->z);
@@ -8,6 +20,24 @@ Triangle::Triangle(Vec3<float> * a, Vec3<float> * b, Vec3<float> * c, Material m
 	material = mat;
 }
 
+/* 
+ * Date: 12/24/16
+ * Function Name: Triangle (constructor)
+ * Arguments:
+ *     float    - the first vertex x component
+ *     float    - the first vertex y component
+ *     float    - the first vertex z component
+ *     float    - the second vertex x component
+ *     float    - the second vertex y component
+ *     float    - the second vertex z component
+ *     float    - the third vertex x component
+ *     float    - the third vertex y component
+ *     float    - the third vertex z component
+ *     Material - the material of the triangle
+ *     Colors   - the color of the triangle
+ * Purpose: Constructor 
+ * Return Value: void
+ */
 Triangle::Triangle(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, Material mat, Colors col) : color(col) {
 	vertexA = Vec3<float>::vec3(ax, ay, az);
 	vertexB = Vec3<float>::vec3(bx, by, bz);
@@ -16,6 +46,13 @@ Triangle::Triangle(float ax, float ay, float az, float bx, float by, float bz, f
 	material = mat;
 }
 
+/* 
+ * Date: 12/24/16
+ * Function Name: ~Triangle (destructor)
+ * Arguments:
+ * Purpose: Destructor
+ * Return Value: void
+ */
 Triangle::~Triangle() {
 	delete vertexA;
 	delete vertexB;
@@ -23,10 +60,27 @@ Triangle::~Triangle() {
 	delete normal;
 }
 
+/* 
+ * Date: 12/24/16
+ * Function Name: setMaterial
+ * Arguments:
+ *     Material - the type of material the triangle is made of
+ * Purpose: Allows one to set the material of the triangle 
+ * Return Value: void
+ */
 void Triangle::setMaterial(Material mat) {
 	material = mat;
 }
 
+/* 
+ * Date: 12/24/16
+ * Function Name: intersect
+ * Arguments:
+ *     Vec3<float> * - the ray
+ *	   Vec3<float> * - the starting position of the ray
+ * Purpose: Gives the intersection between a triangle and the incoming ray 
+ * Return Value: RayHit *
+ */
 RayHit * Triangle::intersect(Vec3<float> * ray, Vec3<float> * startingPos) {
 	float A = vertexA->x - vertexB->x;
 	float B = vertexA->y - vertexB->y;
