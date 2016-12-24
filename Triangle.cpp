@@ -47,18 +47,25 @@ RayHit * Triangle::intersect(Vec3<float> * ray, Vec3<float> * startingPos) {
 	float t = (-1 * (F * (A * K - J * B) + E * (J * C - A * L) + D * (B * L - K * C) ) ) / M;
 
 	if( t < 0 ) {
-		return -1.0;
+		return NULL;
 	}
 	float gamma = (I * (A * K - J * B) + H * (J * C - A * L) + G * (B * L - K * C)) / M;
 	
 	if( gamma < 0 || gamma > 1 ) {
-		return -1.0;
+		return NULL;
 	}
 	float beta = (J * (E * I - H * F) + K * (G * F - D * I) + L * (D * H - E * G)) / M;
 	
 	if( beta < 0 || beta > 1 - gamma ) {
-		return -1.0;
+		return NULL;
 	}
 	
-	return t;
+	Vec3<float> temp = Vec3<float>(t * ray->x, t * ray->y, t * ray->z);
+	Vec3<float> *  hitLocation = Vec3<float>::add(&temp, startingPos);
+	RayHit * rayHit = new RayHit(t, material, color, normal, hitLocation, ray);
+	
+	delete hitLocation;
+	delete ray;
+	delete startingPos; 
+	return rayHit;
 }

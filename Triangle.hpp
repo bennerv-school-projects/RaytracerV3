@@ -3,6 +3,7 @@
 #include "Color.hpp"
 #include "Material.hpp"
 #include "RayHit.hpp"
+#include <stddef.h>
 
 class Triangle {
 
