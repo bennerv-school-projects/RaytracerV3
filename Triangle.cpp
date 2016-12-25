@@ -16,7 +16,7 @@ Triangle::Triangle(Vec3<float> * a, Vec3<float> * b, Vec3<float> * c, Material m
 	vertexA = Vec3<float>(a->x, a->y, a->z);
 	vertexB = Vec3<float>(b->x, b->y, b->z);
 	vertexC = Vec3<float>(c->x, c->y, c->z);
-	Vec3<float> * temp = Vec3<float>::cross(Vec3<float>::sub(&vertexB, &vertexA), Vec3<float>::sub(&vertexC, &vertexA), DELETE_ALL);
+	Vec3<float> * temp = Vec3<float>::normalize(Vec3<float>::cross(Vec3<float>::sub(&vertexB, &vertexA), Vec3<float>::sub(&vertexC, &vertexA), DELETE_ALL), DELETE_ALL);
 	normal = Vec3<float>(temp->x, temp->y, temp->z);
 	material = mat;
 	delete temp;
@@ -44,7 +44,7 @@ Triangle::Triangle(float ax, float ay, float az, float bx, float by, float bz, f
 	vertexA = Vec3<float>(ax, ay, az);
 	vertexB = Vec3<float>(bx, by, bz);
 	vertexC = Vec3<float>(cx, cy, cz);
-	Vec3<float> * temp = Vec3<float>::cross(Vec3<float>::sub(&vertexB, &vertexA), Vec3<float>::sub(&vertexC, &vertexA), DELETE_ALL);
+	Vec3<float> * temp = Vec3<float>::normalize(Vec3<float>::cross(Vec3<float>::sub(&vertexB, &vertexA), Vec3<float>::sub(&vertexC, &vertexA), DELETE_ALL), DELETE_ALL);
 	normal = Vec3<float>(temp->x, temp->y, temp->z);
 	material = mat;
 	delete temp;
