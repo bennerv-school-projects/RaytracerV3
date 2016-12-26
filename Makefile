@@ -1,4 +1,4 @@
-.SUFFIXES: .c .o
+.SUFFIXES: .cpp .o
 CC = g++
 EXEC = raytracer
 CCFLAGS = -g -Wall -std=c++11 -stdlib=libc++
@@ -7,7 +7,7 @@ OBJS = Main.o Triangle.o RayHit.o Sphere.o
 ${EXEC}: ${OBJS}
 	${CC} ${CCFLAGS} -lm -o ${EXEC} ${OBJS}
 
-.c.o:
+.cpp.o:
 	${CC} -c $<
 
 run: ${EXEC}
@@ -16,7 +16,9 @@ run: ${EXEC}
 clean:
 	rm -f ${EXEC} ${OBJS}
 
-Main.o: Main.cpp 
-Triangle.o: Triangle.cpp
+tests:
+
+Main.o : Main.cpp 
+Triangle.o : Triangle.cpp
 RayHit.o : RayHit.cpp
 Sphere.o : Sphere.cpp
