@@ -12,14 +12,13 @@
  * Purpose: Constructor 
  * Return Value: void
  */
-Triangle::Triangle(Vec3<float> * a, Vec3<float> * b, Vec3<float> * c, Material mat, Colors col) : vertexA(0, 0, 0), vertexB(0, 0, 0), vertexC(0, 0, 0), normal(0, 0, 0), color(col) {
-	vertexA = Vec3<float>(a->x, a->y, a->z);
-	vertexB = Vec3<float>(b->x, b->y, b->z);
-	vertexC = Vec3<float>(c->x, c->y, c->z);
-	Vec3<float> * temp = Vec3<float>::normalize(Vec3<float>::cross(Vec3<float>::sub(&vertexB, &vertexA), Vec3<float>::sub(&vertexC, &vertexA), DELETE_ALL), DELETE_ALL);
-	normal = Vec3<float>(temp->x, temp->y, temp->z);
+Triangle::Triangle(std::shared_ptr<Vec3<float> > a, std::shared_ptr<Vec3<float> > b, std::shared_ptr<Vec3<float> > c, Material mat, Colors col) : color(col) {
+	vertexA = Vec3<float>::vec3(a->x, a->y, a->z);
+	vertexB = Vec3<float>::vec3(b->x, b->y, b->z);
+	vertexC = Vec3<float>::vec3(c->x, c->y, c->z);
+	std::shared_ptr<Vec3<float> > temp = Vec3<float>::normalize(Vec3<float>::cross(Vec3<float>::sub(vertexB, vertexA), Vec3<float>::sub(vertexC, vertexA)));
+	normal = Vec3<float>::vec3(temp->x, temp->y, temp->z);
 	material = mat;
-	delete temp;
 }
 
 /* 
@@ -40,14 +39,13 @@ Triangle::Triangle(Vec3<float> * a, Vec3<float> * b, Vec3<float> * c, Material m
  * Purpose: Constructor 
  * Return Value: void
  */
-Triangle::Triangle(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, Material mat, Colors col) : vertexA(0, 0, 0), vertexB(0, 0, 0), vertexC(0, 0, 0), normal(0, 0, 0), color(col) {
-	vertexA = Vec3<float>(ax, ay, az);
-	vertexB = Vec3<float>(bx, by, bz);
-	vertexC = Vec3<float>(cx, cy, cz);
-	Vec3<float> * temp = Vec3<float>::normalize(Vec3<float>::cross(Vec3<float>::sub(&vertexB, &vertexA), Vec3<float>::sub(&vertexC, &vertexA), DELETE_ALL), DELETE_ALL);
-	normal = Vec3<float>(temp->x, temp->y, temp->z);
+Triangle::Triangle(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, Material mat, Colors col) : color(col) {
+	vertexA = Vec3<float>::vec3(ax, ay, az);
+	vertexB = Vec3<float>::vec3(bx, by, bz);
+	vertexC = Vec3<float>::vec3(cx, cy, cz);
+	std::shared_ptr<Vec3<float> > temp = Vec3<float>::normalize(Vec3<float>::cross(Vec3<float>::sub(vertexB, vertexA), Vec3<float>::sub(vertexC, vertexA)));
+	normal = Vec3<float>::vec3(temp->x, temp->y, temp->z);
 	material = mat;
-	delete temp;
 }
 
 /* 
@@ -71,45 +69,41 @@ void Triangle::setMaterial(Material mat) {
  * Purpose: Gives the intersection between a triangle and the incoming ray 
  * Return Value: RayHit *
  */
-RayHit * Triangle::intersect(Vec3<float> * ray, Vec3<float> * startingPos) {
-	float A = vertexA.x - vertexB.x;
-	float B = vertexA.y - vertexB.y;
-	float C = vertexA.z - vertexB.z;
-	float D = vertexA.x - vertexC.x;
-	float E = vertexA.y - vertexC.y;
-	float F = vertexA.z - vertexC.z;
+std::shared_ptr<RayHit> Triangle::intersect(std::shared_ptr<Vec3<float> > ray, std::shared_ptr<Vec3<float> > startingPos) {
+	float A = vertexA->x - vertexB->x;
+	float B = vertexA->y - vertexB->y;
+	float C = vertexA->z - vertexB->z;
+	float D = vertexA->x - vertexC->x;
+	float E = vertexA->y - vertexC->y;
+	float F = vertexA->z - vertexC->z;
 
 	float G = ray->x;
 	float H = ray->y;
 	float I = ray->z;
 	
-	float J = vertexA.x - startingPos->x;
-	float K = vertexA.y - startingPos->y;
-	float L = vertexA.z - startingPos->z;
+	float J = vertexA->x - startingPos->x;
+	float K = vertexA->y - startingPos->y;
+	float L = vertexA->z - startingPos->z;
 
 	float M = A * (E * I - H * F) + B * (G * F - D * I) + C * (D * H - E * G);
 	float t = (-1 * (F * (A * K - J * B) + E * (J * C - A * L) + D * (B * L - K * C) ) ) / M;
 
 	if( t < 0 ) {
-		return NULL;
+		return nullptr;
 	}
 	float gamma = (I * (A * K - J * B) + H * (J * C - A * L) + G * (B * L - K * C)) / M;
 	
 	if( gamma < 0 || gamma > 1 ) {
-		return NULL;
+		return nullptr;
 	}
 	float beta = (J * (E * I - H * F) + K * (G * F - D * I) + L * (D * H - E * G)) / M;
 	
 	if( beta < 0 || beta > 1 - gamma ) {
-		return NULL;
+		return nullptr;
 	}
 	
-	Vec3<float> temp = Vec3<float>(t * ray->x, t * ray->y, t * ray->z);
-	Vec3<float> *  hitLocation = Vec3<float>::add(&temp, startingPos);
-	RayHit * rayHit = new RayHit(t, material, color, &normal, hitLocation, ray);
-	
-	delete hitLocation;
-	delete ray;
-	delete startingPos; 
+	std::shared_ptr<Vec3<float> > hitLocation = Vec3<float>::add(Vec3<float>::vec3(t * ray->x, t * ray->y, t* ray->z), startingPos);
+	std::shared_ptr<RayHit> rayHit(new RayHit(t, material, color, normal, hitLocation, ray));
+	 
 	return rayHit;
 }

@@ -1,7 +1,7 @@
 .SUFFIXES: .c .o
 CC = g++
 EXEC = raytracer
-CCFLAGS = -g -Wall
+CCFLAGS = -g -Wall -std=c++11 -stdlib=libc++
 OBJS = Main.o Triangle.o RayHit.o Sphere.o
 
 ${EXEC}: ${OBJS}

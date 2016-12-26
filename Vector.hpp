@@ -1,7 +1,6 @@
 #pragma once
 #include <math.h>
-
-enum Delete { DELETE_FIRST, DELETE_SECOND, DELETE_ALL, DELETE_NONE };
+#include <memory>
 
 /*
  * Author: Ben Vesel
@@ -43,8 +42,8 @@ class Vec3 {
 		 * Purpose: Creates and returns a new three dimmensional vector 
 		 * Return Value: Vec3<T> *
 		 */
-		static Vec3<T> * vec3(T x, T y, T z) {
-			Vec3<T> * vector = new Vec3<T>(x, y, z);
+		static std::shared_ptr<Vec3<T> > vec3(T x, T y, T z) {
+			std::shared_ptr<Vec3<T> >vector(new Vec3<T>(x, y, z));
 			return vector;
 		}
 
@@ -58,24 +57,9 @@ class Vec3 {
 		 * Purpose: Computes the cross product of the two vectors 
 		 * Return Value: Vec3<T> *
 		 */
-		static Vec3<T> * cross(Vec3 * a, Vec3 * b, Delete del = DELETE_NONE) {
-			Vec3<T> * vector =  Vec3::vec3(a->y * b->z - a->z * b->y, a->z * b->x - a->x * b->z, a->x * b->y - a->y * b->x);
-			switch(del) {
-				case DELETE_FIRST :
-					delete a;
-					break;
-				case DELETE_SECOND :
-					delete b;
-					break;
-				case DELETE_ALL :
-					delete a;
-					delete b;
-					break;
-				case DELETE_NONE :
-				default :
-					break;
-			}
-			return vector;
+		static std::shared_ptr<Vec3<T> > cross(std::shared_ptr<Vec3> a, std::shared_ptr<Vec3> b) {
+			
+			return Vec3::vec3(a->y * b->z - a->z * b->y, a->z * b->x - a->x * b->z, a->x * b->y - a->y * b->x);;
 		}
 
 		/* 
@@ -88,24 +72,8 @@ class Vec3 {
 		 * Purpose: Computes the dot product of the two vectors 
 		 * Return Value: T
 		 */
-		static T dot(Vec3 * a, Vec3 * b, Delete del = DELETE_NONE) {
+		static T dot(std::shared_ptr<Vec3> a, std::shared_ptr<Vec3> b) {
 			T temp =  a->x * b->x + a->y * b->y + a->z * b->z;
-			
-			switch(del) {
-				case DELETE_FIRST :
-					delete a;
-					break;
-				case DELETE_SECOND :
-					delete b;
-					break;
-				case DELETE_ALL :
-					delete a;
-					delete b;
-					break;
-				case DELETE_NONE :
-				default :
-					break;
-			}
 
 			return temp;
 		}
@@ -116,30 +84,11 @@ class Vec3 {
 		 * Arguments:
 		 *     Vec3   - The first vector
 		 *     Vec3   - The second vector
-		 *     Delete - An enum to decide whether to delete the arguments
 		 * Purpose: Computes the addition of the two vectors 
 		 * Return Value: Vec3<T> *
 		 */
-		static Vec3<T> * add(Vec3 * a, Vec3 * b, Delete del = DELETE_NONE) {
-			Vec3<T> *  vector =  Vec3::vec3(a->x + b->x, a->y + b->y, a->z + b->z);
-			
-			switch(del) {
-				case DELETE_FIRST :
-					delete a;
-					break;
-				case DELETE_SECOND :
-					delete b;
-					break;
-				case DELETE_ALL :
-					delete a;
-					delete b;
-					break;
-				case DELETE_NONE :
-				default :
-					break;
-			}
-
-			return vector;
+		static std::shared_ptr<Vec3<T> > add(std::shared_ptr<Vec3> a, std::shared_ptr<Vec3> b) {
+			return Vec3::vec3(a->x + b->x, a->y + b->y, a->z + b->z);
 		}
 
 		/* 
@@ -151,26 +100,8 @@ class Vec3 {
 		 * Purpose: Computes the difference of the two vectors 
 		 * Return Value: Vec3<T> *
 		 */
-		static Vec3<T> * sub(Vec3 * a, Vec3 * b, Delete del = DELETE_NONE) {
-			Vec3<T> * vector =  Vec3::vec3(a->x - b->x, a->y - b->y, a->z - b->z);
-				
-			switch(del) {
-				case DELETE_FIRST :
-					delete a;
-					break;
-				case DELETE_SECOND :
-					delete b;
-					break;
-				case DELETE_ALL :
-					delete a;
-					delete b;
-					break;
-				case DELETE_NONE :
-				default :
-					break;
-			}
-
-			return vector;
+		static std::shared_ptr<Vec3<T> > sub(std::shared_ptr<Vec3> a, std::shared_ptr<Vec3> b) {
+			return Vec3::vec3(a->x - b->x, a->y - b->y, a->z - b->z);;
 		}
 
 		/* 
@@ -181,28 +112,13 @@ class Vec3 {
 		 * Purpose: Computes the normal or unit vector of a given vector
 		 * Return Value: Vec3<T> *
 		 */
-		static Vec3<T> * normalize(Vec3 * a, Delete del = DELETE_NONE) {
+		static std::shared_ptr<Vec3<T> > normalize(std::shared_ptr<Vec3> a) {
 			double temp = Vec3::magnitude(a);
-			Vec3<T> * vector;
+			std::shared_ptr<Vec3<T> > vector;
 			if( temp == 0 ) {
 				vector = Vec3::vec3(0, 0, 0);
 			} else {
 				vector = Vec3::vec3(a->x / temp, a->y / temp, a->z / temp);
-			}
-
-			// Delete parameters
-			switch(del) {
-				case DELETE_FIRST :
-					delete a;
-					break;
-					break;
-				case DELETE_ALL :
-					delete a;
-					break;
-				case DELETE_SECOND :
-				case DELETE_NONE :
-				default :
-					break;
 			}
 
 			return vector;
@@ -216,7 +132,7 @@ class Vec3 {
 		 * Purpose: Computes the magnitude of a given vector
 		 * Return Value: double
 		 */
-		static double magnitude(Vec3 * a) {
+		static double magnitude(std::shared_ptr<Vec3> a) {
 			return sqrt( (double)(a->x * a->x + a->y * a->y + a->z * a->z));
 		}
 

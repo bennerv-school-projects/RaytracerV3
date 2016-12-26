@@ -1,27 +1,21 @@
 #include "RayHit.hpp"
 
-RayHit::RayHit(float t, Material mat, Color col, Vec3<float> * norm, Vec3<float> * loc, Vec3<float> * r) : color(col.getColor()) {
+RayHit::RayHit(float t, Material mat, Color col, std::shared_ptr<Vec3<float> > norm, std::shared_ptr<Vec3<float> > loc, std::shared_ptr<Vec3<float> > r) : color(col.getColor()) {
 	time = t;
 	material = mat;
-	normal = new Vec3<float>(norm->x, norm->y, norm->z);
-	hitLocation = new Vec3<float>(loc->x, loc->y, loc->z);
-	ray = new Vec3<float>(r->x, r->y, r->z);
+	normal = Vec3<float>::vec3(norm->x, norm->y, norm->z);
+	hitLocation = Vec3<float>::vec3(loc->x, loc->y, loc->z);
+	ray = Vec3<float>::vec3(r->x, r->y, r->z);
 }
 
-RayHit::~RayHit() {
-	delete normal;
-	delete hitLocation;
-	delete ray;
-}
-
-Vec3<float> * RayHit::getNormal() {
+std::shared_ptr<Vec3<float> > RayHit::getNormal() {
 	return normal;
 }
 
-Vec3<float> * RayHit::getHitLocation() {
+std::shared_ptr<Vec3<float> > RayHit::getHitLocation() {
 	return hitLocation;
 }
 
-Vec3<float> * RayHit::getRay() {
+std::shared_ptr<Vec3<float> > RayHit::getRay() {
 	return ray;
 }
