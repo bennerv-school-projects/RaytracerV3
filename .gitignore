@@ -251,4 +251,9 @@ paket-files/
 .idea/
 *.sln.iml
 a.out
-*.o
+
+# Project stuff
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
