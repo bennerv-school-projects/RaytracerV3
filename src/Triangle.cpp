@@ -4,11 +4,11 @@
  * Date: 12/24/16
  * Function Name: Triangle (constructor)
  * Arguments:
- *     Vec3<float> - the first vertex
- *     Vec3<float> - the second vertex
- *     Vec3<float> - the third vertex
- *     Material    - the material of the triangle
- *     Colors      - the color of the triangle
+ *     shared_ptr<Vec3<float> > - the first vertex
+ *     shared_ptr<Vec3<float> > - the second vertex
+ *     shared_ptr<Vec3<float> > - the third vertex
+ *     Material                 - the material of the triangle
+ *     Colors                   - the color of the triangle
  * Purpose: Constructor 
  * Return Value: void
  */
@@ -64,10 +64,10 @@ void Triangle::setMaterial(Material mat) {
  * Date: 12/24/16
  * Function Name: intersect
  * Arguments:
- *     Vec3<float> * - the ray
- *	   Vec3<float> * - the starting position of the ray
+ *     shared_ptr<Vec3<float> > - the ray
+ *	   shared_ptr<Vec3<float> > - the starting position of the ray
  * Purpose: Gives the intersection between a triangle and the incoming ray 
- * Return Value: RayHit *
+ * Return Value: shared_ptr<RayHit>
  */
 std::shared_ptr<RayHit> Triangle::intersect(std::shared_ptr<Vec3<float> > ray, std::shared_ptr<Vec3<float> > startingPos) {
 	float A = vertexA->x - vertexB->x;

@@ -1,0 +1,18 @@
+# Settings
+Config file w/ settings class
+JSon for data representation
+anti-aliasing
+pixel width and height changes
+image plane
+gamma correction
+
+# Lighting and effects
+Gradient background w/linear interpolation and gamma correction
+soft-lighting
+reflection
+diffuse shading
+specular shading
+
+# Potentially stretch goals
+textures
+bounding boxes
