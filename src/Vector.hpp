@@ -1,6 +1,7 @@
 #pragma once
-#include <math.h>
+#include <cmath>
 #include <memory>
+#include <type_traits>
 
 /*
  * Author: Ben Vesel
@@ -30,6 +31,50 @@ class Vec3 {
 			x = a;
 			y = b;
 			z = c;
+		}
+
+		/*
+		* Date: 12/28/16
+		* Function Name: == (operator)
+		* Arguments:
+		*     const Vec3<T> - the second argument on a ==
+		* Purpose: Equality operator
+		* Return Value: bool
+		*/
+		bool Vec3::operator ==(const Vec3<T> &b) {
+			
+			// Give some space for floating point errors when determining equality
+			if ( (std::is_same<T, float>::value && std::is_same<T, float>::value) || (std::is_same<T, double>::value && std::is_same<T, double>::value) ) {
+
+#define EPSILON 0.0001
+				if (fabs(this->x - b.x) < EPSILON && fabs(this->y - b.y) < EPSILON && fabs(this->z - b.z) < EPSILON) {
+					return true;
+				}
+				return false;
+#undef EPSILON
+
+			} else {
+
+				if (this->x == b.x && this->y == b.y && this->z == b.z) {
+					return true;
+				}
+				return false;
+			}
+		}
+
+		/*
+		* Date: 12/28/16
+		* Function Name: != (operator)
+		* Arguments:
+		*     const Vec3<T> - the second argument on a !=
+		* Purpose: Nonequality operator
+		* Return Value: bool
+		*/
+		bool Vec3::operator !=(const Vec3<T> &b) {
+			if (this == b) {
+				return false;
+			}
+			return true;
 		}
 
 		/* 
@@ -161,6 +206,51 @@ class Vec2 {
 		Vec2(T a, T b) {
 			x = a;
 			y = b;
+		}
+
+		/*
+		* Date: 12/28/16
+		* Function Name: == (operator)
+		* Arguments:
+		*     const Vec2<T> - the second argument on a ==
+		* Purpose: Equality operator
+		* Return Value: bool
+		*/
+		bool Vec2::operator ==(const Vec2<T> &b) {
+
+			// Give some space for floating point errors when determining equality
+			if ((std::is_same<T, float>::value && std::is_same<T, float>::value) || (std::is_same<T, double>::value && std::is_same<T, double>::value)) {
+
+#define EPSILON 0.0001
+				if (fabs(this->x - b.x) < EPSILON && fabs(this->y - b.y) < EPSILON) {
+					return true;
+				}
+				return false;
+#undef EPSILON
+
+			}
+			else {
+
+				if (this->x == b.x && this->y == b.y) {
+					return true;
+				}
+				return false;
+			}
+		}
+
+		/*
+		* Date: 12/28/16
+		* Function Name: != (operator)
+		* Arguments:
+		*     const Vec2<T> - the second argument on a !=
+		* Purpose: Nonequality operator
+		* Return Value: bool
+		*/
+		bool Vec2::operator !=(const Vec2<T> &b) {
+			if (this == b) {
+				return false;
+			}
+			return true;
 		}
 
 		/* 
