@@ -139,7 +139,7 @@ class Vec3 {
 /*
  * Author: Ben Vesel
  * Date: 12/20/16
- * Classname: Vec3
+ * Classname: Vec2
  * Purpose: A generic two dimmensional vector with built in common functions.
  */
 template <class T>

@@ -1,0 +1,1 @@
+To build tests run "make tests", which will make tests, testing the functionality of classes to verify they are correct.  

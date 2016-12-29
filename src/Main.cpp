@@ -1,8 +1,9 @@
 #include <stdio.h>
 
+#include "stb_image_write.h"
+
 #include "Vector.hpp"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
 
 int main(int argc, char * argv[]) {
 	std::shared_ptr<Vec3<float> > vector = Vec3<float>::vec3(1, 1, 1);
