@@ -31,6 +31,16 @@ void setPixelColor(Vec3<unsigned char> color, Vec2<int> coordinate, unsigned cha
 
 int main(int argc, char * argv[]) {
 
+	// Read the ini settings file
+	INIReader reader("../Config.ini");
+
+	bool anti_aliasing = reader.GetBoolean("settings", "anti-aliasing", false);
+	bool gamma_correction = reader.GetBoolean("settings", "gamma-correction", false);
+	bool normal_correction = reader.GetBoolean("settings", "normal-correction", false);
+	float ambient_light = reader.GetFloat("settings", "ambient-light", 0.2);
+	int width = reader.GetInt("settings", "image-width", 512);
+	int height = reader.GetInt("settings", "image_height", 512);
+
 	int width = 512;
 	int height = 512;
 
@@ -48,10 +58,4 @@ int main(int argc, char * argv[]) {
 #endif
 		exit(1);
 	}
-
-	INIReader reader("../Config.ini");
-	bool anti_aliasing = reader.GetBoolean("settings", "anti-aliasing", false);
-
-	cout << "Antialiasing is " << anti_aliasing << endl;
-
 }
