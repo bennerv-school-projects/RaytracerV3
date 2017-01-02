@@ -1,37 +1,51 @@
 #include <stdio.h>
+#include <iostream>
+
+#if defined(__linux) || defined(__APPLE__)
+	#include <unistd.h>
+	#define TERM_NRM  "\x1B[0m"
+	#define TERM_BLK  "\x1B[30m"
+	#define TERM_RED  "\x1B[31m"
+	#define TERM_GRN  "\x1B[32m"
+	#define TERM_YEL  "\x1B[33m"
+	#define TERM_BLU  "\x1B[34m"
+	#define TERM_MAG  "\x1B[35m"
+	#define TERM_CYN  "\x1B[36m"
+	#define TERM_WHT  "\x1B[37m"
+#endif
 
 #include "stb_image_write.h"
-
 #include "Vector.hpp"
-#define STB_IMAGE_WRITE_IMPLEMENTATION
 
 using namespace std;
 
+void setPixelColor(Vec3<unsigned char> color, Vec2<int> coordinate, unsigned char * array, int width) {
+
+	int pos = (coordinate.y * 3 * width) + (coordinate.x * 3);
+
+	array[pos] = color.x;
+	array[++pos] = color.y;
+	array[++pos] = color.z;
+}
+
 int main(int argc, char * argv[]) {
-	shared_ptr<Vec3<float> > vector = Vec3<float>::vec3(1, 1, 1);
-	shared_ptr<Vec3<float> > vector2 = Vec3<float>::vec3(2, 5, 23);
-	shared_ptr<Vec3<float> > vector3 = Vec3<float>::vec3(1, 1, 1);
 
-	if (*vector == *vector3) {
-		int temp = 1000;
-		temp += 100;
+	int width = 512;
+	int height = 512;
+
+	unsigned char * imageArray = (unsigned char *) malloc(3 * width * height * sizeof(unsigned char));
+	if( !imageArray ) {
+		
+#if defined(__linux) || defined(__APPLE__)
+		if( isatty(fileno(stdout)) ) {
+			cout << TERM_RED "Failed to allocate memory for the image array.  Exiting." TERM_NRM << endl;
+		} else {
+			cout << "Failed to allocate memory for the image array.  Exiting" << endl;
+		}
+#else 
+		cout << "Failed to allocate memory for the image array.  Exiting" << endl;
+#endif
+		exit(1);
 	}
-	
-	shared_ptr<Vec3<float> > result = Vec3<float>::cross(vector, vector2);
-	printf("Cross product %f %f %f\n", result->x, result->y, result->z);
 
-	result = Vec3<float>::add(vector, vector2);
-	printf("Add product %f %f %f\n", result->x, result->y, result->z);	
-
-	result = Vec3<float>::sub(vector, vector2);
-	printf("Sub product %f %f %f\n", result->x, result->y, result->z);
-
-	result = Vec3<float>::normalize(vector);
-	printf("Normalize %f %f %f\n", result->x, result->y, result->z);
-
-	float temp = (float)Vec3<float>::magnitude(vector);
-	printf("Magnitude = %f\n", temp);
-
-	temp = Vec3<float>::dot(vector, vector2);
-	printf("Dot product = %f\n", temp);
 }

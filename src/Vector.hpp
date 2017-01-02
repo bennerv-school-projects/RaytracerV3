@@ -41,7 +41,7 @@ class Vec3 {
 		* Purpose: Equality operator
 		* Return Value: bool
 		*/
-		bool Vec3::operator ==(const Vec3<T> &b) {
+		bool operator ==(const Vec3<T> &b) {
 			
 			// Give some space for floating point errors when determining equality
 			if ( (std::is_same<T, float>::value && std::is_same<T, float>::value) || (std::is_same<T, double>::value && std::is_same<T, double>::value) ) {
@@ -70,11 +70,24 @@ class Vec3 {
 		* Purpose: Nonequality operator
 		* Return Value: bool
 		*/
-		bool Vec3::operator !=(const Vec3<T> &b) {
+		bool operator !=(const Vec3<T> &b) {
 			if (this == b) {
 				return false;
 			}
 			return true;
+		}
+
+		/* 
+		 * Date: 12/20/16
+		 * Function Name: * (operator) 
+		 * Arguments:
+		 *     const Vec3<T> - the second argument
+		 * Purpose: Returns the dot product of the two vectors 
+		 * Return Value: T
+		 */
+		T operator *(const Vec3<T> &b) {
+			T temp = this->x * b.x + this->y * b.y + this->z * b.z;
+			return temp;
 		}
 
 		/* 
@@ -216,7 +229,7 @@ class Vec2 {
 		* Purpose: Equality operator
 		* Return Value: bool
 		*/
-		bool Vec2::operator ==(const Vec2<T> &b) {
+		bool operator ==(const Vec2<T> &b) {
 
 			// Give some space for floating point errors when determining equality
 			if ((std::is_same<T, float>::value && std::is_same<T, float>::value) || (std::is_same<T, double>::value && std::is_same<T, double>::value)) {
@@ -246,11 +259,24 @@ class Vec2 {
 		* Purpose: Nonequality operator
 		* Return Value: bool
 		*/
-		bool Vec2::operator !=(const Vec2<T> &b) {
+		bool operator !=(const Vec2<T> &b) {
 			if (this == b) {
 				return false;
 			}
 			return true;
+		}
+
+		/* 
+		 * Date: 12/20/16
+		 * Function Name: * (operator) 
+		 * Arguments:
+		 *     const Vec2<T> - the second argument
+		 * Purpose: Returns the dot product of the two vectors 
+		 * Return Value: T
+		 */
+		T operator *(const Vec2<T> &b) {
+			T temp = this->x * b.x + this->y * b.y;
+			return temp;
 		}
 
 		/* 
