@@ -5,12 +5,11 @@ project(Raytracer)
 file(GLOB SourceFiles "src/*.cpp" "src/*.hpp" "src/*.h")
 file(GLOB TestFiles "test/*.cpp" "test/*.hpp" "src/*.hpp")
 
-# Library output
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+# Program output directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin )
 
+# Include inih library
+include_directories(${CMAKE_BINARY_DIR}/lib/inih)
 
 # Executables
 add_executable(raytracer ${SourceFiles})

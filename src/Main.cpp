@@ -14,6 +14,7 @@
 	#define TERM_WHT  "\x1B[37m"
 #endif
 
+#include "INIReader.h"
 #include "stb_image_write.h"
 #include "Vector.hpp"
 
@@ -34,8 +35,8 @@ int main(int argc, char * argv[]) {
 	int height = 512;
 
 	unsigned char * imageArray = (unsigned char *) malloc(3 * width * height * sizeof(unsigned char));
+
 	if( !imageArray ) {
-		
 #if defined(__linux) || defined(__APPLE__)
 		if( isatty(fileno(stdout)) ) {
 			cout << TERM_RED "Failed to allocate memory for the image array.  Exiting." TERM_NRM << endl;
@@ -47,5 +48,10 @@ int main(int argc, char * argv[]) {
 #endif
 		exit(1);
 	}
+
+	INIReader reader("../Config.ini");
+	bool anti_aliasing = reader.GetBoolean("settings", "anti-aliasing", false);
+
+	cout << "Antialiasing is " << anti_aliasing << endl;
 
 }
