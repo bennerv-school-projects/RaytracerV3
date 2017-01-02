@@ -1,10 +1,7 @@
-# Settings
-Config file w/ settings class
-JSon for data representation
-anti-aliasing
-pixel width and height changes
+# Data
 image plane
-gamma correction
+camera position
+objects with points, colors, and material
 
 # Lighting and effects
 Gradient background w/linear interpolation and gamma correction
