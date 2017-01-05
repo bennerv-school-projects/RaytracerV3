@@ -33,6 +33,17 @@ class Vec3 {
 			z = c;
 		}
 
+		/* 
+		 * Date: 1/6/17
+		 * Function Name: Vec3 (constructor)
+		 * Arguments:
+		 *     void
+		 * Purpose: Constructor 
+		 * Return Value: void
+		 */
+		Vec3() {
+		}
+
 		/*
 		* Date: 12/28/16
 		* Function Name: == (operator)
@@ -192,6 +203,34 @@ class Vec3 {
 			return sqrt( (double)(a->x * a->x + a->y * a->y + a->z * a->z));
 		}
 
+		/* 
+		 * Date: 1/4/17
+		 * Function Name: magnitude
+		 * Arguments:
+		 *     Vec3 - A vector to compute the magnitude of
+		 * Purpose: Computes the magnitude of a given vector
+		 * Return Value: double
+		 */
+		static double magnitude(Vec3 a) {
+			return sqrt( (double)(a.x * a.x + a.y * a.y + a.z * a.z));
+		}
+
+		/* 
+		 * Date: 1/4/17
+		 * Function Name: setValues
+		 * Arguments:
+		 *     T - first value of the vec3
+		 *     T - second value of the vec3
+		 *     T - third value of the vec3
+		 * Purpose: Set the value of the given vector
+		 * Return Value: void
+		 */
+		void setValues(T a, T b, T c) {
+			this->x = a;
+			this->y = b;
+			this->z = c;
+		}
+
 };
 
 /*
@@ -219,6 +258,17 @@ class Vec2 {
 		Vec2(T a, T b) {
 			x = a;
 			y = b;
+		}
+
+		/* 
+		 * Date: 1/6/17
+		 * Function Name: Vec2 (constructor)
+		 * Arguments:
+		 *     void
+		 * Purpose: Constructor 
+		 * Return Value: void
+		 */
+		Vec3() {
 		}
 
 		/*
@@ -361,6 +411,33 @@ class Vec2 {
 		 */
 		static double magnitude(std::shared_ptr<Vec2> a) {
 			return sqrt( (double)(a->x * a->x + a->y * a->y));
+		}
+
+		/* 
+		 * Date: 1/4/17
+		 * Function Name: magnitude
+		 * Arguments:
+		 *     Vec2 - A vector to compute the magnitude of
+		 * Purpose: Computes the magnitude of a given vector
+		 * Return Value: double
+		 */
+		static double magnitude(Vec2 a) {
+			return sqrt( (double)(a.x * a.x + a.y * a.y));
+		}
+
+
+		/* 
+		 * Date: 1/4/17
+		 * Function Name: setValues
+		 * Arguments:
+		 *     T - first value of the vec2
+		 *     T - second value of the vec2
+		 * Purpose: Set the value of the given vector
+		 * Return Value: void
+		 */
+		void setValues(T a, T b) {
+			this->x = a;
+			this->y = b;
 		}
 
 };

@@ -29,20 +29,62 @@ void setPixelColor(Vec3<unsigned char> color, Vec2<int> coordinate, unsigned cha
 	array[++pos] = color.z;
 }
 
-int main(int argc, char * argv[]) {
+void getPixelColor(Vec3<unsigned char> &color, Vec2<int> coordinate, unsigned char * array, int width) {
+	int pos = (coordinate.y * 3 * width) + (coordinate.x * 3);
+
+	color.x = array[pos];
+	color.y = array[++pos];
+	color.z = array[++pos];
+
+}
+
+void readConfig(bool &anti_alias, bool &gamma, bool &normal, float &light, int &width, int &height, Vec3<unsigned char> &gStart, Vec3<unsigned char> &gEnd, Vec3<float> &cameraPos) {
 
 	// Read the ini settings file
 	INIReader reader("../Config.ini");
+	int temp0, temp1, temp2;
 
-	bool anti_aliasing = reader.GetBoolean("settings", "anti-aliasing", false);
-	bool gamma_correction = reader.GetBoolean("settings", "gamma-correction", false);
-	bool normal_correction = reader.GetBoolean("settings", "normal-correction", false);
-	float ambient_light = reader.GetFloat("settings", "ambient-light", 0.2);
-	int width = reader.GetInt("settings", "image-width", 512);
-	int height = reader.GetInt("settings", "image_height", 512);
+	anti_alias = reader.GetBoolean("settings", "anti-aliasing", false);
+	gamma = reader.GetBoolean("settings", "gamma-correction", false);
+	normal = reader.GetBoolean("settings", "normal-correction", false);
+	light = (float)reader.GetReal("settings", "ambient-light", 0.2);
+	width = reader.GetInteger("settings", "image-width", 512);
+	height = reader.GetInteger("settings", "image-height", 512);
 
-	int width = 512;
-	int height = 512;
+	temp0 = reader.GetInteger("Gradient", "start.r", -1);
+	temp1 = reader.GetInteger("Gradient", "start.g", -1);
+	temp2 = reader.GetInteger("Gradient", "start.b", -1);
+	gStart.setValues(temp0, temp1, temp2);
+
+	temp0 = reader.GetInteger("Gradient", "end.r", -1);
+	temp1 = reader.GetInteger("Gradient", "end.g", -1);
+	temp2 = reader.GetInteger("Gradient", "end.b", -1);
+	gEnd.setValues(temp0, temp1, temp2);
+
+	temp0 = reader.GetReal("Camera", "loc.x", -1);
+	temp1 = reader.GetReal("Camera", "loc.y", -1);
+	temp2 = reader.GetReal("Camera", "loc.z", -1);
+	cameraPos.setValues(temp0, temp1, temp2);
+
+}
+
+int main(int argc, char * argv[]) {
+
+	bool anti_aliasing, gamma_correction, normal_correction;
+	float ambient_light;
+	int width, height;
+	Vec3<unsigned char> gradientStart(0, 0, 0), gradientEnd(0, 0, 0);
+	Vec3<float> cameraPos(0, 0, 0);
+
+	// Read the config setting
+	readConfig(anti_aliasing, gamma_correction, normal_correction, ambient_light, width, height, gradientStart, gradientEnd, cameraPos);
+
+	cout << "Anti-aliasing: " << anti_aliasing << endl;
+	cout << "Gamma correction: " << gamma_correction << endl;
+	cout << "Normal correction: " << normal_correction << endl;
+	cout << "Ambient light value: " << ambient_light << endl;
+	cout << "Image width: " << width << endl;
+	cout << "Image height: " << height << endl;
 
 	unsigned char * imageArray = (unsigned char *) malloc(3 * width * height * sizeof(unsigned char));
 
@@ -57,5 +99,30 @@ int main(int argc, char * argv[]) {
 		cout << "Failed to allocate memory for the image array.  Exiting" << endl;
 #endif
 		exit(1);
+	}
+
+	float pixelWidth = 1 / (float)width;
+	float pixelHeight = 1 / (float)height;
+	float truePixelHeightCenter, truePixelWidthCenter;
+	if( width % 2 == 0 ) {
+		truePixelWidthCenter = pixelWidth >> 2;
+	}
+	if( height % 2 == 0 ) {
+		truePixelHeightCenter = pixelHeight >> 2;
+	}
+
+	float tempHeightOffset = truePixelHeightCenter;
+	float tempWidthOffset  = truePixelWidthCenter;
+	// Start going through all pixels and draw them
+	for(int i = 0; i < height; i++) {
+		for(int j = 0; j < width; j++) {
+
+			// Shoot five rays per pixel if anti-aliasing
+			if(anti_aliasing) {
+
+			} else {
+
+			}
+		}
 	}
 }
