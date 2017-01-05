@@ -17,16 +17,16 @@
 class Triangle {
 
 	public :
-		Triangle(std::shared_ptr<Vec3<float> > a, std::shared_ptr<Vec3<float> > b, std::shared_ptr<Vec3<float> > c, Material mat = NONE, Colors col = RED);
+		Triangle(Vec3<float> a, Vec3<float> b, Vec3<float> c, Material mat = NONE, Colors col = RED);
 		Triangle(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, Material mat = NONE, Colors col = RED);
-		std::shared_ptr<RayHit> intersect(std::shared_ptr<Vec3<float> > ray, std::shared_ptr<Vec3<float> > startingPos);
+		std::shared_ptr<RayHit> intersect(Vec3<float> ray, Vec3<float> startingPos);
 		void setMaterial(Material mat);
 
 	private : 
-		std::shared_ptr<Vec3<float> > vertexA;
-		std::shared_ptr<Vec3<float> > vertexB;
-		std::shared_ptr<Vec3<float> > vertexC;
-		std::shared_ptr<Vec3<float> > normal;
+		Vec3<float> vertexA;
+		Vec3<float> vertexB;
+		Vec3<float> vertexC;
+		Vec3<float> normal;
 
 		Material material;
 		Color color;

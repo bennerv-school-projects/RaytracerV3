@@ -109,10 +109,10 @@ class Vec3 {
 		 *     T - generic second vector component
 		 *     T - generic third vector component
 		 * Purpose: Creates and returns a new three dimmensional vector 
-		 * Return Value: shared_ptr<Vec3<T> >
+		 * Return Value: Vec3<T>
 		 */
-		static std::shared_ptr<Vec3<T> > vec3(T x, T y, T z) {
-			std::shared_ptr<Vec3<T> >vector(new Vec3<T>(x, y, z));
+		static Vec3<T> vec3(T x, T y, T z) {
+			Vec3<T> vector(x, y, z);
 			return vector;
 		}
 
@@ -120,72 +120,70 @@ class Vec3 {
 		 * Date: 12/20/16
 		 * Function Name: cross
 		 * Arguments:
-		 *     shared_ptr<Vec3> - The first vector
-		 *     shared_ptr<Vec3> - The second vector
+		 *     Vec3 - The first vector
+		 *     Vec3 - The second vector
 		 * Purpose: Computes the cross product of the two vectors 
-		 * Return Value: shared_ptr<Vec3<T> >
+		 * Return Value: Vec3<T>
 		 */
-		static std::shared_ptr<Vec3<T> > cross(std::shared_ptr<Vec3> a, std::shared_ptr<Vec3> b) {
+		static Vec3<T> cross(Vec3 a, Vec3 b) {
 			
-			return Vec3::vec3(a->y * b->z - a->z * b->y, a->z * b->x - a->x * b->z, a->x * b->y - a->y * b->x);;
+			return Vec3::vec3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);;
 		}
 
 		/* 
 		 * Date: 12/20/16
 		 * Function Name: dot
 		 * Arguments:
-		 *     shared_ptr<Vec3> - The first vector
-		 *     shared_ptr<Vec3> - The second vector
+		 *     Vec3 - The first vector
+		 *     Vec3 - The second vector
 		 * Purpose: Computes the dot product of the two vectors 
 		 * Return Value: T
 		 */
-		static T dot(std::shared_ptr<Vec3> a, std::shared_ptr<Vec3> b) {
-			T temp =  a->x * b->x + a->y * b->y + a->z * b->z;
-
-			return temp;
+		static T dot(Vec3 a, Vec3 b) {
+			return a.x * b.x + a.y * b.y + a.z * b.z;
 		}
 
 		/* 
 		 * Date: 12/20/16
 		 * Function Name: add
 		 * Arguments:
-		 *     shared_ptr<Vec3> - The first vector
-		 *     shared_ptr<Vec3> - The second vector
+		 *     Vec3 - The first vector
+		 *     Vec3 - The second vector
 		 * Purpose: Computes the addition of the two vectors 
-		 * Return Value: shared_ptr<Vec3<T> >
+		 * Return Value: Vec3<T>
 		 */
-		static std::shared_ptr<Vec3<T> > add(std::shared_ptr<Vec3> a, std::shared_ptr<Vec3> b) {
-			return Vec3::vec3(a->x + b->x, a->y + b->y, a->z + b->z);
+		static Vec3<T> add(Vec3 a, Vec3 b) {
+			return Vec3::vec3(a.x + b.x, a.y + b.y, a.z + b.z);
 		}
 
 		/* 
 		 * Date: 12/20/16
 		 * Function Name: sub
 		 * Arguments:
-		 *     shared_ptr<Vec3> - The first vector
-		 *     shared_ptr<Vec3> - The second vector
+		 *     Vec3 - The first vector
+		 *     Vec3 - The second vector
 		 * Purpose: Computes the difference of the two vectors 
-		 * Return Value: shared_ptr<Vec3<T> >
+		 * Return Value: Vec3<T>
 		 */
-		static std::shared_ptr<Vec3<T> > sub(std::shared_ptr<Vec3> a, std::shared_ptr<Vec3> b) {
-			return Vec3::vec3(a->x - b->x, a->y - b->y, a->z - b->z);;
+		static Vec3<T> sub(Vec3 a, Vec3 b) {
+			return Vec3::vec3(a.x - b.x, a.y - b.y, a.z - b.z);;
 		}
 
 		/* 
 		 * Date: 12/20/16
 		 * Function Name: normalize
 		 * Arguments:
-		 *     shared_ptr<Vec3> - The vector to normalize
+		 *     Vec3 - The vector to normalize
 		 * Purpose: Computes the normal or unit vector of a given vector
-		 * Return Value: shared_ptr<Vec3<T> >
+		 * Return Value: Vec3<T>
 		 */
-		static std::shared_ptr<Vec3<T> > normalize(std::shared_ptr<Vec3> a) {
+		static Vec3<T> normalize(Vec3 a) {
 			double temp = Vec3::magnitude(a);
-			std::shared_ptr<Vec3<T> > vector;
+			Vec3<T> vector;
 			if( temp == 0 ) {
 				vector = Vec3::vec3(0, 0, 0);
 			} else {
-				vector = Vec3::vec3(a->x / temp, a->y / temp, a->z / temp);
+				vector = Vec3::vec3(a.x / temp, a.y / temp, a.z / temp);
 			}
 
 			return vector;
@@ -193,18 +191,6 @@ class Vec3 {
 
 		/* 
 		 * Date: 12/20/16
-		 * Function Name: magnitude
-		 * Arguments:
-		 *     shared_ptr<Vec3> - A vector to compute the magnitude of
-		 * Purpose: Computes the magnitude of a given vector
-		 * Return Value: double
-		 */
-		static double magnitude(std::shared_ptr<Vec3> a) {
-			return sqrt( (double)(a->x * a->x + a->y * a->y + a->z * a->z));
-		}
-
-		/* 
-		 * Date: 1/4/17
 		 * Function Name: magnitude
 		 * Arguments:
 		 *     Vec3 - A vector to compute the magnitude of
@@ -337,10 +323,10 @@ class Vec2 {
 		 *     T - generic second vector component
 		 *     T - generic third vector component
 		 * Purpose: Creates and returns a new two dimmensional vector 
-		 * Return Value: shared_ptr<Vec2<T> >
+		 * Return Value: Vec2<T>
 		 */
-		static std::shared_ptr<Vec2<T> > vec2(T x, T y) {
-			std::shared_ptr<Vec2<T> > vector(new std::shared_ptr<Vec2<T> >(x, y));
+		static Vec2<T> vec2(T x, T y) {
+			Vec2<T> vector(x, y);
 			return vector;
 		}
 
@@ -348,69 +334,57 @@ class Vec2 {
 		 * Date: 12/20/16
 		 * Function Name: dot
 		 * Arguments:
-		 *     shared_ptr<Vec2> - The first vector
-		 *     shared_ptr<Vec2> - The second vector
+		 *     Vec2 - The first vector
+		 *     Vec2 - The second vector
 		 * Purpose: Computes the dot product of the two vectors 
 		 * Return Value: T
 		 */
-		static T dot(std::shared_ptr<Vec2> a, std::shared_ptr<Vec2> b) {
-			return a->x * b->x + a->y * b->y;
+		static T dot(Vec2 a, Vec2 b) {
+			return a.x * b.x + a.y * b.y;
 		}
 
 		/* 
 		 * Date: 12/20/16
 		 * Function Name: add
 		 * Arguments:
-		 *     shared_ptr<Vec2> - The first vector
-		 *     shared_ptr<Vec2> - The second vector
+		 *     Vec2 - The first vector
+		 *     Vec2 - The second vector
 		 * Purpose: Computes the addition of the two vectors 
-		 * Return Value: shared_ptr<Vec2<T> >
+		 * Return Value: Vec2<T>
 		 */
-		static std::shared_ptr<Vec2<T> > add(std::shared_ptr<Vec2> a, std::shared_ptr<Vec2> * b) {
-			return Vec2::vec2(a->x + b->x, a->y + b->y);
+		static Vec2<T> add(Vec2 a, Vec2 b) {
+			return Vec2::vec2(a.x + b.x, a.y + b.y);
 		}
 
 		/* 
 		 * Date: 12/20/16
 		 * Function Name: sub
 		 * Arguments:
-		 *     shared_ptr<Vec2> - The first vector
-		 *     shared_ptr<Vec2> - The second vector
+		 *     Vec2 - The first vector
+		 *     Vec2 - The second vector
 		 * Purpose: Computes the difference of the two vectors 
-		 * Return Value: shared_ptr<Vec2<T> >
+		 * Return Value: Vec2<T>
 		 */
-		static std::shared_ptr<Vec2<T> > sub(std::shared_ptr<Vec2> a, std::shared_ptr<Vec2> b) {
-			return Vec2::vec2(a->x - b->x, a->y - b->y);
+		static Vec2<T> sub(Vec2 a, Vec2 b) {
+			return Vec2::vec2(a.x - b.x, a.y - b.y);
 		}
 
 		/* 
 		 * Date: 12/20/16
 		 * Function Name: normalize
 		 * Arguments:
-		 *     shared_ptr<Vec2> - The vector to normalize
+		 *     Vec2 - The vector to normalize
 		 * Purpose: Computes the normal or unit vector of a given vector
-		 * Return Value: shared_ptr<Vec2<T> >
+		 * Return Value: Vec2<T>
 		 */
-		static std::shared_ptr<Vec2<T> > normalize(std::shared_ptr<Vec2> a) {
+		static Vec2<T> normalize(Vec2 a) {
 			double temp = Vec2::magnitude(a);
 
 			// Check for divide by zero exception
 			if( temp == 0 ) {
 				return Vec2::vec2(0, 0, 0);
 			}
-			return Vec2::vec2(a->x / temp, a->y / temp);
-		}
-
-		/* 
-		 * Date: 12/20/16
-		 * Function Name: magnitude
-		 * Arguments:
-		 *     shared_ptr<Vec2> - A vector to compute the magnitude of
-		 * Purpose: Computes the magnitude of a given vector
-		 * Return Value: double
-		 */
-		static double magnitude(std::shared_ptr<Vec2> a) {
-			return sqrt( (double)(a->x * a->x + a->y * a->y));
+			return Vec2::vec2(a.x / temp, a.y / temp);
 		}
 
 		/* 

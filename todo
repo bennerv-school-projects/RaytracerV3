@@ -3,6 +3,12 @@ image plane
 camera position
 objects with points, colors, and material
 
+# Speed
+adaptive anti-aliasing (checking neighbor's color)
+reusing anti-aliased points
+multi-threaded
+gpu (potentially)
+
 # Lighting and effects
 Gradient background w/linear interpolation and gamma correction
 soft-lighting
