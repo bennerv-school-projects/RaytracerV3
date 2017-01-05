@@ -268,7 +268,7 @@ class Vec2 {
 		 * Purpose: Constructor 
 		 * Return Value: void
 		 */
-		Vec3() {
+		Vec2() {
 		}
 
 		/*

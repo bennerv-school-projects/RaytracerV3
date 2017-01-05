@@ -105,14 +105,15 @@ int main(int argc, char * argv[]) {
 	float pixelHeight = 1 / (float)height;
 	float truePixelHeightCenter, truePixelWidthCenter;
 	if( width % 2 == 0 ) {
-		truePixelWidthCenter = pixelWidth >> 2;
+		truePixelWidthCenter = pixelWidth / 2;
 	}
 	if( height % 2 == 0 ) {
-		truePixelHeightCenter = pixelHeight >> 2;
+		truePixelHeightCenter = pixelHeight / 2;
 	}
 
 	float tempHeightOffset = truePixelHeightCenter;
 	float tempWidthOffset  = truePixelWidthCenter;
+
 	// Start going through all pixels and draw them
 	for(int i = 0; i < height; i++) {
 		for(int j = 0; j < width; j++) {
