@@ -1,4 +1,5 @@
 #include <cassert>
+#include <iostream>
 #include <memory>
 
 #include "../src/Vector.hpp"
@@ -25,4 +26,6 @@ int main(int argc, char * argv[]) {
 
 	temp = Vec2<float>::dot(temp3, temp5);
 	assert(temp == 5.f);
+
+	cout << "Finished testing" << endl;
 }
