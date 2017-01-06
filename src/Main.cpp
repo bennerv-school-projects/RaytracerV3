@@ -38,7 +38,106 @@ void getPixelColor(Vec3<unsigned char> &color, Vec2<int> coordinate, unsigned ch
 
 }
 
-void readConfig(bool &anti_alias, bool &gamma, bool &normal, bool &gradient, float &light, int &width, int &height, Vec3<unsigned char> &gStart, Vec3<unsigned char> &gEnd, Vec3<float> &cameraPos) {
+void RGBToHSL(Vec3<float> &color) {
+	float r = color.x / 255.;
+	float g = color.y / 255.;
+	float b = color.z / 255.;
+
+	char maxSel;
+
+	float cmax, cmin, delta;
+
+	float H, S, L;
+
+	if( r >= g && r >= b) {
+		maxSel = 'r';
+		cmax = r;
+	} else if( g >= r && g >= b) {
+		maxSel = 'g';
+		cmax = g;
+	} else {
+		maxSel = 'b';
+		cmax = b;
+	}
+
+	cmin = fminf(fminf(r, g), b);
+	delta = cmax - cmin;
+
+	L = (cmax + cmin) / 2.;
+
+	if(delta == 0) {
+		H = 0.;
+		S = 0.;
+	} else {
+		switch(maxSel) {
+			case 'r':
+				H = 60 * fmodf((g - b) / delta, 6);
+				break;
+			case 'g':
+				H = 60 * (((b - r) / delta) + 2);
+				break;
+			case 'b' :
+				H = 60 * (((r - g) / delta) + 4);
+				break;
+			default :
+				H = 0;
+				break;
+		}
+		float temp = 2 * L - 1;
+		if( temp < 0 ) {
+			temp *= -1;
+		}
+		S = 100. * delta / (1. - temp);
+	}
+	color.setValues(H, S, 100*L);
+
+}
+
+void HSLToRGB(Vec3<float> &color) {
+
+	float H = color.x;
+	float S = color.y / 100.;
+	float L = color.z / 100.;
+
+	float C = (1.0 - abs(2 * L - 1)) * S;
+
+	float X = C * (1 - abs(fmodf(H / 60, 2) - 1));
+
+	float m = L - (C / 2.);
+
+	float r, g, b;
+	if(H >= 300) {
+		r = C;
+		g = 0;
+		b = X;
+	} else if(H >= 240) {
+		r = X;
+		g = 0;
+		b = C;
+	} else if(H >= 180) {
+		r = 0;
+		g = X;
+		b = C;
+	} else if(H >= 120) {
+		r = 0;
+		g = C;
+		b = X;
+	} else if(H >= 60) {
+		r = X;
+		g = C;
+		b = 0;
+	} else {
+		r = C;
+		g = X;
+		b = 0;
+	}
+
+	color.setValues(255. * (r + m), 255. * (g + m), 255. * (b + m));
+
+
+}
+
+void readConfig(bool &anti_alias, bool &gamma, bool &normal, bool &gradient, bool &hsl, float &light, int &width, int &height, Vec3<float> &gStart, Vec3<float> &gEnd, Vec3<float> &cameraPos) {
 
 	// Read the ini settings file
 	INIReader reader("../Config.ini");
@@ -48,6 +147,7 @@ void readConfig(bool &anti_alias, bool &gamma, bool &normal, bool &gradient, flo
 	gamma = reader.GetBoolean("settings", "gamma-correction", false);
 	normal = reader.GetBoolean("settings", "normal-correction", false);
 	gradient = reader.GetBoolean("settings", "background-gradient", false);
+	hsl = reader.GetBoolean("settings", "hsl-interpolation", false);
 	light = (float)reader.GetReal("settings", "ambient-light", 0.2);
 	width = reader.GetInteger("settings", "image-width", 512);
 	height = reader.GetInteger("settings", "image-height", 512);
@@ -71,34 +171,48 @@ void readConfig(bool &anti_alias, bool &gamma, bool &normal, bool &gradient, flo
 
 }
 
-void drawGradient(Vec3<unsigned char> gradientStart, Vec3<unsigned char> gradientEnd, int width, int height, unsigned char * imageArray) {
+void drawGradient(Vec3<float> gradientStart, Vec3<float> gradientEnd, int width, int height, unsigned char * imageArray, bool hsl) {
 	float t;
+
+	// HSL gradient
+	if(hsl) {
+		RGBToHSL(gradientStart);
+		RGBToHSL(gradientEnd);
+	}
 	for(int i = 0; i < height; i++) {
-		t = i / (float)(height - 1);
-		char r = gradientStart.x + (gradientEnd.x - gradientStart.x) * t;
-		char g = gradientStart.y + (gradientEnd.y - gradientStart.y) * t;
-		char b = gradientStart.z + (gradientEnd.z - gradientStart.z) * t;
-		Vec3<unsigned char> color(r, g, b);
+		t = i / (float)(height - 1.0);
+		float r = gradientStart.x + (gradientEnd.x - gradientStart.x) * t;
+		float g = gradientStart.y + (gradientEnd.y - gradientStart.y) * t;
+		float b = gradientStart.z + (gradientEnd.z - gradientStart.z) * t;
+		Vec3<float> color(r, g, b);
+
+		// Convert the hsl interpolation to rgb if necessary so we can draw it
+		if( hsl ) {
+			HSLToRGB(color);
+		}
+
+		Vec3<unsigned char> col(color.x, color.y, color.z);
 
 		for(int j = 0; j < width; j++) {
 			// a + (b - a) * t
 			Vec2<int> coordinate(i, j);
-			setPixelColor(color, coordinate, imageArray, width);
-
+			setPixelColor(col, coordinate, imageArray, width);
 		}
 	}
 }
 
+
+
 int main(int argc, char * argv[]) {
 
-	bool anti_aliasing, gamma_correction, normal_correction, background_gradient;
+	bool anti_aliasing, gamma_correction, normal_correction, background_gradient, hsl_interpolation;
 	float ambient_light;
 	int width, height;
-	Vec3<unsigned char> gradientStart(0, 0, 0), gradientEnd(0, 0, 0);
+	Vec3<float> gradientStart(0, 0, 0), gradientEnd(0, 0, 0);
 	Vec3<float> cameraPos(0, 0, 0);
 
 	// Read the config setting
-	readConfig(anti_aliasing, gamma_correction, normal_correction, background_gradient, ambient_light, width, height, gradientStart, gradientEnd, cameraPos);
+	readConfig(anti_aliasing, gamma_correction, normal_correction, background_gradient, hsl_interpolation, ambient_light, width, height, gradientStart, gradientEnd, cameraPos);
 
 	cout << "Anti-aliasing: " << anti_aliasing << endl;
 	cout << "Gamma correction: " << gamma_correction << endl;
@@ -124,7 +238,7 @@ int main(int argc, char * argv[]) {
 
 	// Draw the gradient on the image
 	if( background_gradient) {
-		drawGradient(gradientStart, gradientEnd, width, height, imageArray);
+		drawGradient(gradientStart, gradientEnd, width, height, imageArray, hsl_interpolation);
 	}
 
 	// Pixel coordinate correction
