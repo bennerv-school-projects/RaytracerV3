@@ -137,7 +137,7 @@ void HSLToRGB(Vec3<float> &color) {
 
 }
 
-void readConfig(bool &anti_alias, bool &gamma, bool &normal, bool &gradient, bool &hsl, float &light, int &width, int &height, Vec3<float> &gStart, Vec3<float> &gEnd, Vec3<float> &cameraPos) {
+void readConfig(bool &anti_alias, bool &gamma, bool &normal, bool &gradient, bool &hsl, float &light, int &width, int &height, Vec3<float> &gStart, Vec3<float> &gEnd) {
 
 	// Read the ini settings file
 	INIReader reader("../Config.ini");
@@ -163,12 +163,6 @@ void readConfig(bool &anti_alias, bool &gamma, bool &normal, bool &gradient, boo
 		temp2 = reader.GetInteger("Gradient", "end.b", -1);
 		gEnd.setValues(temp0, temp1, temp2);
 	}
-
-	temp0 = reader.GetReal("Camera", "loc.x", -1);
-	temp1 = reader.GetReal("Camera", "loc.y", -1);
-	temp2 = reader.GetReal("Camera", "loc.z", -1);
-	cameraPos.setValues(temp0, temp1, temp2);
-
 }
 
 void drawGradient(Vec3<float> gradientStart, Vec3<float> gradientEnd, int width, int height, unsigned char * imageArray, bool hsl) {
@@ -209,10 +203,9 @@ int main(int argc, char * argv[]) {
 	float ambient_light;
 	int width, height;
 	Vec3<float> gradientStart(0, 0, 0), gradientEnd(0, 0, 0);
-	Vec3<float> cameraPos(0, 0, 0);
 
 	// Read the config setting
-	readConfig(anti_aliasing, gamma_correction, normal_correction, background_gradient, hsl_interpolation, ambient_light, width, height, gradientStart, gradientEnd, cameraPos);
+	readConfig(anti_aliasing, gamma_correction, normal_correction, background_gradient, hsl_interpolation, ambient_light, width, height, gradientStart, gradientEnd);
 
 	cout << "Anti-aliasing: " << anti_aliasing << endl;
 	cout << "Gamma correction: " << gamma_correction << endl;
