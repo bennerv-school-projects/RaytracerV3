@@ -8,8 +8,9 @@ file(GLOB TestFiles "test/*.cpp" "test/*.hpp" "src/*.hpp")
 # Program output directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-# Include inih library
+# Include inih library and tinyxml2
 include_directories(${CMAKE_BINARY_DIR}/lib/inih)
+include_directories(${CMAKE_BINARY_DIR}/lib/tinyxml2)
 
 # Executables
 add_executable(raytracer ${SourceFiles})
