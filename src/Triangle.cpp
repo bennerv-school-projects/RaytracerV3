@@ -7,8 +7,8 @@
  *     Vec3<float> - the first vertex
  *     Vec3<float> - the second vertex
  *     Vec3<float> - the third vertex
+ *	   Vec3     - the color component
  *     Material    - the material of the triangle
- *     Colors      - the color of the triangle
  * Purpose: Constructor 
  * Return Value: void
  */
@@ -35,8 +35,8 @@ Triangle::Triangle(Vec3<float> a, Vec3<float> b, Vec3<float> c, Vec3<unsigned ch
  *     float    - the third vertex x component
  *     float    - the third vertex y component
  *     float    - the third vertex z component
+ *	   Vec3     - the color component
  *     Material - the material of the triangle
- *     Colors   - the color of the triangle
  * Purpose: Constructor 
  * Return Value: void
  */

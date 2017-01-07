@@ -6,8 +6,8 @@
  * Arguments:
  *     Vec3<float> - the center of the sphere
  *     float                    - the radius of the sphere
+ *	   Vec3                     - the color component
  *     Material                 - the material of the triangle
- *     Colors                   - the color of the triangle
  * Purpose: Constructor 
  * Return Value: void
  */
@@ -26,8 +26,8 @@ Sphere::Sphere(Vec3<float> a, float r, Vec3<unsigned char> color, Material mat) 
  *     float    - y component of sphere's center coord
  *     float    - z component of sphere's center coord
  *     float    - the radius of the sphere
+ *	   Vec3     - the color component
  *     Material - the material of the triangle
- *     Colors   - the color of the triangle
  * Purpose: Constructor 
  * Return Value: void
  */
