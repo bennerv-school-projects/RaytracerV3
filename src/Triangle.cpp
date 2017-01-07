@@ -12,13 +12,14 @@
  * Purpose: Constructor 
  * Return Value: void
  */
-Triangle::Triangle(Vec3<float> a, Vec3<float> b, Vec3<float> c, Material mat, Colors col) : color(col) {
-	vertexA = Vec3<float>::vec3(a.x, a.y, a.z);
-	vertexB = Vec3<float>::vec3(b.x, b.y, b.z);
-	vertexC = Vec3<float>::vec3(c.x, c.y, c.z);
-	Vec3<float> temp = Vec3<float>::normalize(Vec3<float>::cross(Vec3<float>::sub(vertexB, vertexA), Vec3<float>::sub(vertexC, vertexA)));
-	normal = Vec3<float>::vec3(temp.x, temp.y, temp.z);
-	material = mat;
+Triangle::Triangle(Vec3<float> a, Vec3<float> b, Vec3<float> c, Vec3<unsigned char> color, Material mat) {
+	_vertexA = Vec3<float>::vec3(a.x, a.y, a.z);
+	_vertexB = Vec3<float>::vec3(b.x, b.y, b.z);
+	_vertexC = Vec3<float>::vec3(c.x, c.y, c.z);
+	Vec3<float> temp = Vec3<float>::normalize(Vec3<float>::cross(Vec3<float>::sub(_vertexB, _vertexA), Vec3<float>::sub(_vertexC, _vertexA)));
+	_normal = Vec3<float>::vec3(temp.x, temp.y, temp.z);
+	_material = mat;
+	_color = color;
 }
 
 /* 
@@ -39,13 +40,14 @@ Triangle::Triangle(Vec3<float> a, Vec3<float> b, Vec3<float> c, Material mat, Co
  * Purpose: Constructor 
  * Return Value: void
  */
-Triangle::Triangle(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, Material mat, Colors col) : color(col) {
-	vertexA = Vec3<float>::vec3(ax, ay, az);
-	vertexB = Vec3<float>::vec3(bx, by, bz);
-	vertexC = Vec3<float>::vec3(cx, cy, cz);
-	Vec3<float> temp = Vec3<float>::normalize(Vec3<float>::cross(Vec3<float>::sub(vertexB, vertexA), Vec3<float>::sub(vertexC, vertexA)));
-	normal = Vec3<float>::vec3(temp.x, temp.y, temp.z);
-	material = mat;
+Triangle::Triangle(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, Vec3<unsigned char> color, Material mat) {
+	_vertexA = Vec3<float>::vec3(ax, ay, az);
+	_vertexB = Vec3<float>::vec3(bx, by, bz);
+	_vertexC = Vec3<float>::vec3(cx, cy, cz);
+	Vec3<float> temp = Vec3<float>::normalize(Vec3<float>::cross(Vec3<float>::sub(_vertexB, _vertexA), Vec3<float>::sub(_vertexC, _vertexA)));
+	_normal = Vec3<float>::vec3(temp.x, temp.y, temp.z);
+	_material = mat;
+	_color = color;
 }
 
 /* 
@@ -56,8 +58,8 @@ Triangle::Triangle(float ax, float ay, float az, float bx, float by, float bz, f
  * Purpose: Allows one to set the material of the triangle 
  * Return Value: void
  */
-void Triangle::setMaterial(Material mat) {
-	material = mat;
+void Triangle::SetMaterial(Material mat) {
+	_material = mat;
 }
 
 /* 
@@ -69,21 +71,21 @@ void Triangle::setMaterial(Material mat) {
  * Purpose: Gives the intersection between a triangle and the incoming ray 
  * Return Value: RayHit
  */
-std::shared_ptr<RayHit> Triangle::intersect(Vec3<float> ray, Vec3<float> startingPos) {
-	float A = vertexA.x - vertexB.x;
-	float B = vertexA.y - vertexB.y;
-	float C = vertexA.z - vertexB.z;
-	float D = vertexA.x - vertexC.x;
-	float E = vertexA.y - vertexC.y;
-	float F = vertexA.z - vertexC.z;
+std::shared_ptr<RayHit> Triangle::Intersect(Vec3<float> ray, Vec3<float> startingPos) {
+	float A = _vertexA.x - _vertexB.x;
+	float B = _vertexA.y - _vertexB.y;
+	float C = _vertexA.z - _vertexB.z;
+	float D = _vertexA.x - _vertexC.x;
+	float E = _vertexA.y - _vertexC.y;
+	float F = _vertexA.z - _vertexC.z;
 
 	float G = ray.x;
 	float H = ray.y;
 	float I = ray.z;
 	
-	float J = vertexA.x - startingPos.x;
-	float K = vertexA.y - startingPos.y;
-	float L = vertexA.z - startingPos.z;
+	float J = _vertexA.x - startingPos.x;
+	float K = _vertexA.y - startingPos.y;
+	float L = _vertexA.z - startingPos.z;
 
 	float M = A * (E * I - H * F) + B * (G * F - D * I) + C * (D * H - E * G);
 	float t = (-1 * (F * (A * K - J * B) + E * (J * C - A * L) + D * (B * L - K * C) ) ) / M;
@@ -103,7 +105,7 @@ std::shared_ptr<RayHit> Triangle::intersect(Vec3<float> ray, Vec3<float> startin
 	}
 	
 	Vec3<float> hitLocation = Vec3<float>::add(Vec3<float>::vec3(t * ray.x, t * ray.y, t* ray.z), startingPos);
-	std::shared_ptr<RayHit> rayHit(new RayHit(t, material, color, normal, hitLocation, ray));
+	std::shared_ptr<RayHit> rayHit(new RayHit(t, _material, _color, _normal, hitLocation, ray));
 	 
 	return rayHit;
 }

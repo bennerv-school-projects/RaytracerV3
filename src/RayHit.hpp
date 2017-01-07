@@ -5,19 +5,19 @@
 class RayHit {
 
 	public :
-		RayHit(float t, Material mat, Color col, Vec3<float> norm, Vec3<float> loc, Vec3<float> r);
-		Material getMaterial();
-		Color getColor();
-		float getTime();
-		Vec3<float> getNormal();
-		Vec3<float> getHitLocation();
-		Vec3<float> getRay();	
+		RayHit(float t, Material mat, Vec3<unsigned char> color, Vec3<float> norm, Vec3<float> loc, Vec3<float> r);
+		Material GetMaterial();
+		Color GetColor();
+		float GetTime();
+		Vec3<float> GetNormal();
+		Vec3<float> GetHitLocation();
+		Vec3<float> GetRay();	
 
 	private :
-		float time;
-		Material material;
-		Color color;
-		Vec3<float> normal;
-		Vec3<float> hitLocation;
-		Vec3<float> ray;
+		float _time;
+		Material _material;
+		Vec3<unsigned char> _color;
+		Vec3<float> _normal;
+		Vec3<float> _hitLocation;
+		Vec3<float> _ray;
 };

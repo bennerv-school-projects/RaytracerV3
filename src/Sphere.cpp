@@ -11,10 +11,11 @@
  * Purpose: Constructor 
  * Return Value: void
  */
-Sphere::Sphere(Vec3<float> a, float r, Material mat, Colors col) : color(col) {
-	center = Vec3<float>::vec3(a.x, a.y, a.z); 
-	radius = r;
-	material = mat;
+Sphere::Sphere(Vec3<float> a, float r, Vec3<unsigned char> color, Material mat) {
+	_center = Vec3<float>::vec3(a.x, a.y, a.z); 
+	_radius = r;
+	_material = mat;
+	_color = color;
 }
 
 /* 
@@ -30,11 +31,11 @@ Sphere::Sphere(Vec3<float> a, float r, Material mat, Colors col) : color(col) {
  * Purpose: Constructor 
  * Return Value: void
  */
-Sphere::Sphere(float ax, float ay, float az, float r, Material mat, Colors col) : color(col) {
-	center = Vec3<float>::vec3(ax, ay, az); 
-	radius = r;
-	material = mat;
-	color = Color(col);
+Sphere::Sphere(float ax, float ay, float az, float r, Vec3<unsigned char> color, Material mat) {
+	_center = Vec3<float>::vec3(ax, ay, az); 
+	_radius = r;
+	_material = mat;
+	_color = color;
 }
 
 /* 
@@ -46,11 +47,11 @@ Sphere::Sphere(float ax, float ay, float az, float r, Material mat, Colors col) 
  * Purpose: Intersection code for a sphere 
  * Return Value: RayHit
  */
-std::shared_ptr<RayHit> Sphere::intersect(Vec3<float> ray, Vec3<float> startingPos) {
+std::shared_ptr<RayHit> Sphere::Intersect(Vec3<float> ray, Vec3<float> startingPos) {
 	// d = ray, e = starting pos, c = center
 	return nullptr;
 }
 
-void Sphere::setMaterial(Material mat) {
-	material = mat;
+void Sphere::SetMaterial(Material mat) {
+	_material = mat;
 }

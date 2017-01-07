@@ -13,12 +13,13 @@
  * Purpose: Constructor
  * Return Value: void
 */
-RayHit::RayHit(float t, Material mat, Color col, Vec3<float> norm, Vec3<float> loc, Vec3<float> r) : color(col.getColor()) {
-	time = t;
-	material = mat;
-	normal = Vec3<float>::vec3(norm.x, norm.y, norm.z);
-	hitLocation = Vec3<float>::vec3(loc.x, loc.y, loc.z);
-	ray = Vec3<float>::vec3(r.x, r.y, r.z);
+RayHit::RayHit(float t, Material mat, Vec3<unsigned char> color, Vec3<float> norm, Vec3<float> loc, Vec3<float> r) {
+	_time = t;
+	_material = mat;
+	_normal = Vec3<float>::vec3(norm.x, norm.y, norm.z);
+	_hitLocation = Vec3<float>::vec3(loc.x, loc.y, loc.z);
+	_ray = Vec3<float>::vec3(r.x, r.y, r.z);
+	_color = color;
 }
 
 /*
@@ -29,8 +30,8 @@ RayHit::RayHit(float t, Material mat, Color col, Vec3<float> norm, Vec3<float> l
  * Purpose: Returns the normal of the ray hit object
  * Return Value: Vec3<float>
  */
-Vec3<float> RayHit::getNormal() {
-	return normal;
+Vec3<float> RayHit::GetNormal() {
+	return _normal;
 }
 
 /*
@@ -41,8 +42,8 @@ Vec3<float> RayHit::getNormal() {
  * Purpose: Returns the location of the intersection
  * Return Value: Vec3<float>
  */
-Vec3<float> RayHit::getHitLocation() {
-	return hitLocation;
+Vec3<float> RayHit::GetHitLocation() {
+	return _hitLocation;
 }
 
 /*
@@ -53,6 +54,6 @@ Vec3<float> RayHit::getHitLocation() {
  * Purpose: Returns the ray that intersected with the object
  * Return Value: Vec3<float>
  */
-Vec3<float> RayHit::getRay() {
-	return ray;
+Vec3<float> RayHit::GetRay() {
+	return _ray;
 }
