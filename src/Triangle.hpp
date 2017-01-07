@@ -2,7 +2,6 @@
 
 #include <stddef.h>
 
-#include "Color.hpp"
 #include "Material.hpp"
 #include "RayHit.hpp"
 #include "Vector.hpp"

@@ -1,5 +1,4 @@
 #pragma once
-#include "Color.hpp"
 #include "Material.hpp"
 
 class RayHit {
