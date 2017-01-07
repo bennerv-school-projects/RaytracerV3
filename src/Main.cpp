@@ -89,6 +89,12 @@ void RGBToHSL(Vec3<float> &color) {
 		}
 		S = 100. * delta / (1. - temp);
 	}
+
+	if( H < 0 ){
+		H += 360;
+	}
+
+	//printf("RGB: %f %f %f to HSL %f %f %f\n", color.x, color.y, color.z, H, S, L*100);
 	color.setValues(H, S, 100*L);
 
 }
@@ -133,6 +139,7 @@ void HSLToRGB(Vec3<float> &color) {
 	}
 
 	color.setValues(255. * (r + m), 255. * (g + m), 255. * (b + m));
+	//printf("HSL: %f %f %f to RGB %f %f %f\n", H, S*100, L*100, color.x, color.y, color.z);
 
 
 }
