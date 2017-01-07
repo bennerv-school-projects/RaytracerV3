@@ -17,6 +17,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 #include "Vector.hpp"
+#include "tinyxml2.h"
 
 using namespace std;
 
