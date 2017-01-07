@@ -13,13 +13,16 @@
 
 #include <iostream>
 
+#include "Color.hpp"
 #include "INIReader.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
-#include "Vector.hpp"
 #include "tinyxml2.h"
+#include "Vector.hpp"
 
 using namespace std;
+
+Color _ColorMapping("../colors.xml");
 
 void setPixelColor(Vec3<unsigned char> color, Vec2<int> coordinate, unsigned char * array, int width) {
 
@@ -39,117 +42,10 @@ void getPixelColor(Vec3<unsigned char> &color, Vec2<int> coordinate, unsigned ch
 
 }
 
-void RGBToHSL(Vec3<float> &color) {
-	float r = color.x / 255.;
-	float g = color.y / 255.;
-	float b = color.z / 255.;
-
-	char maxSel;
-
-	float cmax, cmin, delta;
-
-	float H, S, L;
-
-	if( r >= g && r >= b) {
-		maxSel = 'r';
-		cmax = r;
-	} else if( g >= r && g >= b) {
-		maxSel = 'g';
-		cmax = g;
-	} else {
-		maxSel = 'b';
-		cmax = b;
-	}
-
-	cmin = fminf(fminf(r, g), b);
-	delta = cmax - cmin;
-
-	L = (cmax + cmin) / 2.;
-
-	if(delta == 0) {
-		H = 0.;
-		S = 0.;
-	} else {
-		switch(maxSel) {
-			case 'r':
-				H = 60 * fmodf((g - b) / delta, 6);
-				break;
-			case 'g':
-				H = 60 * (((b - r) / delta) + 2);
-				break;
-			case 'b' :
-				H = 60 * (((r - g) / delta) + 4);
-				break;
-			default :
-				H = 0;
-				break;
-		}
-		float temp = 2 * L - 1;
-		if( temp < 0 ) {
-			temp *= -1;
-		}
-		S = 100. * delta / (1. - temp);
-	}
-
-	if( H < 0 ){
-		H += 360;
-	}
-
-	//printf("RGB: %f %f %f to HSL %f %f %f\n", color.x, color.y, color.z, H, S, L*100);
-	color.setValues(H, S, 100*L);
-
-}
-
-void HSLToRGB(Vec3<float> &color) {
-
-	float H = color.x;
-	float S = color.y / 100.;
-	float L = color.z / 100.;
-
-	float C = (1.0 - abs(2 * L - 1)) * S;
-
-	float X = C * (1 - abs(fmodf(H / 60, 2) - 1));
-
-	float m = L - (C / 2.);
-
-	float r, g, b;
-	if(H >= 300) {
-		r = C;
-		g = 0;
-		b = X;
-	} else if(H >= 240) {
-		r = X;
-		g = 0;
-		b = C;
-	} else if(H >= 180) {
-		r = 0;
-		g = X;
-		b = C;
-	} else if(H >= 120) {
-		r = 0;
-		g = C;
-		b = X;
-	} else if(H >= 60) {
-		r = X;
-		g = C;
-		b = 0;
-	} else {
-		r = C;
-		g = X;
-		b = 0;
-	}
-
-	color.setValues(255. * (r + m), 255. * (g + m), 255. * (b + m));
-	//printf("HSL: %f %f %f to RGB %f %f %f\n", H, S*100, L*100, color.x, color.y, color.z);
-
-
-}
-
 void readConfig(bool &anti_alias, bool &gamma, bool &normal, bool &gradient, bool &hsl, float &light, int &width, int &height, Vec3<float> &gStart, Vec3<float> &gEnd) {
 
 	// Read the ini settings file
 	INIReader reader("../Config.ini");
-	int temp0, temp1, temp2;
 
 	anti_alias = reader.GetBoolean("settings", "anti-aliasing", false);
 	gamma = reader.GetBoolean("settings", "gamma-correction", false);
@@ -161,15 +57,16 @@ void readConfig(bool &anti_alias, bool &gamma, bool &normal, bool &gradient, boo
 	height = reader.GetInteger("settings", "image-height", 512);
 
 	if( gradient ) {
-		temp0 = reader.GetInteger("Gradient", "start.r", -1);
-		temp1 = reader.GetInteger("Gradient", "start.g", -1);
-		temp2 = reader.GetInteger("Gradient", "start.b", -1);
-		gStart.setValues(temp0, temp1, temp2);
+		std::string str("RED"), temp;
+		Vec3<unsigned char> charColor;
+		temp = reader.Get("Gradient", "start", str);
+		charColor = _ColorMapping.GetColor(temp);
+		gStart = Vec3<float>::vec3(charColor.x, charColor.y, charColor.z);
 
-		temp0 = reader.GetInteger("Gradient", "end.r", -1);
-		temp1 = reader.GetInteger("Gradient", "end.g", -1);
-		temp2 = reader.GetInteger("Gradient", "end.b", -1);
-		gEnd.setValues(temp0, temp1, temp2);
+		temp = reader.Get("Gradient", "end", str);
+		charColor = _ColorMapping.GetColor(temp);
+		gEnd = Vec3<float>::vec3(charColor.x, charColor.y, charColor.z);
+
 	}
 }
 
@@ -178,8 +75,8 @@ void drawGradient(Vec3<float> gradientStart, Vec3<float> gradientEnd, int width,
 
 	// HSL gradient
 	if(hsl) {
-		RGBToHSL(gradientStart);
-		RGBToHSL(gradientEnd);
+		Color::RGBToHSL(gradientStart);
+		Color::RGBToHSL(gradientEnd);
 	}
 	for(int i = 0; i < height; i++) {
 		t = i / (float)(height - 1.0);
@@ -190,7 +87,7 @@ void drawGradient(Vec3<float> gradientStart, Vec3<float> gradientEnd, int width,
 
 		// Convert the hsl interpolation to rgb if necessary so we can draw it
 		if( hsl ) {
-			HSLToRGB(color);
+			Color::HSLToRGB(color);
 		}
 
 		Vec3<unsigned char> col(color.x, color.y, color.z);
@@ -238,7 +135,7 @@ int main(int argc, char * argv[]) {
 	}
 
 	// Draw the gradient on the image
-	if( background_gradient) {
+	if(background_gradient) {
 		drawGradient(gradientStart, gradientEnd, width, height, imageArray, hsl_interpolation);
 	}
 

@@ -1,4 +1,5 @@
 #pragma once
+#include "Vector.hpp"
 #include "Material.hpp"
 
 class RayHit {
@@ -6,7 +7,7 @@ class RayHit {
 	public :
 		RayHit(float t, Material mat, Vec3<unsigned char> color, Vec3<float> norm, Vec3<float> loc, Vec3<float> r);
 		Material GetMaterial();
-		Color GetColor();
+		Vec3<unsigned char> GetColor();
 		float GetTime();
 		Vec3<float> GetNormal();
 		Vec3<float> GetHitLocation();
