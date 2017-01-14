@@ -3,6 +3,7 @@
 #include <cmath>
 #include <iostream>
 #include <stdlib.h>
+#include <string>
 #include <map>
 
 #include "tinyxml2.h"
@@ -86,12 +87,12 @@ class Color {
 		static void HSLToRGB(Vec3<float> &color) {
 
 			float H = color.x;
-			float S = color.y / 100.;
-			float L = color.z / 100.;
+			float S = color.y / 100.f;
+			float L = color.z / 100.f;
 
-			float C = (1.0 - abs(2 * L - 1)) * S;
+			float C = (1.0f - abs(2 * L - 1)) * S;
 			float X = C * (1 - abs(fmodf(H / 60, 2) - 1));
-			float m = L - (C / 2.);
+			float m = L - (C / 2.f);
 
 			float r, g, b;
 			if(H >= 300) {
@@ -120,7 +121,7 @@ class Color {
 				b = 0;
 			}
 
-			color.setValues(255. * (r + m), 255. * (g + m), 255. * (b + m));
+			color.setValues(255.f * (r + m), 255.f * (g + m), 255.f * (b + m));
 			//printf("HSL: %f %f %f to RGB %f %f %f\n", H, S*100, L*100, color.x, color.y, color.z);
 		}
 
@@ -133,9 +134,9 @@ class Color {
 		 * Return Value: void
 		 */
 		static void RGBToHSL(Vec3<float> &color) {
-			float r = color.x / 255.;
-			float g = color.y / 255.;
-			float b = color.z / 255.;
+			float r = color.x / 255.f;
+			float g = color.y / 255.f;
+			float b = color.z / 255.f;
 
 			char maxSel;
 
@@ -157,11 +158,11 @@ class Color {
 			cmin = fminf(fminf(r, g), b);
 			delta = cmax - cmin;
 
-			L = (cmax + cmin) / 2.;
+			L = (cmax + cmin) / 2.f;
 
 			if(delta == 0) {
-				H = 0.;
-				S = 0.;
+				H = 0.f;
+				S = 0.f;
 			} else {
 				switch(maxSel) {
 					case 'r':
@@ -181,7 +182,7 @@ class Color {
 				if( temp < 0 ) {
 					temp *= -1;
 				}
-				S = 100. * delta / (1. - temp);
+				S = 100.f * delta / (1. - temp);
 			}
 
 			if( H < 0 ){

@@ -90,7 +90,7 @@ void drawGradient(Vec3<float> gradientStart, Vec3<float> gradientEnd, int width,
 			Color::HSLToRGB(color);
 		}
 
-		Vec3<unsigned char> col(color.x, color.y, color.z);
+		Vec3<unsigned char> col((unsigned char)color.x, (unsigned char)color.y, (unsigned char)color.z);
 
 		for(int j = 0; j < width; j++) {
 			// a + (b - a) * t
@@ -185,9 +185,9 @@ int main(int argc, char * argv[]) {
 				//Corrected = 255 * (Image/255)^(1/2.2)
 				coordinate.setValues(i, j);
 				getPixelColor(color, coordinate, imageArray, width);
-				color.x = 255 * pow((color.x / (float)255), 0.45454545454);
-				color.y = 255 * pow((color.y / (float)255), 0.45454545454);
-				color.z = 255 * pow((color.z / (float)255), 0.45454545454);
+				color.x = (unsigned char)(255 * pow((color.x / (float)255), 0.45454545454));
+				color.z = (unsigned char)(255 * pow((color.z / (float)255), 0.45454545454));
+				color.y = (unsigned char)(255 * pow((color.y / (float)255), 0.45454545454));
 
 				setPixelColor(color, coordinate, imageArray, width);
 			}
