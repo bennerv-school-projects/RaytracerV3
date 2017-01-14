@@ -182,7 +182,7 @@ class Color {
 				if( temp < 0 ) {
 					temp *= -1;
 				}
-				S = 100.f * delta / (1. - temp);
+				S = 100.f * delta / (1.f - temp);
 			}
 
 			if( H < 0 ){
