@@ -19,18 +19,19 @@ using namespace std;
  */
 class Color {
 	public: 
-		Color();
+		Color() {}
 
 		Color(std::string fileName) {
-			tinyxml2::XMLDocument xml;
-			xml.LoadFile(fileName.c_str());
+			tinyxml2::XMLDocument doc;
+			doc.LoadFile(fileName.c_str());
 
-			if(xml.Error()) {
+			if(doc.Error()) {
 				cout << "There was an error parsing " << fileName << endl;
+				doc.PrintError();
 				exit(1);
 			}
 
-			tinyxml2::XMLNode * colorParent = xml.FirstChild()->NextSibling();
+			tinyxml2::XMLNode * colorParent = doc.FirstChild()->NextSibling();
 			if( !colorParent) {
 				cout << "There was an error parsing " << fileName << endl;
 				exit(1);	
@@ -52,7 +53,7 @@ class Color {
 
 				color = color->NextSiblingElement();
 
-//TODO <BMV> Check this for error checking on xml so we don't just seg fault by accidnet
+//TODO <BMV> Check this for error checking on xml so we don't just seg fault by accident
 				std::string str(colorName);
 				_colorMap[str] = Vec3<unsigned char>::vec3(r, g, b);
 			}
@@ -63,7 +64,7 @@ class Color {
 		 * Function Name: GetColor
 		 * Arguments: 
 		 *     std::string - the name of the color
-		 * Purpose: Gets the corresponding mapped color as described in colors.xml
+		 * Purpose: Gets the corresponding mapped color as described in Objects.xml
 		 * Return Value: Vec3<unsigned char>
 		 */
 		Vec3<unsigned char> GetColor(std::string str) {
@@ -91,7 +92,7 @@ class Color {
 			float L = color.z / 100.f;
 
 			float C = (1.0f - abs(2 * L - 1)) * S;
-			float X = C * (1 - abs(fmodf(H / 60, 2) - 1));
+			float X = C * (1 - abs(fmodf(H / 60.f, 2.f) - 1));
 			float m = L - (C / 2.f);
 
 			float r, g, b;

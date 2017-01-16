@@ -31,4 +31,19 @@
 		<color>CUSTOM COLORS</color>
 		<material>SPECULAR</material>
 	</triangle>
+
+
+  <colors>
+    <color name="BLUE" r="0" g="0" b="255"/>
+    <color name="RED" r="255" g="0" b="0"/>
+    <color name="GREEN" r="0" g="255" b="0"/>
+    <color name="WHITE" r="255" g="255" b="255"/>
+    <color name="BLACK" r="0" g="0" b="0"/>
+    <color name="GRAY" r="128" g="128" b="128"/>
+    <color name="YELLOW" r="255" g="255" b="0"/>
+    <color name="CYAN" r="0" g="255" b="255"/>
+    <color name="AQUA" r="0" g="255" b="255"/>
+  </colors>
 </objects>
+
+

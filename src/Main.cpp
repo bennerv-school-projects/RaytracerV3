@@ -22,7 +22,7 @@
 
 using namespace std;
 
-Color _ColorMapping("../colors.xml");
+Color _ColorMapping("Objects.xml");
 
 void setPixelColor(Vec3<unsigned char> color, Vec2<int> coordinate, unsigned char * array, int width) {
 
