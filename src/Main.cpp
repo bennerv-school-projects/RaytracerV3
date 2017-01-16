@@ -22,7 +22,7 @@
 
 using namespace std;
 
-Color _ColorMapping("Objects.xml");
+Color _ColorMapping("../Objects.xml");
 
 void setPixelColor(Vec3<unsigned char> color, Vec2<int> coordinate, unsigned char * array, int width) {
 
@@ -195,6 +195,6 @@ int main(int argc, char * argv[]) {
 	}
 
 	// Write out the image
-	stbi_write_png("output.png", width, height, 3, imageArray, width*3);
+	//stbi_write_png("output.png", width, height, 3, imageArray, width*3);
 	free(imageArray);
 }

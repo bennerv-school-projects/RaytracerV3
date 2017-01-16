@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <string>
+#include <string.h>
 #include <map>
 
 #include "tinyxml2.h"
@@ -31,31 +32,56 @@ class Color {
 				exit(1);
 			}
 
-			tinyxml2::XMLNode * colorParent = doc.FirstChild()->NextSibling();
-			if( !colorParent) {
-				cout << "There was an error parsing " << fileName << endl;
-				exit(1);	
+			// Iterate through the xml elements until we find "object" section
+			tinyxml2::XMLElement * colorParent = doc.FirstChildElement();
+			while( colorParent && strncmp(colorParent->Value(), "objects", 7) ) {
+				//cout << "Element text " << colorParent->Value() << endl;
+				colorParent = colorParent->NextSiblingElement();
+			}
+
+			if( !colorParent ) {
+				cout << "Failed to find the object portion in the xml file.  Exiting" << endl;
+				exit(10);
+			}
+
+			// Iterate through the sml elements until we find "colors" section
+			colorParent = colorParent->FirstChildElement();
+			while( colorParent && strncmp(colorParent->Value(), "colors", 6) ) {
+				//cout << "Inner element text " << colorParent->Value() << endl;
+				colorParent = colorParent->NextSiblingElement();
+			}
+
+			if( !colorParent ) {
+				cout << "Failed to find the colors portion int he xml file.  Exiting." << endl;
+				exit(10);
 			}
 
 			tinyxml2::XMLElement * color = colorParent->FirstChildElement();
 
 			// Go through all the custom colors and map them
 			while( color ) {
-				int r, g, b;
+				int r = 0, g = 0, b = 0;
+				bool addColor = true;
 				char * colorName;
 
+				// Query the attributes
 				color->QueryIntAttribute("r", &r);
 				color->QueryIntAttribute("g", &g);
 				color->QueryIntAttribute("b", &b);
 
-				colorName = (char *)color->FirstAttribute()->Value();
-
+				colorName = (char *)color->Attribute("name");
+				if(colorName == 0) {
+					cout << "There is not a name attribute for one of the colors." << endl;
+					addColor = false;
+				}
 
 				color = color->NextSiblingElement();
 
-//TODO <BMV> Check this for error checking on xml so we don't just seg fault by accident
-				std::string str(colorName);
-				_colorMap[str] = Vec3<unsigned char>::vec3(r, g, b);
+				// Add the color to the map
+				if( addColor ) {
+					std::string str(colorName);
+					_colorMap[str] = Vec3<unsigned char>::vec3(r, g, b);
+				}
 			}
 		}
 
