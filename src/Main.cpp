@@ -9,6 +9,11 @@
 	#define TERM_MAG  "\x1B[35m"
 	#define TERM_CYN  "\x1B[36m"
 	#define TERM_WHT  "\x1B[37m"
+	#define OBJECTS_FILE "../Objects.xml"
+	#define CONFIG_FILE "../Config.ini"
+#else 
+	#define OBJECTS_FILE "Objects.xml"
+	#define CONFIG_FILE "Config.ini"
 #endif
 
 /* Standard libs */
@@ -30,8 +35,6 @@
 
 /* Additional definitions */
 #define STB_IMAGE_WRITE_IMPLEMENTATION 
-#define OBJECTS_FILE "Objects.xml"
-#define CONFIG_FILE "Config.ini"
 
 using namespace std;
 
@@ -360,6 +363,11 @@ int main(int argc, char * argv[]) {
 	if(anti_aliasing) {
 		tempHeightOffset -= pixelHeight / 4;
 		tempWidthOffset -= pixelWidth / 4;
+	}
+
+	for (int i = 0; i < geometryArray.size(); i++) {
+		const char * name = typeid(geometryArray[i]).name();
+		cout << name << endl;
 	}
 
 	// Start going through all pixels and draw them

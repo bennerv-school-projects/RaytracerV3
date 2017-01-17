@@ -17,8 +17,8 @@ Triangle::Triangle(Vec3<float> a, Vec3<float> b, Vec3<float> c, Vec3<unsigned ch
 	_vertexB = Vec3<float>::vec3(b.x, b.y, b.z);
 	_vertexC = Vec3<float>::vec3(c.x, c.y, c.z);
 	_normal = Vec3<float>::Normalize(Vec3<float>::Cross(Vec3<float>::Sub(_vertexB, _vertexA), Vec3<float>::Sub(_vertexC, _vertexA)));
-	_material = mat;
-	_color = color;
+	SetMaterial(mat);
+	SetColor(color);
 }
 
 /* 
@@ -45,20 +45,8 @@ Triangle::Triangle(float ax, float ay, float az, float bx, float by, float bz, f
 	_vertexC = Vec3<float>::vec3(cx, cy, cz);
 	Vec3<float> temp = Vec3<float>::Normalize(Vec3<float>::Cross(Vec3<float>::Sub(_vertexB, _vertexA), Vec3<float>::Sub(_vertexC, _vertexA)));
 	_normal = Vec3<float>::vec3(temp.x, temp.y, temp.z);
-	_material = mat;
-	_color = color;
-}
-
-/* 
- * Date: 12/24/16
- * Function Name: setMaterial
- * Arguments:
- *     Material - the type of material the triangle is made of
- * Purpose: Allows one to set the material of the triangle 
- * Return Value: void
- */
-void Triangle::SetMaterial(Material mat) {
-	_material = mat;
+	SetMaterial(mat);
+	SetColor(color);
 }
 
 /* 
@@ -104,7 +92,7 @@ std::shared_ptr<RayHit> Triangle::Intersect(Vec3<float> ray, Vec3<float> startin
 	}
 	
 	Vec3<float> hitLocation = Vec3<float>::Add(Vec3<float>::vec3(t * ray.x, t * ray.y, t* ray.z), startingPos);
-	std::shared_ptr<RayHit> rayHit(new RayHit(t, _material, _color, _normal, hitLocation, ray));
+	std::shared_ptr<RayHit> rayHit(new RayHit(t, GetMaterial(), GetColor(), _normal, hitLocation, ray));
 	 
 	return rayHit;
 }
