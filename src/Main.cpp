@@ -11,18 +11,31 @@
 	#define TERM_WHT  "\x1B[37m"
 #endif
 
+/* Standard libs */
 #include <iostream>
+#include <typeinfo>
+#include <vector>
 
+/* Project libs */
 #include "Color.hpp"
+#include "Material.hpp"
+#include "Sphere.hpp"
+#include "Triangle.hpp"
+#include "Vector.hpp"
+
+/* External libs*/
 #include "INIReader.h"
-#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 #include "tinyxml2.h"
-#include "Vector.hpp"
+
+/* Additional definitions */
+#define STB_IMAGE_WRITE_IMPLEMENTATION 
+#define OBJECTS_FILE "Objects.xml"
+#define CONFIG_FILE "Config.ini"
 
 using namespace std;
 
-Color _ColorMapping("../Objects.xml");
+Color _ColorMapping(OBJECTS_FILE);
 
 void setPixelColor(Vec3<unsigned char> color, Vec2<int> coordinate, unsigned char * array, int width) {
 
@@ -45,7 +58,7 @@ void getPixelColor(Vec3<unsigned char> &color, Vec2<int> coordinate, unsigned ch
 void readConfig(bool &anti_alias, bool &gamma, bool &normal, bool &gradient, bool &hsl, float &light, int &width, int &height, Vec3<float> &gStart, Vec3<float> &gEnd) {
 
 	// Read the ini settings file
-	INIReader reader("../Config.ini");
+	INIReader reader(CONFIG_FILE);
 
 	anti_alias = reader.GetBoolean("settings", "anti-aliasing", false);
 	gamma = reader.GetBoolean("settings", "gamma-correction", false);
@@ -56,7 +69,7 @@ void readConfig(bool &anti_alias, bool &gamma, bool &normal, bool &gradient, boo
 	width = reader.GetInteger("settings", "image-width", 512);
 	height = reader.GetInteger("settings", "image-height", 512);
 
-	if( gradient ) {
+	if (gradient) {
 		std::string str("RED"), temp;
 		Vec3<unsigned char> charColor;
 		temp = reader.Get("Gradient", "start", str);
@@ -74,11 +87,11 @@ void drawGradient(Vec3<float> gradientStart, Vec3<float> gradientEnd, int width,
 	float t;
 
 	// HSL gradient
-	if(hsl) {
+	if (hsl) {
 		Color::RGBToHSL(gradientStart);
 		Color::RGBToHSL(gradientEnd);
 	}
-	for(int i = 0; i < height; i++) {
+	for (int i = 0; i < height; i++) {
 		t = i / (float)(height - 1.0);
 		float r = gradientStart.x + (gradientEnd.x - gradientStart.x) * t;
 		float g = gradientStart.y + (gradientEnd.y - gradientStart.y) * t;
@@ -86,13 +99,13 @@ void drawGradient(Vec3<float> gradientStart, Vec3<float> gradientEnd, int width,
 		Vec3<float> color(r, g, b);
 
 		// Convert the hsl interpolation to rgb if necessary so we can draw it
-		if( hsl ) {
+		if (hsl) {
 			Color::HSLToRGB(color);
 		}
 
 		Vec3<unsigned char> col((unsigned char)color.x, (unsigned char)color.y, (unsigned char)color.z);
 
-		for(int j = 0; j < width; j++) {
+		for (int j = 0; j < width; j++) {
 			// a + (b - a) * t
 			Vec2<int> coordinate(i, j);
 			setPixelColor(col, coordinate, imageArray, width);
@@ -100,7 +113,154 @@ void drawGradient(Vec3<float> gradientStart, Vec3<float> gradientEnd, int width,
 	}
 }
 
+void initGeometry(std::vector<Geometry *> &geom) {
 
+	// Load the xml file
+	tinyxml2::XMLDocument doc;
+	doc.LoadFile(OBJECTS_FILE);
+
+	// Check for errors within the file
+	if (doc.Error()) {
+		cout << "There was an error parsing " << OBJECTS_FILE << endl;
+		doc.PrintError();
+		exit(1);
+	}
+
+	// Grab the first child element in the file
+	tinyxml2::XMLElement * objectParents = doc.FirstChildElement();
+	while (objectParents && strncmp(objectParents->Value(), "objects", 7)) {
+		//cout << "Element text " << colorParent->Value() << endl;
+		objectParents = objectParents->NextSiblingElement();
+	}
+
+	if (!objectParents) {
+		cout << "Failed to find the object portion in the xml file.  Exiting" << endl;
+		exit(10);
+	}
+
+	// Iterate through the objects portion and add them to the geometry array
+	objectParents = objectParents->FirstChildElement();
+
+	while (objectParents) {
+
+		// Triangle object
+		if (!strncmp(objectParents->Value(), "triangle", 8)) {
+			Vec3<float> vertexA;
+			Vec3<float> vertexB;
+			Vec3<float> vertexC;
+			Vec3<unsigned char> color;
+			Material mat = NONE;
+			std::string str;
+
+			// Go through and read all the attributes and tags
+			tinyxml2::XMLElement * tag = objectParents->FirstChildElement();
+			while (tag) {
+				if (!strncmp(tag->Value(), "vertex", 6)) {
+
+					// Read the 3 vectors' attributes and set their values
+					char * temp = (char *)tag->Attribute("name");
+					double a = 0, b = 0, c = 0;
+					tag->QueryDoubleAttribute("x", &a);
+					tag->QueryDoubleAttribute("y", &b);
+					tag->QueryDoubleAttribute("z", &c);
+
+					// Switch at each of the vectors
+					switch (temp[0]) {
+						case 'A' :
+							vertexA.setValues((float)a, (float)b, (float)c);
+							break;
+						case 'B' :
+							vertexB.setValues((float)a, (float)b, (float)c);
+							break;
+						case 'C' :
+							vertexC.setValues((float)a, (float)b, (float)c);
+							break;
+						default :
+							break;
+					}
+				}
+				else if (!strncmp(tag->Value(), "color", 5)) {
+
+					// Read the color and set the corresponding triangle color
+					str.assign(tag->GetText());
+					std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+					color = _ColorMapping.GetColor(str);
+
+				}
+				else if (!strncmp(tag->Value(), "material", 8)) {
+
+					// Read the material and set the corresponding material for the triangle
+					str.assign(tag->GetText());
+					std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+					
+					// Assign the material
+					if (!strncmp(str.c_str(), "NONE", 4)) {
+						mat = NONE;
+					}
+					else if (!strncmp(str.c_str(), "REFLECTIVE", 10)) {
+						mat = REFLECTIVE;
+					}
+					else if (!strncmp(str.c_str(), "SPECULAR", 8)) {
+						mat = SPECULAR;
+					}
+					else if (!strncmp(str.c_str(), "GLASS", 5)) {
+						mat = GLASS;
+					}
+				}
+				tag = tag->NextSiblingElement();
+			}
+
+			// Create a new triangle object and add it to the array
+			geom.push_back(new Triangle(vertexA, vertexB, vertexC, color, mat));
+		
+		// Sphere object
+		} else if (!strncmp(objectParents->Value(), "sphere", 6)) {
+			Vec3<float> center;
+			float radius;
+			Material mat = NONE;
+			Vec3<unsigned char> color;
+			std::string str;
+
+
+
+
+		}
+
+		// Get the next object
+		objectParents = objectParents->NextSiblingElement();
+	}
+	
+
+
+}
+
+void gammaCorrect(unsigned char * imageArray, int height, int width) {
+	Vec3<unsigned char> color;
+	Vec2<int> coordinate;
+
+	// Go through each of the pixels
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++) {
+
+			//Corrected = 255 * (Image/255)^(1/2.2)
+			coordinate.setValues(i, j);
+			getPixelColor(color, coordinate, imageArray, width);
+			color.x = (unsigned char)(255 * pow((color.x / 255.f), 0.45454545454));
+			color.z = (unsigned char)(255 * pow((color.z / 255.f), 0.45454545454));
+			color.y = (unsigned char)(255 * pow((color.y / 255.f), 0.45454545454));
+
+			setPixelColor(color, coordinate, imageArray, width);
+		}
+	}
+}
+
+void destroyGeometry(std::vector<Geometry *> &geom) {
+	for (std::vector<Geometry *>::size_type i = 0; i != geom.size(); i++) {
+		if (geom[i] != NULL) {
+			delete(geom[i]);
+		}
+	}
+}
 
 int main(int argc, char * argv[]) {
 
@@ -108,9 +268,11 @@ int main(int argc, char * argv[]) {
 	float ambient_light;
 	int width, height;
 	Vec3<float> gradientStart(0, 0, 0), gradientEnd(0, 0, 0);
+	std::vector<Geometry *> geometryArray;
 
 	// Read the config setting
 	readConfig(anti_aliasing, gamma_correction, normal_correction, background_gradient, hsl_interpolation, ambient_light, width, height, gradientStart, gradientEnd);
+	initGeometry(geometryArray);
 
 	cout << "Anti-aliasing: " << anti_aliasing << endl;
 	cout << "Gamma correction: " << gamma_correction << endl;
@@ -175,26 +337,11 @@ int main(int argc, char * argv[]) {
 
 	// Gamma correction
 	if(gamma_correction) {
-		Vec3<unsigned char> color;
-		Vec2<int> coordinate;
-
-		// Go through each of the pixels
-		for(int i = 0; i < height; i++) {
-			for(int j = 0; j < width; j++) {
-
-				//Corrected = 255 * (Image/255)^(1/2.2)
-				coordinate.setValues(i, j);
-				getPixelColor(color, coordinate, imageArray, width);
-				color.x = (unsigned char)(255 * pow((color.x / (float)255), 0.45454545454));
-				color.z = (unsigned char)(255 * pow((color.z / (float)255), 0.45454545454));
-				color.y = (unsigned char)(255 * pow((color.y / (float)255), 0.45454545454));
-
-				setPixelColor(color, coordinate, imageArray, width);
-			}
-		}
+		gammaCorrect(imageArray, height, width);
 	}
 
 	// Write out the image
 	//stbi_write_png("output.png", width, height, 3, imageArray, width*3);
+	destroyGeometry(geometryArray);
 	free(imageArray);
 }

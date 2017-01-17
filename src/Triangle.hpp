@@ -13,7 +13,7 @@
  * Classname: Triangle
  * Purpose: A triangle geometry class used for raytracing
  */
-class Triangle {
+class Triangle : public Geometry {
 
 	public :
 		Triangle(Vec3<float> a, Vec3<float> b, Vec3<float> c, Vec3<unsigned char> color, Material mat = NONE);

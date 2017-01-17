@@ -3,9 +3,6 @@
 <objects>
 	<light>
 		<shape>CIRCLE, TRIANGLE</shape>
-
-
-
 	</light>
 
 	<triangle>
@@ -19,16 +16,16 @@
 
 	<sphere>
 		<center x="1" y="2" z="3"/>
-		<radius>radius</radius>
-		<color>PURPLE</color>
+		<radius>50</radius>
+		<color>AQUA</color>
 		<material>NONE</material>
 	</sphere>
 
 	<triangle>
-		<vertex x="1" y="1" z="3"/>
-		<vertex x="1" y="1" z="3"/>
-		<vertex x="1" y="1" z="3"/>
-		<color>CUSTOM COLORS</color>
+		<vertex name="A" x="1" y="1" z="3"/>
+		<vertex name="B" x="1" y="1" z="3"/>
+		<vertex name="C" x="1" y="1" z="3"/>
+		<color>BLUE</color>
 		<material>SPECULAR</material>
 	</triangle>
 

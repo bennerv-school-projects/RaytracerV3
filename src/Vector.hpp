@@ -3,6 +3,8 @@
 #include <memory>
 #include <type_traits>
 
+class Geometry {};
+
 /*
  * Author: Ben Vesel
  * Date: 12/20/16

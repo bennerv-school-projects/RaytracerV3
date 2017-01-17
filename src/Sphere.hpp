@@ -6,7 +6,7 @@
 #include "RayHit.hpp"
 #include "Vector.hpp"
 
-class Sphere {
+class Sphere : public Geometry {
 	
 	public: 
 		Sphere(Vec3<float> a, float r, Vec3<unsigned char> color, Material mat = NONE);

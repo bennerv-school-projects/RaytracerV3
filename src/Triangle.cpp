@@ -16,8 +16,7 @@ Triangle::Triangle(Vec3<float> a, Vec3<float> b, Vec3<float> c, Vec3<unsigned ch
 	_vertexA = Vec3<float>::vec3(a.x, a.y, a.z);
 	_vertexB = Vec3<float>::vec3(b.x, b.y, b.z);
 	_vertexC = Vec3<float>::vec3(c.x, c.y, c.z);
-	Vec3<float> temp = Vec3<float>::normalize(Vec3<float>::cross(Vec3<float>::sub(_vertexB, _vertexA), Vec3<float>::sub(_vertexC, _vertexA)));
-	_normal = Vec3<float>::vec3(temp.x, temp.y, temp.z);
+	_normal = Vec3<float>::normalize(Vec3<float>::cross(Vec3<float>::sub(_vertexB, _vertexA), Vec3<float>::sub(_vertexC, _vertexA)));
 	_material = mat;
 	_color = color;
 }
