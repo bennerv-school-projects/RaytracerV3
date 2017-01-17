@@ -3,8 +3,6 @@
 #include <memory>
 #include <type_traits>
 
-class Geometry {};
-
 /*
  * Author: Ben Vesel
  * Date: 12/20/16
@@ -127,7 +125,7 @@ class Vec3 {
 		 * Purpose: Computes the cross product of the two vectors 
 		 * Return Value: Vec3<T>
 		 */
-		static Vec3<T> cross(Vec3 a, Vec3 b) {
+		static Vec3<T> Cross(Vec3 a, Vec3 b) {
 			
 			return Vec3::vec3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);;
 		}
@@ -141,7 +139,7 @@ class Vec3 {
 		 * Purpose: Computes the dot product of the two vectors 
 		 * Return Value: T
 		 */
-		static T dot(Vec3 a, Vec3 b) {
+		static T Dot(Vec3 a, Vec3 b) {
 			return a.x * b.x + a.y * b.y + a.z * b.z;
 		}
 
@@ -154,7 +152,7 @@ class Vec3 {
 		 * Purpose: Computes the addition of the two vectors 
 		 * Return Value: Vec3<T>
 		 */
-		static Vec3<T> add(Vec3 a, Vec3 b) {
+		static Vec3<T> Add(Vec3 a, Vec3 b) {
 			return Vec3::vec3(a.x + b.x, a.y + b.y, a.z + b.z);
 		}
 
@@ -167,7 +165,7 @@ class Vec3 {
 		 * Purpose: Computes the difference of the two vectors 
 		 * Return Value: Vec3<T>
 		 */
-		static Vec3<T> sub(Vec3 a, Vec3 b) {
+		static Vec3<T> Sub(Vec3 a, Vec3 b) {
 			return Vec3::vec3(a.x - b.x, a.y - b.y, a.z - b.z);;
 		}
 
@@ -179,8 +177,8 @@ class Vec3 {
 		 * Purpose: Computes the normal or unit vector of a given vector
 		 * Return Value: Vec3<T>
 		 */
-		static Vec3<T> normalize(Vec3 a) {
-			double temp = Vec3::magnitude(a);
+		static Vec3<T> Normalize(Vec3 a) {
+			double temp = Vec3::Magnitude(a);
 			Vec3<T> vector;
 			if( temp == 0 ) {
 				vector = Vec3::vec3(0, 0, 0);
@@ -199,7 +197,7 @@ class Vec3 {
 		 * Purpose: Computes the magnitude of a given vector
 		 * Return Value: double
 		 */
-		static double magnitude(Vec3 a) {
+		static double Magnitude(Vec3 a) {
 			return sqrt( (double)(a.x * a.x + a.y * a.y + a.z * a.z));
 		}
 
@@ -213,7 +211,7 @@ class Vec3 {
 		 * Purpose: Set the value of the given vector
 		 * Return Value: void
 		 */
-		void setValues(T a, T b, T c) {
+		void SetValues(T a, T b, T c) {
 			this->x = a;
 			this->y = b;
 			this->z = c;
@@ -341,7 +339,7 @@ class Vec2 {
 		 * Purpose: Computes the dot product of the two vectors 
 		 * Return Value: T
 		 */
-		static T dot(Vec2 a, Vec2 b) {
+		static T Dot(Vec2 a, Vec2 b) {
 			return a.x * b.x + a.y * b.y;
 		}
 
@@ -354,7 +352,7 @@ class Vec2 {
 		 * Purpose: Computes the addition of the two vectors 
 		 * Return Value: Vec2<T>
 		 */
-		static Vec2<T> add(Vec2 a, Vec2 b) {
+		static Vec2<T> Add(Vec2 a, Vec2 b) {
 			return Vec2::vec2(a.x + b.x, a.y + b.y);
 		}
 
@@ -367,7 +365,7 @@ class Vec2 {
 		 * Purpose: Computes the difference of the two vectors 
 		 * Return Value: Vec2<T>
 		 */
-		static Vec2<T> sub(Vec2 a, Vec2 b) {
+		static Vec2<T> Sub(Vec2 a, Vec2 b) {
 			return Vec2::vec2(a.x - b.x, a.y - b.y);
 		}
 
@@ -379,8 +377,8 @@ class Vec2 {
 		 * Purpose: Computes the normal or unit vector of a given vector
 		 * Return Value: Vec2<T>
 		 */
-		static Vec2<T> normalize(Vec2 a) {
-			double temp = Vec2::magnitude(a);
+		static Vec2<T> Normalize(Vec2 a) {
+			double temp = Vec2::Magnitude(a);
 
 			// Check for divide by zero exception
 			if( temp == 0 ) {
@@ -397,7 +395,7 @@ class Vec2 {
 		 * Purpose: Computes the magnitude of a given vector
 		 * Return Value: double
 		 */
-		static double magnitude(Vec2 a) {
+		static double Magnitude(Vec2 a) {
 			return sqrt( (double)(a.x * a.x + a.y * a.y));
 		}
 
@@ -411,7 +409,7 @@ class Vec2 {
 		 * Purpose: Set the value of the given vector
 		 * Return Value: void
 		 */
-		void setValues(T a, T b) {
+		void SetValues(T a, T b) {
 			this->x = a;
 			this->y = b;
 		}

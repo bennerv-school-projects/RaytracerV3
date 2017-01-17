@@ -140,7 +140,6 @@ void initGeometry(std::vector<Geometry *> &geom) {
 
 	// Iterate through the objects portion and add them to the geometry array
 	objectParents = objectParents->FirstChildElement();
-
 	while (objectParents) {
 
 		// Triangle object
@@ -167,13 +166,13 @@ void initGeometry(std::vector<Geometry *> &geom) {
 					// Switch at each of the vectors
 					switch (temp[0]) {
 						case 'A' :
-							vertexA.setValues((float)a, (float)b, (float)c);
+							vertexA.SetValues((float)a, (float)b, (float)c);
 							break;
 						case 'B' :
-							vertexB.setValues((float)a, (float)b, (float)c);
+							vertexB.SetValues((float)a, (float)b, (float)c);
 							break;
 						case 'C' :
-							vertexC.setValues((float)a, (float)b, (float)c);
+							vertexC.SetValues((float)a, (float)b, (float)c);
 							break;
 						default :
 							break;
@@ -221,17 +220,60 @@ void initGeometry(std::vector<Geometry *> &geom) {
 			Vec3<unsigned char> color;
 			std::string str;
 
+			// Go through and read all the attributes and tags
+			tinyxml2::XMLElement * tag = objectParents->FirstChildElement();
+			while (tag) {
+				if (!strncmp(tag->Value(), "center", 6)) {
+					double a, b, c;
+					tag->QueryDoubleAttribute("x", &a);
+					tag->QueryDoubleAttribute("y", &b);
+					tag->QueryDoubleAttribute("z", &c);
 
+					center.SetValues((float)a, (float)b, (float)c);
+				}
+				else if (!strncmp(tag->Value(), "radius", 6)) {
 
+					// Read the radius
+					radius = (float)atof(tag->GetText());
+				}
+				else if (!strncmp(tag->Value(), "color", 5)) {
 
+					// Read the color and set the corresponding triangle color
+					str.assign(tag->GetText());
+					std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+					color = _ColorMapping.GetColor(str);
+
+				}
+				else if (!strncmp(tag->Value(), "material", 8)) {
+
+					// Read the material and set the corresponding material for the triangle
+					str.assign(tag->GetText());
+					std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+
+					// Assign the material
+					if (!strncmp(str.c_str(), "NONE", 4)) {
+						mat = NONE;
+					}
+					else if (!strncmp(str.c_str(), "REFLECTIVE", 10)) {
+						mat = REFLECTIVE;
+					}
+					else if (!strncmp(str.c_str(), "SPECULAR", 8)) {
+						mat = SPECULAR;
+					}
+					else if (!strncmp(str.c_str(), "GLASS", 5)) {
+						mat = GLASS;
+					}
+				}
+				tag = tag->NextSiblingElement();
+			}
+
+			// Add the object to the geometry vector/array
+			geom.push_back(new Sphere(center, radius, color, mat));
 		}
 
 		// Get the next object
 		objectParents = objectParents->NextSiblingElement();
 	}
-	
-
-
 }
 
 void gammaCorrect(unsigned char * imageArray, int height, int width) {
@@ -243,7 +285,7 @@ void gammaCorrect(unsigned char * imageArray, int height, int width) {
 		for (int j = 0; j < width; j++) {
 
 			//Corrected = 255 * (Image/255)^(1/2.2)
-			coordinate.setValues(i, j);
+			coordinate.SetValues(i, j);
 			getPixelColor(color, coordinate, imageArray, width);
 			color.x = (unsigned char)(255 * pow((color.x / 255.f), 0.45454545454));
 			color.z = (unsigned char)(255 * pow((color.z / 255.f), 0.45454545454));

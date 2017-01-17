@@ -148,7 +148,7 @@ class Color {
 				b = 0;
 			}
 
-			color.setValues(255.f * (r + m), 255.f * (g + m), 255.f * (b + m));
+			color.SetValues(255.f * (r + m), 255.f * (g + m), 255.f * (b + m));
 			//printf("HSL: %f %f %f to RGB %f %f %f\n", H, S*100, L*100, color.x, color.y, color.z);
 		}
 
@@ -217,7 +217,7 @@ class Color {
 			}
 
 			//printf("RGB: %f %f %f to HSL %f %f %f\n", color.x, color.y, color.z, H, S, L*100);
-			color.setValues(H, S, 100*L);
+			color.SetValues(H, S, 100*L);
 		}
 
 	private:

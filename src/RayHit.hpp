@@ -6,12 +6,12 @@ class RayHit {
 
 	public :
 		RayHit(float t, Material mat, Vec3<unsigned char> color, Vec3<float> norm, Vec3<float> loc, Vec3<float> r);
-		Material GetMaterial();
 		Vec3<unsigned char> GetColor();
-		float GetTime();
-		Vec3<float> GetNormal();
 		Vec3<float> GetHitLocation();
+		Material GetMaterial();
+		Vec3<float> GetNormal();
 		Vec3<float> GetRay();	
+		float GetTime();
 
 	private :
 		float _time;

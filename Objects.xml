@@ -1,33 +1,33 @@
 <?xml version="1.0" ?>
 
 <objects>
-	<light>
-		<shape>CIRCLE, TRIANGLE</shape>
-	</light>
+  <light>
+    <shape>CIRCLE, TRIANGLE</shape>
+  </light>
 
-	<triangle>
-		<vertex name="A" x="1" y="1" z="3"/>
-		<vertex name="B" x="1" y="1" z="3"/>
-		<vertex name="C" x="1" y="1" z="3"/>
+  <triangle>
+    <vertex name="A" x="1" y="1" z="3"/>
+    <vertex name="B" x="1" y="1" z="3"/>
+    <vertex name="C" x="1" y="1" z="3"/>
 
-		<color>BLUE</color>
-		<material>REFLECTIVE</material>
-	</triangle>
+    <color>BLUE</color>
+    <material>REFLECTIVE</material>
+  </triangle>
 
-	<sphere>
-		<center x="1" y="2" z="3"/>
-		<radius>50</radius>
-		<color>AQUA</color>
-		<material>NONE</material>
-	</sphere>
+  <sphere>
+    <center x="1" y="2" z="3"/>
+    <radius>50</radius>
+    <color>AQUA</color>
+    <material>NONE</material>
+  </sphere>
 
-	<triangle>
-		<vertex name="A" x="1" y="1" z="3"/>
-		<vertex name="B" x="1" y="1" z="3"/>
-		<vertex name="C" x="1" y="1" z="3"/>
-		<color>BLUE</color>
-		<material>SPECULAR</material>
-	</triangle>
+  <triangle>
+    <vertex name="A" x="1" y="1" z="3"/>
+    <vertex name="B" x="1" y="1" z="3"/>
+    <vertex name="C" x="1" y="1" z="3"/>
+    <color>BLUE</color>
+    <material>SPECULAR</material>
+  </triangle>
 
 
   <colors>

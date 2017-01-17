@@ -2,6 +2,7 @@
 
 #include <stddef.h>
 
+#include "Geometry.hpp"
 #include "Material.hpp"
 #include "RayHit.hpp"
 #include "Vector.hpp"
