@@ -12,7 +12,8 @@
  * Purpose: Constructor 
  * Return Value: void
  */
-Triangle::Triangle(Vec3<float> a, Vec3<float> b, Vec3<float> c, Vec3<unsigned char> color, Material mat) {
+Triangle::Triangle(Vec3<float> a, Vec3<float> b, Vec3<float> c, Vec3<unsigned char> color, Material mat) : super(TRIANGLE) {
+	
 	_vertexA = Vec3<float>::vec3(a.x, a.y, a.z);
 	_vertexB = Vec3<float>::vec3(b.x, b.y, b.z);
 	_vertexC = Vec3<float>::vec3(c.x, c.y, c.z);
@@ -39,7 +40,7 @@ Triangle::Triangle(Vec3<float> a, Vec3<float> b, Vec3<float> c, Vec3<unsigned ch
  * Purpose: Constructor 
  * Return Value: void
  */
-Triangle::Triangle(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, Vec3<unsigned char> color, Material mat) {
+Triangle::Triangle(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, Vec3<unsigned char> color, Material mat) : super(TRIANGLE) {
 	_vertexA = Vec3<float>::vec3(ax, ay, az);
 	_vertexB = Vec3<float>::vec3(bx, by, bz);
 	_vertexC = Vec3<float>::vec3(cx, cy, cz);

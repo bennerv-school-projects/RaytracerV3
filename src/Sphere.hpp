@@ -17,4 +17,6 @@ class Sphere : public Geometry {
 	private :
 		Vec3<float> _center;
 		float _radius;
+
+		typedef Geometry super;
 };

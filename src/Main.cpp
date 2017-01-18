@@ -18,7 +18,6 @@
 
 /* Standard libs */
 #include <iostream>
-#include <typeinfo>
 #include <vector>
 
 /* Project libs */
@@ -30,11 +29,10 @@
 
 /* External libs*/
 #include "INIReader.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 #include "tinyxml2.h"
 
-/* Additional definitions */
-#define STB_IMAGE_WRITE_IMPLEMENTATION 
 
 using namespace std;
 
@@ -365,10 +363,16 @@ int main(int argc, char * argv[]) {
 		tempWidthOffset -= pixelWidth / 4;
 	}
 
+	/* Iterate through the geometry 
 	for (int i = 0; i < geometryArray.size(); i++) {
-		const char * name = typeid(geometryArray[i]).name();
-		cout << name << endl;
+		cout << "Geometry number " << i+1 << endl;
+		cout << "Shape " << geometryArray[i]->GetShape() << endl;
+		cout << "Material " << geometryArray[i]->GetMaterial() << endl;
+		cout << "Color " << (int)geometryArray[i]->GetColor().x << endl;
+		cout << (int)geometryArray[i]->GetColor().y << endl;
+		cout << (int)geometryArray[i]->GetColor().z << endl;
 	}
+	*/
 
 	// Start going through all pixels and draw them
 	for(int i = 0; i < height; i++) {
@@ -391,7 +395,7 @@ int main(int argc, char * argv[]) {
 	}
 
 	// Write out the image
-	//stbi_write_png("output.png", width, height, 3, imageArray, width*3);
+	stbi_write_png("output.png", width, height, 3, imageArray, width*3);
 	destroyGeometry(geometryArray);
 	free(imageArray);
 }

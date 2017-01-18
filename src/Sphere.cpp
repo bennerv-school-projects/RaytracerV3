@@ -11,7 +11,7 @@
  * Purpose: Constructor 
  * Return Value: void
  */
-Sphere::Sphere(Vec3<float> a, float r, Vec3<unsigned char> color, Material mat) {
+Sphere::Sphere(Vec3<float> a, float r, Vec3<unsigned char> color, Material mat) : super(SPHERE) {
 	_center = Vec3<float>::vec3(a.x, a.y, a.z); 
 	_radius = r;
 	SetMaterial(mat);
@@ -31,7 +31,7 @@ Sphere::Sphere(Vec3<float> a, float r, Vec3<unsigned char> color, Material mat) 
  * Purpose: Constructor 
  * Return Value: void
  */
-Sphere::Sphere(float ax, float ay, float az, float r, Vec3<unsigned char> color, Material mat) {
+Sphere::Sphere(float ax, float ay, float az, float r, Vec3<unsigned char> color, Material mat) : super(SPHERE) {
 	_center = Vec3<float>::vec3(ax, ay, az); 
 	_radius = r;
 	SetMaterial(mat);
