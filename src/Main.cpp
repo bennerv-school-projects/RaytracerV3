@@ -155,29 +155,24 @@ void initGeometry(std::vector<Geometry *> &geom) {
 			// Go through and read all the attributes and tags
 			tinyxml2::XMLElement * tag = objectParents->FirstChildElement();
 			while (tag) {
+				int vertexCount = 0;
 				if (!strncmp(tag->Value(), "vertex", 6)) {
 
 					// Read the 3 vectors' attributes and set their values
-					char * temp = (char *)tag->Attribute("name");
 					double a = 0, b = 0, c = 0;
 					tag->QueryDoubleAttribute("x", &a);
 					tag->QueryDoubleAttribute("y", &b);
 					tag->QueryDoubleAttribute("z", &c);
 
-					// Switch at each of the vectors
-					switch (temp[0]) {
-						case 'A' :
-							vertexA.SetValues((float)a, (float)b, (float)c);
-							break;
-						case 'B' :
-							vertexB.SetValues((float)a, (float)b, (float)c);
-							break;
-						case 'C' :
-							vertexC.SetValues((float)a, (float)b, (float)c);
-							break;
-						default :
-							break;
+					// Set the vertex values
+					if( vertexCount == 0 ) {
+						vertexA.SetValues(a, b, c);
+					} else if( vertexCount == 1 ) {
+						vertexB.SetValues(a, b, c);
+					} else {
+						vertexC.SetValues(a, b, c);
 					}
+					vertexCount++;
 				}
 				else if (!strncmp(tag->Value(), "color", 5)) {
 

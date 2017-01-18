@@ -2,7 +2,8 @@
 
 <objects>
   <light>
-    <shape>CIRCLE, TRIANGLE</shape>
+    <shape>CIRCLE, TRIANGLE, POINT</shape>
+
   </light>
 
   <triangle>
@@ -31,15 +32,26 @@
 
 
   <colors>
-    <color name="BLUE" r="0" g="0" b="255"/>
-    <color name="RED" r="255" g="0" b="0"/>
-    <color name="GREEN" r="0" g="255" b="0"/>
-    <color name="WHITE" r="255" g="255" b="255"/>
-    <color name="BLACK" r="0" g="0" b="0"/>
-    <color name="GRAY" r="128" g="128" b="128"/>
-    <color name="YELLOW" r="255" g="255" b="0"/>
-    <color name="CYAN" r="0" g="255" b="255"/>
+    <!-- http://htmlcolorcodes.com/color-names/ -->
     <color name="AQUA" r="0" g="255" b="255"/>
+    <color name="BLACK" r="0" g="0" b="0"/>
+    <color name="BLUE" r="0" g="0" b="255"/>
+    <color name="CRIMSON" r="220" g="20" b="60"/>
+    <color name="CYAN" r="0" g="255" b="255"/>
+    <color name="DARKRED" r="139" g="0" b="0"/>
+    <color name="DARKSALMON" r="233" g="150" b="122"/>
+    <color name="FIREBRICK" r="178" g="34" b="34"/>
+    <color name="GRAY" r="128" g="128" b="128"/>
+    <color name="GREEN" r="0" g="255" b="0"/>
+    <color name="INDIANRED" r="205" g="92" b="92"/>
+    <color name="LIGHTCORAL" r="240" g="128" b="128"/>
+    <color name="LIGHTSALMON" r="255" g="160" b="122"/>
+    <color name="RED" r="255" g="0" b="0"/>
+    <color name="SALMON" r="250" g="128" b="114"/>
+    <color name="YELLOW" r="255" g="255" b="0"/>
+    <color name="WHITE" r="255" g="255" b="255"/>
+    
+    
   </colors>
 </objects>
 
