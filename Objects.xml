@@ -1,36 +1,80 @@
 <?xml version="1.0" ?>
 
 <objects>
+
+  <!-- LIGHT SOURCES -->
   <light>
     <shape>CIRCLE, TRIANGLE, POINT</shape>
 
   </light>
 
-  <triangle>
-    <vertex name="A" x="1" y="1" z="3"/>
-    <vertex name="B" x="1" y="1" z="3"/>
-    <vertex name="C" x="1" y="1" z="3"/>
-
-    <color>BLUE</color>
+  <!-- OBJECTS -->
+  <sphere>
+    <center x="0" y="0" z="-16"/>
+    <radius>2</radius>
+    <color>RED</color>
     <material>REFLECTIVE</material>
-  </triangle>
+  </sphere>
 
   <sphere>
-    <center x="1" y="2" z="3"/>
-    <radius>50</radius>
-    <color>AQUA</color>
+    <center x="3" y="-1" z="-14"/>
+    <radius>1</radius>
+    <color>RED</color>
+    <material>REFLECTIVE</material>
+  </sphere>
+
+  <sphere>
+    <center x="3" y="-1" z="-14"/>
+    <radius>1</radius>
+    <color>RED</color>
     <material>NONE</material>
   </sphere>
 
+  <!-- Back wall -->
   <triangle>
-    <vertex name="A" x="1" y="1" z="3"/>
-    <vertex name="B" x="1" y="1" z="3"/>
-    <vertex name="C" x="1" y="1" z="3"/>
+    <vertex x="-8" y="-2" z="-20"/>
+    <vertex x="8" y="-2" z="-20"/>
+    <vertex x="8" y="10" z="-20"/>
     <color>BLUE</color>
-    <material>SPECULAR</material>
+    <material>NONE</material>
+  </triangle>
+
+  <triangle>
+    <vertex x="-8" y="-2" z="-20"/>
+    <vertex x="8" y="10" z="-20"/>
+    <vertex x="-8" y="10" z="-20"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </triangle>
+
+  <!-- Floor -->
+  <triangle>
+    <vertex x="-8" y="-2" z="-20"/>
+    <vertex x="8" y="-2" z="-10"/>
+    <vertex x="8" y="-2" z="-20"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </triangle>
+
+  <triangle>
+    <vertex x="-8" y="-2" z="-20"/>
+    <vertex x="-8" y="-2" z="-10"/>
+    <vertex x="8" y="-2" z="-10"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </triangle>
+  
+  <!-- Right red triangle -->
+  <triangle>
+    <vertex x="8" y="-2" z="-20"/>
+    <vertex x="8" y="-2" z="-10"/>
+    <vertex x="8" y="10" z="-20"/>
+    <color>RED</color>
+    <material>NONE</material>
   </triangle>
 
 
+  <!-- COLORS AS DEFINED BELOW -->
   <colors>
     <!-- http://htmlcolorcodes.com/color-names/ -->
     <color name="AQUA" r="0" g="255" b="255"/>
