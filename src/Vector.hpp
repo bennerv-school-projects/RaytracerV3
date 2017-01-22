@@ -183,7 +183,7 @@ class Vec3 {
 			if( temp == 0 ) {
 				vector = Vec3::vec3(0, 0, 0);
 			} else {
-				vector = Vec3::vec3(a.x / temp, a.y / temp, a.z / temp);
+				vector = Vec3::vec3((float)(a.x / temp), (float)(a.y / temp), (float) (a.z / temp));
 			}
 
 			return vector;

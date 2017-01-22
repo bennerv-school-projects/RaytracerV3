@@ -1,5 +1,4 @@
 #if defined(__linux) || defined(__APPLE__)
-	#include <unistd.h>
 	#define TERM_NRM  "\x1B[0m"
 	#define TERM_BLK  "\x1B[30m"
 	#define TERM_RED  "\x1B[31m"
@@ -166,11 +165,11 @@ void initGeometry(std::vector<Geometry *> &geom) {
 
 					// Set the vertex values
 					if( vertexCount == 0 ) {
-						vertexA.SetValues(a, b, c);
+						vertexA.SetValues((float)a, (float)b, (float)c);
 					} else if( vertexCount == 1 ) {
-						vertexB.SetValues(a, b, c);
+						vertexB.SetValues((float)a, (float)b, (float)c);
 					} else {
-						vertexC.SetValues(a, b, c);
+						vertexC.SetValues((float)a, (float)b, (float)c);
 					}
 					vertexCount++;
 				}
@@ -322,15 +321,7 @@ int main(int argc, char * argv[]) {
 	unsigned char * imageArray = (unsigned char *) malloc(3 * width * height * sizeof(unsigned char));
 
 	if( !imageArray ) {
-#if defined(__linux) || defined(__APPLE__)
-		if( isatty(fileno(stdout)) ) {
-			cout << TERM_RED "Failed to allocate memory for the image array.  Exiting." TERM_NRM << endl;
-		} else {
-			cout << "Failed to allocate memory for the image array.  Exiting" << endl;
-		}
-#else 
 		cout << "Failed to allocate memory for the image array.  Exiting" << endl;
-#endif
 		exit(1);
 	}
 
