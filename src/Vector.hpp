@@ -74,18 +74,45 @@ class Vec3 {
 		}
 
 		/*
-		* Date: 12/28/16
-		* Function Name: != (operator)
-		* Arguments:
-		*     const Vec3<T> - the second argument on a !=
-		* Purpose: Nonequality operator
-		* Return Value: bool
-		*/
+		 * Date: 12/28/16
+		 * Function Name: != (operator)
+		 * Arguments:
+		 *     const Vec3<T> - the second argument on a !=
+		 * Purpose: Nonequality operator
+		 * Return Value: bool
+		 */
 		bool operator !=(const Vec3<T> &b) {
 			if (this == b) {
 				return false;
 			}
 			return true;
+		}
+
+
+		/*
+		 * Date: 1/21/17
+		 * Function Name: - (operator)
+		 * Arguments:
+		 *     const Vec3<T> - the second argument on a -
+		 * Purpose: - operator
+		 * Return Value: Vec3<T>
+		 */
+		Vec3<T> operator -(const Vec3<T> &b) {
+			Vec3<T> temp(this->x - b.x, this->y - b.y, this->z - b.z);
+			return temp;
+		}
+
+		/*
+		 * Date: 1/21/17
+		 * Function Name: + (operator)
+		 * Arguments:
+		 *     const Vec3<T> - the second argument on a +
+		 * Purpose: + operator
+		 * Return Value: Vec3<T>
+		 */
+		Vec3<T> operator +(const Vec3<T> &b) {
+			Vec3<T> temp(this->x + b.x, this->y + b.y, this->z + b.z);
+			return temp;
 		}
 
 		/* 
@@ -312,6 +339,32 @@ class Vec2 {
 		 */
 		T operator *(const Vec2<T> &b) {
 			T temp = this->x * b.x + this->y * b.y;
+			return temp;
+		}
+
+		/*
+		* Date: 1/21/17
+		* Function Name: - (operator)
+		* Arguments:
+		*     const Vec2<T> - the second argument on a -
+		* Purpose: - operator
+		* Return Value: Vec2<T>
+		*/
+		Vec2<T> operator -(const Vec2<T> &b) {
+			Vec2<T> temp(this->x - b.x, this->y - b.y);
+			return temp;
+		}
+
+		/*
+		* Date: 1/21/17
+		* Function Name: + (operator)
+		* Arguments:
+		*     const Vec2<T> - the second argument on a +
+		* Purpose: + operator
+		* Return Value: Vec2<T>
+		*/
+		Vec2<T> operator +(const Vec2<T> &b) {
+			Vec2<T> temp(this->x + b.x, this->y + b.y);
 			return temp;
 		}
 
