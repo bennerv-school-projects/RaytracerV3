@@ -153,8 +153,8 @@ void initGeometry(std::vector<Geometry *> &geom) {
 
 			// Go through and read all the attributes and tags
 			tinyxml2::XMLElement * tag = objectParents->FirstChildElement();
+			int vertexCount = 0;
 			while (tag) {
-				int vertexCount = 0;
 				if (!strncmp(tag->Value(), "vertex", 6)) {
 
 					// Read the 3 vectors' attributes and set their values
@@ -291,7 +291,7 @@ void gammaCorrect(unsigned char * imageArray, int height, int width) {
 	}
 }
 
-void destroyGeometry(std::vector<Geometry *> &geom) {
+void DestroyGeometry(std::vector<Geometry *> &geom) {
 	for (std::vector<Geometry *>::size_type i = 0; i != geom.size(); i++) {
 		if (geom[i] != NULL) {
 			delete(geom[i]);
@@ -299,12 +299,28 @@ void destroyGeometry(std::vector<Geometry *> &geom) {
 	}
 }
 
+Vec3<unsigned char> GetRay(Vec3<float> ray, Vec3<float> startingPos, vector<Geometry *> &geom) {
+	
+	float time = FLT_MAX;
+	shared_ptr<RayHit> minHit = nullptr;
+	
+
+	for (Geometry * obj : geom) {
+		shared_ptr<RayHit> rayHit = obj->Intersect(ray, startingPos);
+	}
+
+	
+	
+	return _ColorMapping.GetColor("BLACK");
+}
+
 int main(int argc, char * argv[]) {
 
 	bool anti_aliasing, gamma_correction, normal_correction, background_gradient, hsl_interpolation;
 	float ambient_light;
 	int width, height;
-	Vec3<float> gradientStart(0, 0, 0), gradientEnd(0, 0, 0);
+	Vec3<float> gradientStart(0, 0, 0), gradientEnd(0, 0, 0), cameraPos(0, 0, 0);
+	float imagePlaneWidth = -2;
 	std::vector<Geometry *> geometryArray;
 
 	// Read the config setting
@@ -320,7 +336,7 @@ int main(int argc, char * argv[]) {
 
 	unsigned char * imageArray = (unsigned char *) malloc(3 * width * height * sizeof(unsigned char));
 
-	if( !imageArray ) {
+	if(!imageArray) {
 		cout << "Failed to allocate memory for the image array.  Exiting" << endl;
 		exit(1);
 	}
@@ -371,6 +387,7 @@ int main(int argc, char * argv[]) {
 				}
 			} else {
 				//Shoot a single ray 
+				Vec3<unsigned char> col = GetRay(Vec3<float>::Normalize( Vec3<float>::vec3(tempWidthOffset, tempHeightOffset, imagePlaneWidth) - cameraPos), cameraPos, geometryArray);
 			}
 		}
 	}
@@ -382,6 +399,6 @@ int main(int argc, char * argv[]) {
 
 	// Write out the image
 	stbi_write_png("output.png", width, height, 3, imageArray, width*3);
-	destroyGeometry(geometryArray);
+	DestroyGeometry(geometryArray);
 	free(imageArray);
 }
