@@ -301,40 +301,50 @@ void DestroyGeometry(std::vector<Geometry *> &geom) {
 
 Vec3<unsigned char> GetRay(Vec3<float> ray, Vec3<float> startingPos, vector<Geometry *> &geom) {
 	
-	float time = FLT_MAX;
+	float time = -1;
 	shared_ptr<RayHit> minHit = nullptr;
-	
+	//cout << "Ray is " << ray.x << " " << ray.y << " " << ray.z << endl;
 
 	for (Geometry * obj : geom) {
 		shared_ptr<RayHit> rayHit = obj->Intersect(ray, startingPos);
+		if(rayHit != nullptr) {
+			if(time < 0 || rayHit->GetTime() < time) {
+				time = rayHit->GetTime();
+				minHit = rayHit;
+			}
+		} 
 	}
 
+	if(minHit == nullptr) {
+		return _ColorMapping.GetColor("BLACK");	
+	} else {
+		return minHit->GetColor();
+	}
 	
 	
-	return _ColorMapping.GetColor("BLACK");
 }
 
 int main(int argc, char * argv[]) {
 
 	bool anti_aliasing, gamma_correction, normal_correction, background_gradient, hsl_interpolation;
-	float ambient_light;
-	int width, height;
+	float ambient_light, plane_width, plane_height;
+	int image_width, image_height;
 	Vec3<float> gradientStart(0, 0, 0), gradientEnd(0, 0, 0), cameraPos(0, 0, 0);
 	float imagePlaneWidth = -2;
 	std::vector<Geometry *> geometryArray;
 
 	// Read the config setting
-	readConfig(anti_aliasing, gamma_correction, normal_correction, background_gradient, hsl_interpolation, ambient_light, width, height, gradientStart, gradientEnd);
+	readConfig(anti_aliasing, gamma_correction, normal_correction, background_gradient, hsl_interpolation, ambient_light, image_width, image_height, gradientStart, gradientEnd);
 	initGeometry(geometryArray);
 
 	cout << "Anti-aliasing: " << anti_aliasing << endl;
 	cout << "Gamma correction: " << gamma_correction << endl;
 	cout << "Normal correction: " << normal_correction << endl;
 	cout << "Ambient light value: " << ambient_light << endl;
-	cout << "Image width: " << width << endl;
-	cout << "Image height: " << height << endl;
+	cout << "Image width: " << image_width << endl;
+	cout << "Image height: " << image_height << endl;
 
-	unsigned char * imageArray = (unsigned char *) malloc(3 * width * height * sizeof(unsigned char));
+	unsigned char * imageArray = (unsigned char *) malloc(3 * image_width * image_height * sizeof(unsigned char));
 
 	if(!imageArray) {
 		cout << "Failed to allocate memory for the image array.  Exiting" << endl;
@@ -343,27 +353,24 @@ int main(int argc, char * argv[]) {
 
 	// Draw the gradient on the image
 	if(background_gradient) {
-		drawGradient(gradientStart, gradientEnd, width, height, imageArray, hsl_interpolation);
+		drawGradient(gradientStart, gradientEnd, image_width, image_height, imageArray, hsl_interpolation);
 	}
 
-	// Pixel coordinate correction
-	float pixelWidth = 1 / (float)width;
-	float pixelHeight = 1 / (float)height;
-	float truePixelHeightCenter = 0, truePixelWidthCenter = 0;
-	if( width % 2 == 0 ) {
-		truePixelWidthCenter = pixelWidth / 2;
-	}
-	if( height % 2 == 0 ) {
-		truePixelHeightCenter = pixelHeight / 2;
+	//Plane width (always 2 in the greatest direction)
+	if( image_width > image_height ) {
+		plane_width = 2.;
+		plane_height = 2 * (image_height / (float) image_width);
+	} else {
+		plane_height = 2.;
+		plane_width = 2 * (image_width / (float) image_height);
 	}
 
-	float tempHeightOffset = truePixelHeightCenter;
-	float tempWidthOffset  = truePixelWidthCenter;
+	// Pixel height calculations
+	float pixel_width = plane_width / (float)image_width;
+	float pixel_height = plane_height / (float)image_height;
 
-	if(anti_aliasing) {
-		tempHeightOffset -= pixelHeight / 4;
-		tempWidthOffset -= pixelWidth / 4;
-	}
+	float width_offset = image_width % 2 == 0 ? pixel_width / 2. : 0.;
+	float height_offset = image_height % 2 == 0 ? pixel_height / 2. : 0.;
 
 	/* Iterate through the geometry 
 	for (int i = 0; i < geometryArray.size(); i++) {
@@ -377,9 +384,10 @@ int main(int argc, char * argv[]) {
 	*/
 
 	// Start going through all pixels and draw them
-	for(int i = 0; i < height; i++) {
-		for(int j = 0; j < width; j++) {
-
+	for(int i = 0; i < image_height; i++) {
+		float pixel_center_height = (plane_height / -2. + i * pixel_height + height_offset);
+		for(int j = 0; j < image_width; j++) {
+			float pixel_center_width = (plane_width / -2. + j * pixel_width + width_offset);
 			// Shoot five rays per pixel if anti-aliasing
 			if(anti_aliasing) {
 				for(int k = 0; k < 4; k++) {
@@ -387,18 +395,21 @@ int main(int argc, char * argv[]) {
 				}
 			} else {
 				//Shoot a single ray 
-				Vec3<unsigned char> col = GetRay(Vec3<float>::Normalize( Vec3<float>::vec3(tempWidthOffset, tempHeightOffset, imagePlaneWidth) - cameraPos), cameraPos, geometryArray);
+				cout << "Shooting pixel to " << pixel_center_width << " height " << pixel_center_height << " -2" << endl;
+				Vec3<unsigned char> col = GetRay(Vec3<float>::Normalize( Vec3<float>::vec3(pixel_center_width, pixel_center_height, imagePlaneWidth) - cameraPos), cameraPos, geometryArray);
+				Vec2<int> coord(i, j);
+				setPixelColor(col, coord, imageArray, image_width);
 			}
 		}
 	}
 
 	// Gamma correction
 	if(gamma_correction) {
-		gammaCorrect(imageArray, height, width);
+		gammaCorrect(imageArray, image_height, image_width);
 	}
 
 	// Write out the image
-	stbi_write_png("output.png", width, height, 3, imageArray, width*3);
+	stbi_write_png("output.png", image_width, image_height, 3, imageArray, image_width*3);
 	DestroyGeometry(geometryArray);
 	free(imageArray);
 }
