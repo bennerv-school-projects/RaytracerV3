@@ -49,5 +49,26 @@ Sphere::Sphere(float ax, float ay, float az, float r, Vec3<unsigned char> color,
  */
 std::shared_ptr<RayHit> Sphere::Intersect(Vec3<float> ray, Vec3<float> startingPos) {
 	// d = ray, e = starting pos, c = center
-	return nullptr;
+	float discriminate = pow(ray * (startingPos - _center), 2) - ((ray * ray) * (((startingPos - _center) * (startingPos - _center)) - (_radius * _radius)));
+
+	if (discriminate < 0) {
+		return nullptr;
+	}
+	
+	discriminate = sqrtf(discriminate);
+	Vec3<float> zeroVector(0, 0, 0);
+
+	float time0 = (((zeroVector - ray) * (startingPos - _center)) + discriminate) / (ray * ray);
+	float time1 = (((zeroVector - ray) * (startingPos - _center)) - discriminate) / (ray * ray);
+
+	float trueTime = time0;
+	if (time0 < 0 || (time1 > 0 && time1 < time0)) {
+		trueTime = time1;
+	}
+
+	Vec3<float> hitLocation = Vec3<float>::vec3(trueTime * ray.x, trueTime * ray.y, trueTime * ray.z) + startingPos;
+	Vec3<float> normal = Vec3<float>::Normalize(hitLocation - _center);
+
+	std::shared_ptr<RayHit> rayHit(new RayHit(trueTime, GetMaterial(), GetColor(), normal, hitLocation, ray));
+	return rayHit;
 }
