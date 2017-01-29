@@ -369,8 +369,8 @@ int main(int argc, char * argv[]) {
 	float pixel_width = plane_width / (float)image_width;
 	float pixel_height = plane_height / (float)image_height;
 
-	float width_offset = image_width % 2 == 0 ? pixel_width / 2. : 0.;
-	float height_offset = image_height % 2 == 0 ? pixel_height / 2. : 0.;
+	float width_offset = image_width % 2 == 0 ? pixel_width / 2.f : 0.f;
+	float height_offset = image_height % 2 == 0 ? pixel_height / 2.f : 0.f;
 
 	/* Iterate through the geometry 
 	for (int i = 0; i < geometryArray.size(); i++) {
@@ -385,9 +385,9 @@ int main(int argc, char * argv[]) {
 
 	// Start going through all pixels and draw them
 	for(int i = 0; i < image_height; i++) {
-		float pixel_center_height = (plane_height / -2. + i * pixel_height + height_offset);
+		float pixel_center_height = (plane_height / -2.f + i * pixel_height + height_offset);
 		for(int j = 0; j < image_width; j++) {
-			float pixel_center_width = (plane_width / -2. + j * pixel_width + width_offset);
+			float pixel_center_width = (plane_width / -2.f + j * pixel_width + width_offset);
 			// Shoot five rays per pixel if anti-aliasing
 			if(anti_aliasing) {
 				for(int k = 0; k < 4; k++) {
@@ -395,7 +395,7 @@ int main(int argc, char * argv[]) {
 				}
 			} else {
 				//Shoot a single ray 
-				cout << "Shooting pixel to " << pixel_center_width << " height " << pixel_center_height << " -2" << endl;
+				//cout << "Shooting pixel to " << pixel_center_width << " height " << pixel_center_height << " -2" << endl;
 				Vec3<unsigned char> col = GetRay(Vec3<float>::Normalize( Vec3<float>::vec3(pixel_center_width, pixel_center_height, imagePlaneWidth) - cameraPos), cameraPos, geometryArray);
 				Vec2<int> coord(i, j);
 				setPixelColor(col, coord, imageArray, image_width);
