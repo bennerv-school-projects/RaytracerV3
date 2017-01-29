@@ -358,10 +358,10 @@ int main(int argc, char * argv[]) {
 
 	//Plane width (always 2 in the greatest direction)
 	if( image_width > image_height ) {
-		plane_width = 2.;
+		plane_width = 2.f;
 		plane_height = 2 * (image_height / (float) image_width);
 	} else {
-		plane_height = 2.;
+		plane_height = 2.f;
 		plane_width = 2 * (image_width / (float) image_height);
 	}
 
@@ -385,7 +385,7 @@ int main(int argc, char * argv[]) {
 
 	// Start going through all pixels and draw them
 	for(int i = 0; i < image_height; i++) {
-		float pixel_center_height = (plane_height / -2.f + i * pixel_height + height_offset);
+		float pixel_center_height = (plane_height / 2.f - i * pixel_height - height_offset);
 		for(int j = 0; j < image_width; j++) {
 			float pixel_center_width = (plane_width / -2.f + j * pixel_width + width_offset);
 			// Shoot five rays per pixel if anti-aliasing
