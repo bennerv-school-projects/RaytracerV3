@@ -299,7 +299,12 @@ void DestroyGeometry(std::vector<Geometry *> &geom) {
 	}
 }
 
-Vec3<unsigned char> GetRay(Vec3<float> ray, Vec3<float> startingPos, vector<Geometry *> &geom) {
+Vec3<float> GetReflection(Vec3<float> ray, Vec3<float> norm) {
+	float temp = 2 * (ray * norm);
+	return Vec3<float>::Normalize(ray - (norm * temp));
+}
+
+Vec3<unsigned char> GetColor(Vec3<float> ray, Vec3<float> startingPos, vector<Geometry *> &geom, int depth) {
 	
 	float time = -1;
 	shared_ptr<RayHit> minHit = nullptr;
@@ -314,14 +319,19 @@ Vec3<unsigned char> GetRay(Vec3<float> ray, Vec3<float> startingPos, vector<Geom
 			}
 		} 
 	}
-
 	if(minHit == nullptr) {
-		return _ColorMapping.GetColor("BLACK");	
-	} else {
-		return minHit->GetColor();
+		return _ColorMapping.GetColor("BLACK");
 	}
-	
-	
+
+	/* Check reflection */
+	if(minHit->GetMaterial() == REFLECTIVE) {
+		if(depth > 9) {
+			return _ColorMapping.GetColor("BLACK");
+		}
+		Vec3<float> newRay = GetReflection(minHit->GetRay(), minHit->GetNormal());
+		return GetColor(newRay, minHit->GetHitLocation() + (minHit->GetNormal() * .00005), geom, depth+1);
+	}
+	return minHit->GetColor();
 }
 
 int main(int argc, char * argv[]) {
@@ -396,7 +406,7 @@ int main(int argc, char * argv[]) {
 			} else {
 				//Shoot a single ray 
 				//cout << "Shooting pixel to " << pixel_center_width << " height " << pixel_center_height << " -2" << endl;
-				Vec3<unsigned char> col = GetRay(Vec3<float>::Normalize( Vec3<float>::vec3(pixel_center_width, pixel_center_height, imagePlaneWidth) - cameraPos), cameraPos, geometryArray);
+				Vec3<unsigned char> col = GetColor(Vec3<float>::Normalize( Vec3<float>::vec3(pixel_center_width, pixel_center_height, imagePlaneWidth) - cameraPos), cameraPos, geometryArray, 0);
 				Vec2<int> coord(i, j);
 				setPixelColor(col, coord, imageArray, image_width);
 			}

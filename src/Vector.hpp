@@ -115,6 +115,19 @@ class Vec3 {
 			return temp;
 		}
 
+		/*
+		 * Date: 1/29/17
+		 * Function Name: + (operator)
+		 * Arguments:
+		 *     const float - the second argument on a +
+		 * Purpose: + operator
+		 * Return Value: Vec3<T>
+		 */
+		Vec3<T> operator +(const float b) {
+			Vec3<T> temp(this->x + b, this->y + b, this->z + b);
+			return temp;
+		}
+
 		/* 
 		 * Date: 12/20/16
 		 * Function Name: * (operator) 
@@ -126,6 +139,18 @@ class Vec3 {
 		T operator *(const Vec3<T> &b) {
 			T temp = this->x * b.x + this->y * b.y + this->z * b.z;
 			return temp;
+		}
+
+		/* 
+		 * Date: 1/30/17
+		 * Function Name: * (operator) 
+		 * Arguments:
+		 *     const T - the second argument
+		 * Purpose: Returns the scalar multiplication of the vector 
+		 * Return Value: Vec3<T>
+		 */
+		Vec3<T> operator *(const float b) {
+			return Vec3<T>::vec3(this->x * b, this->y * b, this->z * b);
 		}
 
 		/* 

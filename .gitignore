@@ -257,3 +257,5 @@ CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
 Makefile
+Config.ini
+Objects.xml

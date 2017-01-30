@@ -66,7 +66,7 @@ std::shared_ptr<RayHit> Sphere::Intersect(Vec3<float> ray, Vec3<float> startingP
 		trueTime = time1;
 	}
 
-	Vec3<float> hitLocation = Vec3<float>::vec3(trueTime * ray.x, trueTime * ray.y, trueTime * ray.z) + startingPos;
+	Vec3<float> hitLocation = (ray * trueTime) + startingPos;
 	Vec3<float> normal = Vec3<float>::Normalize(hitLocation - _center);
 
 	std::shared_ptr<RayHit> rayHit(new RayHit(trueTime, GetMaterial(), GetColor(), normal, hitLocation, ray));
