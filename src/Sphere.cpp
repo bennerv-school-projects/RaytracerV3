@@ -61,7 +61,11 @@ std::shared_ptr<RayHit> Sphere::Intersect(Vec3<float> ray, Vec3<float> startingP
 	float time0 = (((zeroVector - ray) * (startingPos - _center)) + discriminate) / (ray * ray);
 	float time1 = (((zeroVector - ray) * (startingPos - _center)) - discriminate) / (ray * ray);
 
+	if (time0 < 0 && time1 < 1) {
+		return nullptr;
+	}
 	float trueTime = time0;
+
 	if (time0 < 0 || (time1 > 0 && time1 < time0)) {
 		trueTime = time1;
 	}

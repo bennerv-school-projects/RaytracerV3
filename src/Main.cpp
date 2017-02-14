@@ -39,7 +39,7 @@ Color _ColorMapping(OBJECTS_FILE);
 
 void setPixelColor(Vec3<unsigned char> color, Vec2<int> coordinate, unsigned char * array, int width) {
 
-	int pos = (coordinate.x * 3 * width) + (coordinate.y * 3);
+	int pos = (coordinate.y * 3 * width) + (coordinate.x * 3);
 
 	array[pos] = color.x;
 	array[++pos] = color.y;
@@ -47,7 +47,7 @@ void setPixelColor(Vec3<unsigned char> color, Vec2<int> coordinate, unsigned cha
 }
 
 void getPixelColor(Vec3<unsigned char> &color, Vec2<int> coordinate, unsigned char * array, int width) {
-	int pos = (coordinate.x * 3 * width) + (coordinate.y * 3);
+	int pos = (coordinate.y * 3 * width) + (coordinate.x * 3);
 
 	color.x = array[pos];
 	color.y = array[++pos];
@@ -328,8 +328,7 @@ Vec3<unsigned char> GetColor(Vec3<float> ray, Vec3<float> startingPos, vector<Ge
 		if(depth > 9) {
 			return _ColorMapping.GetColor("BLACK");
 		}
-		Vec3<float> newRay = GetReflection(minHit->GetRay(), minHit->GetNormal());
-		return GetColor(newRay, minHit->GetHitLocation() + (minHit->GetNormal() * .00005), geom, depth+1);
+		return GetColor(GetReflection(minHit->GetRay(), minHit->GetNormal()), minHit->GetHitLocation() + (minHit->GetNormal() * .00005), geom, depth+1);
 	}
 	return minHit->GetColor();
 }
@@ -406,8 +405,9 @@ int main(int argc, char * argv[]) {
 			} else {
 				//Shoot a single ray 
 				//cout << "Shooting pixel to " << pixel_center_width << " height " << pixel_center_height << " -2" << endl;
-				Vec3<unsigned char> col = GetColor(Vec3<float>::Normalize( Vec3<float>::vec3(pixel_center_width, pixel_center_height, imagePlaneWidth) - cameraPos), cameraPos, geometryArray, 0);
-				Vec2<int> coord(i, j);
+				Vec3<float> tempRay = Vec3<float>::Normalize(Vec3<float>::vec3(pixel_center_width, pixel_center_height, imagePlaneWidth) - cameraPos);
+				Vec3<unsigned char> col = GetColor(tempRay, cameraPos, geometryArray, 0);
+				Vec2<int> coord(j, i);
 				setPixelColor(col, coord, imageArray, image_width);
 			}
 		}
