@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <stdlib.h>
@@ -80,6 +81,7 @@ class Color {
 				// Add the color to the map
 				if( addColor ) {
 					std::string str(colorName);
+					transform(str.begin(), str.end(), str.begin(), ::toupper);
 					_colorMap[str] = Vec3<unsigned char>::vec3(r, g, b);
 				}
 			}
@@ -94,7 +96,7 @@ class Color {
 		 * Return Value: Vec3<unsigned char>
 		 */
 		Vec3<unsigned char> GetColor(std::string str) {
-			
+			transform(str.begin(), str.end(), str.begin(), ::toupper);
 			// Check that a value exists
 			if( _colorMap.find(str) == _colorMap.end() ) {
 				return Vec3<unsigned char>::vec3(0, 0, 0);
