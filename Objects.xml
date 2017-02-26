@@ -1,5 +1,22 @@
 <?xml version="1.0" ?>
 
+<lights>
+  <sphere>
+    <center x="0" y="0" z="-16"/>
+    <radius>2</radius>
+  </sphere>
+
+  <triangle>
+    <vertex x="-8" y="-2" z="-20"/>
+    <vertex x="-8" y="-2" z="-10"/>
+    <vertex x="8" y="-2" z="-10"/>
+  </triangle>
+</lights>
+
+<camera>
+  <location x="3" y="3" z="3"/>
+</camera>
+  
 <objects>
 
   <!-- LIGHT SOURCES -->
