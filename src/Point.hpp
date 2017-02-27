@@ -19,6 +19,7 @@ class Point : public Geometry {
 	public :
 		Point(Vec3<float> pos);
 		std::shared_ptr<RayHit> Intersect(Vec3<float> ray, Vec3<float> startingPos);
+		Vec3<float> GetRandomPoint();
 
 
 	private :

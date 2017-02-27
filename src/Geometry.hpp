@@ -97,6 +97,19 @@ class Geometry {
 			return nullptr;
 		}
 
+
+	   /*
+	    * Date: 2/27/17
+		* Function Name: GetRandomPoint
+		* Arguments:
+		*		void
+		* Purpose: Gets a random point on the corresponding geometry
+		* Return Value: Vec3<float>
+		*/
+		virtual Vec3<float> GetRandomPoint() {
+			return Vec3<float>::vec3(0, 0, 0);
+		}
+
 	private :
 		Vec3<unsigned char> _color;
 		Material _material;
