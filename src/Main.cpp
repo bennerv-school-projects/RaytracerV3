@@ -13,10 +13,12 @@
 #else 
 	#define OBJECTS_FILE "Objects.xml"
 	#define CONFIG_FILE "Config.ini"
+	#define HAVE_STRUCT_TIMESPEC // For pthread on windows VS2015
 #endif
 
 /* Standard libs */
 #include <iostream>
+#include <pthread.h>
 #include <vector>
 
 /* Project libs */
@@ -452,5 +454,6 @@ int main(int argc, char * argv[]) {
 	// Write out the image
 	stbi_write_png("output.png", image_width, image_height, 3, imageArray, image_width*3);
 	DestroyGeometry(geometryArray);
+	DestroyGeometry(lightArray);
 	free(imageArray);
 }
