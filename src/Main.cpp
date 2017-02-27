@@ -295,7 +295,7 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
 				// Go through and read all the attributes and tags
 				tinyxml2::XMLElement * tag = objectParents->FirstChildElement();
 				while (tag) {
-					if (!strncmp(tag->Value(), "center", 6)) {
+					if (!strncmp(tag->Value(), "location", 6)) {
 						double a, b, c;
 						tag->QueryDoubleAttribute("x", &a);
 						tag->QueryDoubleAttribute("y", &b);
@@ -385,25 +385,33 @@ std::shared_ptr<RayHit> GetRay(Vec3<float> ray, Vec3<float> startingPos, vector<
 
 Vec3<unsigned char> CheckShadows(float ambientLight, std::shared_ptr<RayHit> rayHit, vector<Geometry *> &geometry, vector<Geometry *> &lights) {
 	
-	shared_ptr<RayHit> lightHit = nullptr;
+	bool intersected = false;
 	float scale = ambientLight;
 
 	// Go through each light source
 	for (size_t i = 0; i < lights.size(); i++) {
-		Vec3<float> toLightRay = Vec3<float>::Normalize(lights.at(i)->GetRandomPoint() - (rayHit->GetHitLocation() + rayHit->GetNormal() * .00005f)); // Bump
+		Vec3<float> randomPoint = lights.at(i)->GetRandomPoint();
+		Vec3<float> toLightRay = Vec3<float>::Normalize(randomPoint - (rayHit->GetHitLocation() + (rayHit->GetNormal() * .00005f)) ); // Bump
 
 		// See if the ray from the light source is in shadow or figure out the dot product between the two
 		for (size_t j = 0; j < geometry.size(); j++) {
-			lightHit = geometry.at(j)->Intersect(toLightRay, rayHit->GetHitLocation());
+			std::shared_ptr<RayHit> tempHit;
+			if ((tempHit = geometry.at(j)->Intersect(toLightRay, rayHit->GetHitLocation())) != nullptr) {
 
-			// We didn't hit anything so take the dot product
-			if (lightHit == nullptr) {
-				float temp = toLightRay * rayHit->GetNormal();
-
-				// Ambient light calculation
-				if (temp > scale) {
-					scale = temp;
+				//Make sure we didn't hit anything behind us
+				if (tempHit->GetTime() > 0.0005f) {
+					intersected = true;
 				}
+			}
+		}
+
+		// We didn't hit anything so take the dot product
+		if (!intersected) {
+			float temp = toLightRay * rayHit->GetNormal();
+
+			// Ambient light calculation
+			if (temp > scale) {
+				scale = temp;
 			}
 		}
 	}
