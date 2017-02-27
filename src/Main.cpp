@@ -26,6 +26,7 @@
 /* Project libs */
 #include "Color.hpp"
 #include "Material.hpp"
+#include "Point.hpp"
 #include "Sphere.hpp"
 #include "Triangle.hpp"
 #include "Vector.hpp"
@@ -280,12 +281,37 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
 					tag = tag->NextSiblingElement();
 				}
 
-				// Add the object to the geometry vector/array
+				// Add the object to the light/geometry vector
 				if (isObject) {
 					geom.push_back(new Sphere(center, radius, color, mat));
 				}
 				else {
 					lights.push_back(new Sphere(center, radius, color, mat));
+				}
+			}
+			else if (!strncmp(objectParents->Value(), "point", 5)) {
+				Vec3<float> point = Vec3<float>::vec3(0, 0, 0);
+
+				// Go through and read all the attributes and tags
+				tinyxml2::XMLElement * tag = objectParents->FirstChildElement();
+				while (tag) {
+					if (!strncmp(tag->Value(), "center", 6)) {
+						double a, b, c;
+						tag->QueryDoubleAttribute("x", &a);
+						tag->QueryDoubleAttribute("y", &b);
+						tag->QueryDoubleAttribute("z", &c);
+
+						point.SetValues((float)a, (float)b, (float)c);
+					}
+					tag = tag->NextSiblingElement();
+				}
+
+				// Add the object to the light/geometry vector
+				if (isObject) {
+					geom.push_back(new Point(point));
+				}
+				else {
+					lights.push_back(new Point(point));
 				}
 			}
 
@@ -328,14 +354,14 @@ Vec3<float> GetReflection(Vec3<float> ray, Vec3<float> norm) {
 	return Vec3<float>::Normalize(ray - (norm * temp));
 }
 
-Vec3<unsigned char> GetRay(Vec3<float> ray, Vec3<float> startingPos, vector<Geometry *> &geom, int depth) {
+std::shared_ptr<RayHit> GetRay(Vec3<float> ray, Vec3<float> startingPos, vector<Geometry *> &geom, int depth) {
 	
 	float time = -1;
 	shared_ptr<RayHit> minHit = nullptr;
 	//cout << "Ray is " << ray.x << " " << ray.y << " " << ray.z << endl;
 
-	for (Geometry * obj : geom) {
-		shared_ptr<RayHit> rayHit = obj->Intersect(ray, startingPos);
+	for (size_t i = 0; i < geom.size(); i++) {
+		shared_ptr<RayHit> rayHit = geom.at(i)->Intersect(ray, startingPos);
 		if(rayHit != nullptr) {
 			if(time < 0 || rayHit->GetTime() < time) {
 				time = rayHit->GetTime();
@@ -344,17 +370,45 @@ Vec3<unsigned char> GetRay(Vec3<float> ray, Vec3<float> startingPos, vector<Geom
 		} 
 	}
 	if(minHit == nullptr) {
-		return _ColorMapping.GetColor("BLACK");
+		return nullptr;
 	}
 
 	/* Check reflection */
 	if(minHit->GetMaterial() == REFLECTIVE) {
 		if(depth > 9) {
-			return _ColorMapping.GetColor("BLACK");
+			return nullptr;
 		}
 		return GetRay(GetReflection(minHit->GetRay(), minHit->GetNormal()), minHit->GetHitLocation() + (minHit->GetNormal() * .00005f), geom, depth+1);
 	}
-	return minHit->GetColor();
+	return minHit;
+}
+
+Vec3<unsigned char> CheckShadows(float ambientLight, std::shared_ptr<RayHit> rayHit, vector<Geometry *> &geometry, vector<Geometry *> &lights) {
+	
+	shared_ptr<RayHit> lightHit = nullptr;
+	float scale = ambientLight;
+
+	// Go through each light source
+	for (size_t i = 0; i < lights.size(); i++) {
+		Vec3<float> toLightRay = Vec3<float>::Normalize(lights.at(i)->GetRandomPoint() - (rayHit->GetHitLocation() + rayHit->GetNormal() * .00005f)); // Bump
+
+		// See if the ray from the light source is in shadow or figure out the dot product between the two
+		for (size_t j = 0; j < geometry.size(); j++) {
+			lightHit = geometry.at(j)->Intersect(toLightRay, rayHit->GetHitLocation());
+
+			// We didn't hit anything so take the dot product
+			if (lightHit == nullptr) {
+				float temp = toLightRay * rayHit->GetNormal();
+
+				// Ambient light calculation
+				if (temp > scale) {
+					scale = temp;
+				}
+			}
+		}
+	}
+	
+	return rayHit->GetColor() * scale;
 }
 
 int main(int argc, char * argv[]) {
@@ -440,9 +494,18 @@ int main(int argc, char * argv[]) {
 				//Shoot a single ray 
 				//cout << "Shooting pixel to " << pixel_center_width << " height " << pixel_center_height << " -2" << endl;
 				Vec3<float> tempRay = Vec3<float>::Normalize(Vec3<float>::vec3(pixel_center_width, pixel_center_height, imagePlaneWidth) - cameraPos);
-				Vec3<unsigned char> col = GetRay(tempRay, cameraPos, geometryArray, 0);
+				std::shared_ptr<RayHit> rayHit = GetRay(tempRay, cameraPos, geometryArray, 0);
+				Vec3<unsigned char> color = rayHit == nullptr ? _ColorMapping.GetColor("BLACK") : rayHit->GetColor();
 				Vec2<int> coord(j, i);
-				setPixelColor(col, coord, imageArray, image_width);
+
+				// Set the pixel color
+				if (rayHit == nullptr) {
+					setPixelColor(_ColorMapping.GetColor("BLACK"), coord, imageArray, image_width);
+				}
+				else {
+					Vec3<unsigned char> color = CheckShadows(ambient_light, rayHit, geometryArray, lightArray);
+					setPixelColor(color, coord, imageArray, image_width);
+				}
 			}
 		}
 	}

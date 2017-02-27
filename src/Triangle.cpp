@@ -44,8 +44,7 @@ Triangle::Triangle(float ax, float ay, float az, float bx, float by, float bz, f
 	_vertexA = Vec3<float>::vec3(ax, ay, az);
 	_vertexB = Vec3<float>::vec3(bx, by, bz);
 	_vertexC = Vec3<float>::vec3(cx, cy, cz);
-	Vec3<float> temp = Vec3<float>::Normalize(Vec3<float>::Cross(Vec3<float>::Sub(_vertexB, _vertexA), Vec3<float>::Sub(_vertexC, _vertexA)));
-	_normal = Vec3<float>::vec3(temp.x, temp.y, temp.z);
+	_normal = Vec3<float>::Normalize(Vec3<float>::Cross(_vertexB - _vertexA, _vertexC - _vertexA));
 	SetMaterial(mat);
 	SetColor(color);
 }
