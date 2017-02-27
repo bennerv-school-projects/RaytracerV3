@@ -138,7 +138,7 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
 
 		//Loop to find the objects or light parent element while the string is not "objects" or the size is non-zero
 		while(objectParents && ((isObject = strncmp(objectParents->Value(), "objects", 7)) || geom.size() != 0) && ((isLight = strncmp(objectParents->Value(), "lights", 6)) || lights.size() != 0)) {
-			cout << "Element text " << objectParents->Value() << endl;
+			//cout << "Element text " << objectParents->Value() << endl;
 			objectParents = objectParents->NextSiblingElement();
 		}
 		isObject = !isObject;
@@ -330,7 +330,7 @@ void gammaCorrect(unsigned char * imageArray, int height, int width) {
 		for (int j = 0; j < width; j++) {
 
 			//Corrected = 255 * (Image/255)^(1/2.2)
-			coordinate.SetValues(i, j);
+			coordinate.SetValues(j, i);
 			getPixelColor(color, coordinate, imageArray, width);
 			color.x = (unsigned char)(255 * pow((color.x / 255.f), 0.45454545454));
 			color.z = (unsigned char)(255 * pow((color.z / 255.f), 0.45454545454));
@@ -424,7 +424,7 @@ int main(int argc, char * argv[]) {
 	bool anti_aliasing, gamma_correction, normal_correction, background_gradient, hsl_interpolation;
 	float ambient_light, plane_width, plane_height;
 	int image_width, image_height;
-	Vec3<float> gradientStart(0, 0, 0), gradientEnd(0, 0, 0), cameraPos(0, 0, 0);
+	Vec3<float> gradientStart(0, 0, 0), gradientEnd(0, 0, 0), cameraPos(0, -.25, 0);
 	float imagePlaneWidth = -2;
 	std::vector<Geometry *> geometryArray;
 	std::vector<Geometry *> lightArray;
