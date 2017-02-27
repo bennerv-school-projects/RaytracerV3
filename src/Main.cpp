@@ -16,6 +16,8 @@
 	#define HAVE_STRUCT_TIMESPEC // For pthread on windows VS2015
 #endif
 
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+
 /* Standard libs */
 #include <iostream>
 #include <pthread.h>
@@ -30,7 +32,6 @@
 
 /* External libs*/
 #include "INIReader.h"
-#define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 #include "tinyxml2.h"
 

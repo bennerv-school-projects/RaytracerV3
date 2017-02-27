@@ -5,9 +5,9 @@
  * Function Name: Sphere (constructor)
  * Arguments:
  *     Vec3<float> - the center of the sphere
- *     float                    - the radius of the sphere
- *	   Vec3                     - the color component
- *     Material                 - the material of the triangle
+ *     float       - the radius of the sphere
+ *	   Vec3        - the color component
+ *     Material    - the material of the triangle
  * Purpose: Constructor 
  * Return Value: void
  */
