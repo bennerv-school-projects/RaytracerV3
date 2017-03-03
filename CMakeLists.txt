@@ -6,6 +6,8 @@ include_directories(${CMAKE_BINARY_DIR}/lib/inih ${CMAKE_BINARY_DIR}/lib/tinyxml
 
 if(WIN32) 
 	include_directories(${CMAKE_BINARY_DIR}/lib/pthread)
+else() 
+	
 endif()
 
 # Glob all the source files 
@@ -24,4 +26,14 @@ if(WIN32)
 	target_link_libraries(raytracer ${CMAKE_BINARY_DIR}/lib/tinyxml2/Debug/tinyxml2.lib)
 else()
 	target_link_libraries(raytracer ${CMAKE_BINARY_DIR}/lib/tinyxml2/libtinyxml2.a)
+
+	# Threading library
+	find_package(Threads REQUIRED)
+	if(THREADS_HAVE_PTHREAD_ARG)
+  		set_property(TARGET raytracer PROPERTY COMPILE_OPTIONS "-pthread")
+  		set_property(TARGET raytracer PROPERTY INTERFACE_COMPILE_OPTIONS "-pthread")
+	endif()
+	if(CMAKE_THREAD_LIBS_INIT)
+  		target_link_libraries(raytracer "${CMAKE_THREAD_LIBS_INIT}")
+	endif()
 endif()
