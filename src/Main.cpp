@@ -36,6 +36,10 @@
 #include "stb_image_write.h"
 #include "tinyxml2.h"
 
+typedef struct threadArgs {
+
+};
+
 
 using namespace std;
 
@@ -129,11 +133,12 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
 		doc.PrintError();
 		exit(1);
 	}
+	// Grab the first child element in the file
+	tinyxml2::XMLElement * objectParents = doc.FirstChildElement();
 	// Go through the lighs array and geometry array
-	while(geom.size() == 0 || lights.size() == 0) {
+	while(objectParents) {
 
-		// Grab the first child element in the file
-		tinyxml2::XMLElement * objectParents = doc.FirstChildElement();
+
 		int isObject = 0, isLight = 0;
 
 		//Loop to find the objects or light parent element while the string is not "objects" or the size is non-zero
@@ -150,11 +155,11 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
 		}
 
 		// Iterate through the objects portion and add them to the geometry array
-		objectParents = objectParents->FirstChildElement();
-		while (objectParents) {
+		tinyxml2::XMLElement * objectChild = objectParents->FirstChildElement();
+		while (objectChild) {
 
 			// Triangle object
-			if (!strncmp(objectParents->Value(), "triangle", 8)) {
+			if (!strncmp(objectChild->Value(), "triangle", 8)) {
 				Vec3<float> vertexA;
 				Vec3<float> vertexB;
 				Vec3<float> vertexC;
@@ -163,7 +168,7 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
 				std::string str;
 
 				// Go through and read all the attributes and tags
-				tinyxml2::XMLElement * tag = objectParents->FirstChildElement();
+				tinyxml2::XMLElement * tag = objectChild->FirstChildElement();
 				int vertexCount = 0;
 				while (tag) {
 					if (!strncmp(tag->Value(), "vertex", 6)) {
@@ -227,7 +232,7 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
 
 
 			} //Sphere object
-			else if (!strncmp(objectParents->Value(), "sphere", 6)) {
+			else if (!strncmp(objectChild->Value(), "sphere", 6)) {
 				Vec3<float> center;
 				float radius;
 				Material mat = NONE;
@@ -235,7 +240,7 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
 				std::string str;
 
 				// Go through and read all the attributes and tags
-				tinyxml2::XMLElement * tag = objectParents->FirstChildElement();
+				tinyxml2::XMLElement * tag = objectChild->FirstChildElement();
 				while (tag) {
 					if (!strncmp(tag->Value(), "center", 6)) {
 						double a, b, c;
@@ -289,11 +294,11 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
 					lights.push_back(new Sphere(center, radius, color, mat));
 				}
 			}
-			else if (!strncmp(objectParents->Value(), "point", 5)) {
+			else if (!strncmp(objectChild->Value(), "point", 5)) {
 				Vec3<float> point = Vec3<float>::vec3(0, 0, 0);
 
 				// Go through and read all the attributes and tags
-				tinyxml2::XMLElement * tag = objectParents->FirstChildElement();
+				tinyxml2::XMLElement * tag = objectChild->FirstChildElement();
 				while (tag) {
 					if (!strncmp(tag->Value(), "location", 6)) {
 						double a, b, c;
@@ -316,7 +321,7 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
 			}
 
 			// Get the next object
-			objectParents = objectParents->NextSiblingElement();
+			objectChild = objectChild->NextSiblingElement();
 		}
 	}
 }
@@ -425,7 +430,7 @@ int main(int argc, char * argv[]) {
 	float ambient_light, plane_width, plane_height;
 	int image_width, image_height;
 	Vec3<float> gradientStart(0, 0, 0), gradientEnd(0, 0, 0), cameraPos(0, -.25, 0);
-	float imagePlaneWidth = -2;
+	float imagePlaneWidth = -3;
 	std::vector<Geometry *> geometryArray;
 	std::vector<Geometry *> lightArray;
 
