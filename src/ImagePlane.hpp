@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cassert>
+
 #include "Vector.hpp"
 
 /*
@@ -23,11 +25,29 @@ class ImagePlane : {
      * Purpose: Constructor
      * Return Value: void (Constructor)
      */
-    Point(Vec3<float> corner, float length, float width, float height) {
+    ImagePlane(Vec3<float> corner, float length, float width, float height) {
         _corner = corner;
         _length = length;
         _width = width;
         _height = height;
+        
+        int zeroCount = 0;
+        
+        if(_length == 0) {
+            zeroCount++;
+        }
+    
+        if(_width == 0) {
+            zeroCount++;
+        }
+        
+        if(_height == 0) {
+            zeroCount++;
+        }
+        
+        // The ImagePlane should be parallel to one axis (as defined by the programmer in order not to do any fancy math in length/width/height pixels)
+        assert(zeroCount == 1);
+        
     }
     
     /*
