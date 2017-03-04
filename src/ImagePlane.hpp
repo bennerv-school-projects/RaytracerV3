@@ -48,6 +48,11 @@ class ImagePlane : {
         // The ImagePlane should be parallel to one axis (as defined by the programmer in order not to do any fancy math in length/width/height pixels)
         assert(zeroCount == 1);
         
+        // Make sure the length/width/heights are greater than zero (otherwise we will have negative units for pixel length/height)
+        assert(_length >= 0);
+        assert(_width >= 0);
+        assert(_height >= 0);
+        
     }
     
     /*
