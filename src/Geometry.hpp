@@ -109,6 +109,16 @@ class Geometry {
 		virtual Vec3<float> GetRandomPoint() {
 			return Vec3<float>::vec3(0, 0, 0);
 		}
+    
+        /*
+	     * Date: 3/3/17
+         * Function Name: ~Geometry
+         * Arguments:
+         *		void
+         * Purpose: Destructor
+         * Return Value: void
+         */
+        virtual ~Geometry() { }
 
 	private :
 		Vec3<unsigned char> _color;

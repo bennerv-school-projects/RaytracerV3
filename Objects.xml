@@ -12,12 +12,6 @@
   
 <objects>
 
-  <!-- LIGHT SOURCES -->
-  <light>
-    <shape>CIRCLE, TRIANGLE, POINT</shape>
-
-  </light>
-
   <!-- OBJECTS -->
   <sphere>
     <center x="0" y="0" z="-16"/>

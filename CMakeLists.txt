@@ -14,9 +14,6 @@ endif()
 file(GLOB SourceFiles "src/*.cpp" "src/*.hpp" "src/*.h")
 file(GLOB TestFiles "test/*.cpp" "test/*.hpp" "src/*.hpp")
 
-# Program output directory
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
 # Executables
 add_executable(raytracer ${SourceFiles})
 add_executable(raytracer-test ${TestFiles})

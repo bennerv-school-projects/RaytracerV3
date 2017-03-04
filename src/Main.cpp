@@ -36,9 +36,12 @@
 #include "stb_image_write.h"
 #include "tinyxml2.h"
 
-typedef struct threadArgs {
-
-};
+typedef struct {
+    char threadId;
+    
+    
+    
+} threadArgs;
 
 
 using namespace std;
@@ -508,7 +511,6 @@ int main(int argc, char * argv[]) {
 				//cout << "Shooting pixel to " << pixel_center_width << " height " << pixel_center_height << " -2" << endl;
 				Vec3<float> tempRay = Vec3<float>::Normalize(Vec3<float>::vec3(pixel_center_width, pixel_center_height, imagePlaneWidth) - cameraPos);
 				std::shared_ptr<RayHit> rayHit = GetRay(tempRay, cameraPos, geometryArray, 0);
-				Vec3<unsigned char> color = rayHit == nullptr ? _ColorMapping.GetColor("BLACK") : rayHit->GetColor();
 				Vec2<int> coord(j, i);
 
 				// Set the pixel color
