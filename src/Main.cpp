@@ -138,10 +138,17 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
 	}
 	// Grab the first child element in the file
 	tinyxml2::XMLElement * objectParents = doc.FirstChildElement();
+    
+    //TODO <BMV> Bad code.  looping should be more straightforward
 	// Go through the lighs array and geometry array
 	while(objectParents) {
 
 
+        // Exit condition
+        if(geom.size() > 0 && lights.size() > 0) {
+            break;
+        }
+        
 		int isObject = 0, isLight = 0;
 
 		//Loop to find the objects or light parent element while the string is not "objects" or the size is non-zero
@@ -433,7 +440,7 @@ int main(int argc, char * argv[]) {
 	float ambient_light, plane_width, plane_height;
 	int image_width, image_height;
 	Vec3<float> gradientStart(0, 0, 0), gradientEnd(0, 0, 0), cameraPos(0, -.25, 0);
-	float imagePlaneWidth = -3;
+	float imagePlaneWidth = -2;
 	std::vector<Geometry *> geometryArray;
 	std::vector<Geometry *> lightArray;
 
