@@ -41,6 +41,79 @@ public Perspective {
         }
     }
     
+    /*
+     * Date: 3/5/17
+     * Function Name: GetPixelLength
+     * Arguments:
+     *      void
+     * Purpose: Gets the length of the output image in pixels
+     * Return Value: int
+     */
+    int GetPixelLength() {
+        return _pixelLength;
+    }
+    
+    /*
+     * Date: 3/5/17
+     * Function Name: GetPixelHeight
+     * Arguments:
+     *      void
+     * Purpose: Gets the height of the output image in pixels
+     * Return Value: int
+     */
+    int GetPixelHeight() {
+        return _pixelHeight;
+    }
+    
+    /*
+     * Date: 3/5/17
+     * Function Name: GetUnitsPerLengthPixel
+     * Arguments:
+     *      void
+     * Purpose: Returns the offset in the x,y,z direction of the corresponding units per length pixel
+     * Return Value: Vec3<float>
+     */
+    Vec3<float> GetUnitsPerLengthPixel() {
+        return _unitsPerLengthPixel;
+    }
+    
+    /*
+     * Date: 3/5/17
+     * Function Name: GetUnitsPerHeightPixel
+     * Arguments:
+     *      void
+     * Purpose: Returns the offset in the x,y,z direction of the corresponding units per height pixel
+     * Return Value: Vec3<float>
+     */
+    Vec3<float> GetUnitsPerHeightPixel() {
+        return _unitsPerHeightPixel;
+    }
+    
+    /*
+     * Date: 3/5/17
+     * Function Name: GetImagePlane
+     * Arguments:
+     *      void
+     * Purpose: Gets the corresponding ImagePlane information about the image
+     * Return Value: ImagePlane
+     */
+    ImagePlane GetImagePlane() {
+        return _imagePlane;
+    }
+    
+    /*
+     * Date: 3/5/17
+     * Function Name: GetCameraPosition
+     * Arguments:
+     *      void
+     * Purpose: Gets the corresponding camera position in the world
+     * Return Value: Vec3<float>
+     */
+    ImagePlane GetImagePlane() {
+        return _imagePlane;
+    }
+    
+    
     private:
     
     int _pixelLength; // the size of the image width in pixels
