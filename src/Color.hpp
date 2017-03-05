@@ -33,27 +33,15 @@ class Color {
 				exit(1);
 			}
 
-			// Iterate through the xml elements until we find "object" section
+			// Iterate through the xml elements until we find "colors" section
 			tinyxml2::XMLElement * colorParent = doc.FirstChildElement();
-			while( colorParent && strncmp(colorParent->Value(), "objects", 7) ) {
+			while( colorParent && strncmp(colorParent->Value(), "colors", 7) ) {
 				//cout << "Element text " << colorParent->Value() << endl;
 				colorParent = colorParent->NextSiblingElement();
 			}
 
 			if( !colorParent ) {
-				cout << "Failed to find the object portion in the xml file.  Exiting" << endl;
-				exit(10);
-			}
-
-			// Iterate through the sml elements until we find "colors" section
-			colorParent = colorParent->FirstChildElement();
-			while( colorParent && strncmp(colorParent->Value(), "colors", 6) ) {
-				//cout << "Inner element text " << colorParent->Value() << endl;
-				colorParent = colorParent->NextSiblingElement();
-			}
-
-			if( !colorParent ) {
-				cout << "Failed to find the colors portion int he xml file.  Exiting." << endl;
+				cout << "Failed to find the colors portion in the xml file.  Exiting" << endl;
 				exit(10);
 			}
 

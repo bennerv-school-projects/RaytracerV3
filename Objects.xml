@@ -1,18 +1,28 @@
 <?xml version="1.0" ?>
 
+<!-- Lights in world space -->
 <lights>
   <point>
     <location x="3" y="5" z="-15"/>
   </point>
 </lights>
 
+<!-- Camera location in world space -->
 <camera>
   <location x="3" y="3" z="3"/>
 </camera>
-  
-<objects>
 
-  <!-- OBJECTS -->
+<!-- Image plane locations.  Should specify the bottom left corner and work in the positive x/y/z directions -->
+<image_plane>
+  <corner x="" y="" z="" />
+  <length></length>
+  <width></width>
+  <height></height>
+</image_plane>
+  
+
+<!-- Geometry in world space and color parsing -->
+<objects>
   <sphere>
     <center x="0" y="0" z="-16"/>
     <radius>2</radius>
@@ -102,5 +112,3 @@
     
   </colors>
 </objects>
-
-
