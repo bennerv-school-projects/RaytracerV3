@@ -42,6 +42,17 @@ public Perspective {
     }
     
     /*
+     * Date: 3/4/17
+     * Function Name: ~Perspective
+     * Arguments:
+     * Purpose: Destructor
+     * Return Value: void (Destructor)
+     */
+    ~Perspective() {
+        delete(_imagePlane);
+    }
+    
+    /*
      * Date: 3/5/17
      * Function Name: GetPixelLength
      * Arguments:
@@ -122,7 +133,7 @@ public Perspective {
     // For every length/height pixel we move (x, y, z) in the corresponding directions
     Vec3<float> _unitsPerLengthPixel; // the units per length pixel in the image (in meters)
     Vec3<float> _unitsPerHeightPixel; // the units per height pixel in the image (in meters)
-    ImagePlane _imagePlane; // the ImagePlane being projected upon
+    ImagePlane * _imagePlane; // the ImagePlane being projected upon
     Vec3<float> _cameraPosition; // the camera position
     
     
