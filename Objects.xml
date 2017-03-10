@@ -14,10 +14,10 @@
 
 <!-- Image plane locations.  Should specify the bottom left corner and work in the positive x/y/z directions -->
 <image_plane>
-  <corner x="" y="" z="" />
-  <length></length>
-  <width></width>
-  <height></height>
+  <corner x="-1" y="-1" z="2" />
+  <length>2</length>
+  <width>0</width>
+  <height>2</height>
 </image_plane>
   
 

@@ -1,13 +1,4 @@
 #if defined(__linux) || defined(__APPLE__)
-	#define TERM_NRM  "\x1B[0m"
-	#define TERM_BLK  "\x1B[30m"
-	#define TERM_RED  "\x1B[31m"
-	#define TERM_GRN  "\x1B[32m"
-	#define TERM_YEL  "\x1B[33m"
-	#define TERM_BLU  "\x1B[34m"
-	#define TERM_MAG  "\x1B[35m"
-	#define TERM_CYN  "\x1B[36m"
-	#define TERM_WHT  "\x1B[37m"
 	#define OBJECTS_FILE "../Objects.xml"
 	#define CONFIG_FILE "../Config.ini"
 #else 
@@ -16,6 +7,7 @@
 	#define HAVE_STRUCT_TIMESPEC // For pthread on windows VS2015
 #endif
 
+/* STB Image write definition needed for writing png file */
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
 /* Standard libs */
@@ -26,6 +18,7 @@
 /* Project libs */
 #include "Color.hpp"
 #include "Material.hpp"
+#include "Perspective.hpp"
 #include "Point.hpp"
 #include "Sphere.hpp"
 #include "Triangle.hpp"
@@ -37,8 +30,10 @@
 #include "tinyxml2.h"
 
 typedef struct {
-    char threadId;
-    
+    int threadId;
+    Perspective * perspective;
+    std::vector<Geometry *> * geometryArray;
+    std::vector<Geometry *> * lightArray;
     
     
 } threadArgs;
@@ -103,7 +98,7 @@ void drawGradient(Vec3<float> gradientStart, Vec3<float> gradientEnd, int width,
 		Color::RGBToHSL(gradientEnd);
 	}
 	for (int i = 0; i < height; i++) {
-		t = i / (float)(height - 1.0);
+		t = i / (float)(height - 1.0f);
 		float r = gradientStart.x + (gradientEnd.x - gradientStart.x) * t;
 		float g = gradientStart.y + (gradientEnd.y - gradientStart.y) * t;
 		float b = gradientStart.z + (gradientEnd.z - gradientStart.z) * t;
@@ -139,15 +134,8 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
 	// Grab the first child element in the file
 	tinyxml2::XMLElement * objectParents = doc.FirstChildElement();
     
-    //TODO <BMV> Bad code.  looping should be more straightforward
-	// Go through the lighs array and geometry array
+	// Go through the lights array and geometry array
 	while(objectParents) {
-
-
-        // Exit condition
-        if(geom.size() > 0 && lights.size() > 0) {
-            break;
-        }
         
 		int isObject = 0, isLight = 0;
 
@@ -160,8 +148,7 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
 		isLight = !isLight;
 
 		if (!objectParents) {
-			cout << "Failed to find the object/light portion in the xml file.  Exiting" << endl;
-			exit(10);
+            break;
 		}
 
 		// Iterate through the objects portion and add them to the geometry array
@@ -333,6 +320,7 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
 			// Get the next object
 			objectChild = objectChild->NextSiblingElement();
 		}
+        objectParents = objectParents->NextSiblingElement();
 	}
 }
 
@@ -357,7 +345,7 @@ void gammaCorrect(unsigned char * imageArray, int height, int width) {
 }
 
 void DestroyGeometry(std::vector<Geometry *> &geom) {
-	for (std::vector<Geometry *>::size_type i = 0; i != geom.size(); i++) {
+	for (std::vector<Geometry *>::size_type i = 0; i < geom.size(); i++) {
 		if (geom[i] != NULL) {
 			delete(geom[i]);
 		}
@@ -457,6 +445,7 @@ int main(int argc, char * argv[]) {
 	cout << "Image height: " << image_height << endl;
 
 	unsigned char * imageArray = (unsigned char *) malloc(3 * image_width * image_height * sizeof(unsigned char));
+    unsigned char * imageArray1 = (unsigned char *) malloc(3 * image_width * image_height * sizeof(unsigned char));
 
 	if(!imageArray) {
 		cout << "Failed to allocate memory for the image array.  Exiting" << endl;
@@ -484,25 +473,6 @@ int main(int argc, char * argv[]) {
 	float width_offset = image_width % 2 == 0 ? pixel_width / 2.f : 0.f;
 	float height_offset = image_height % 2 == 0 ? pixel_height / 2.f : 0.f;
 
-	/*Iterate through the geometry 
-	for (size_t i = 0; i < geometryArray.size(); i++) {
-		cout << "Geometry number " << i+1 << endl;
-		cout << "Shape " << geometryArray[i]->GetShape() << endl;
-		cout << "Material " << geometryArray[i]->GetMaterial() << endl;
-		cout << "Color " << (int)geometryArray[i]->GetColor().x;
-		cout << " " << (int)geometryArray[i]->GetColor().y;
-		cout << " " << (int)geometryArray[i]->GetColor().z << endl;
-	}
-
-	//Iterate through the lights
-	for (size_t i = 0; i < lightArray.size(); i++) {
-		cout << "Light number " << i + 1 << endl;
-		cout << "Shape " << lightArray[i]->GetShape() << endl;
-		cout << "Color " << (int)lightArray[i]->GetColor().x;
-		cout << " " << (int)lightArray[i]->GetColor().y;
-		cout << " " << (int)lightArray[i]->GetColor().z << endl;
-	}*/
-
 	// Start going through all pixels and draw them
 	for(int i = 0; i < image_height; i++) {
 		float pixel_center_height = (plane_height / 2.f - i * pixel_height - height_offset);
@@ -514,8 +484,7 @@ int main(int argc, char * argv[]) {
 
 				}
 			} else {
-				//Shoot a single ray 
-				//cout << "Shooting pixel to " << pixel_center_width << " height " << pixel_center_height << " -2" << endl;
+				//Shoot a single ray
 				Vec3<float> tempRay = Vec3<float>::Normalize(Vec3<float>::vec3(pixel_center_width, pixel_center_height, imagePlaneWidth) - cameraPos);
 				std::shared_ptr<RayHit> rayHit = GetRay(tempRay, cameraPos, geometryArray, 0);
 				Vec2<int> coord(j, i);
@@ -542,4 +511,5 @@ int main(int argc, char * argv[]) {
 	DestroyGeometry(geometryArray);
 	DestroyGeometry(lightArray);
 	free(imageArray);
+    free(imageArray1);
 }
