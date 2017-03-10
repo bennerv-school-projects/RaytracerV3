@@ -8,7 +8,7 @@
  * Date: 3/4/17
  * Purpose: Contains Perspective information for the Raytracer
  */
-public Perspective {
+class Perspective {
     public :
     
     /*
@@ -22,22 +22,22 @@ public Perspective {
      * Purpose: Constructor
      * Return Value: void (Constructor)
      */
-    Perspective(int length, int height, ImagePlane imagePlane, Vec3<float> cam) {
+    Perspective(int length, int height, ImagePlane * imagePlane, Vec3<float> cam) {
         _pixelLength = length;
         _pixelHeight = height;
         _imagePlane = imagePlane;
         _cameraPosition = cam;
         
         // Calculate the units per pixel
-        if(_imagePlane.GetLength() == 0) { // x doesn't change so as coords(i, j) progress i corresponds with the z direction and j with the y
-            _unitsPerLengthPixel = Vec3<float>::vec3(0.f, 0.f, _imagePlane.GetWidth() / (float)_pixelLength);
-            _unitsPerHeightPixel = Vec3<float>::vec3(0.f, _imagePlane.GetHeight() / (float) _pixelHeight, 0.f);
-        } else if(_imagePlane.GetWidth() == 0) { // z doesn't change so as coords(i, j) progress i corresponds with the x direction and j with the y
-            _unitsPerLengthPixel = Vec3<float>::vec3(_imagePlane.GetLength() / (float)_pixelLength, 0.f, 0.f);
-            _unitsPerHeightPixel = Vec3<float>::vec3(0.f, _imagePlane.GetHeight() / (float) _pixelHeight, 0.f);
+        if(_imagePlane->GetLength() == 0) { // x doesn't change so as coords(i, j) progress i corresponds with the z direction and j with the y
+            _unitsPerLengthPixel = Vec3<float>::vec3(0.f, 0.f, _imagePlane->GetWidth() / (float)_pixelLength);
+            _unitsPerHeightPixel = Vec3<float>::vec3(0.f, _imagePlane->GetHeight() / (float) _pixelHeight, 0.f);
+        } else if(_imagePlane->GetWidth() == 0) { // z doesn't change so as coords(i, j) progress i corresponds with the x direction and j with the y
+            _unitsPerLengthPixel = Vec3<float>::vec3(_imagePlane->GetLength() / (float)_pixelLength, 0.f, 0.f);
+            _unitsPerHeightPixel = Vec3<float>::vec3(0.f, _imagePlane->GetHeight() / (float) _pixelHeight, 0.f);
         } else { // y doesn't change so as coords(i, j) progress i corresponds with the x direction and j with the z
-            _unitsPerLengthPixel = Vec3<float>::vec3(_imagePlane.GetLength() / (float)_pixelLength, 0.f, 0.f);
-            _unitsPerHeightPixel = Vec3<float>::vec3(0.f, 0.f, _imagePlane.GetWidth() / (float) _pixelHeight);
+            _unitsPerLengthPixel = Vec3<float>::vec3(_imagePlane->GetLength() / (float)_pixelLength, 0.f, 0.f);
+            _unitsPerHeightPixel = Vec3<float>::vec3(0.f, 0.f, _imagePlane->GetWidth() / (float) _pixelHeight);
         }
     }
     
@@ -106,9 +106,9 @@ public Perspective {
      * Arguments:
      *      void
      * Purpose: Gets the corresponding ImagePlane information about the image
-     * Return Value: ImagePlane
+     * Return Value: ImagePlane *
      */
-    ImagePlane GetImagePlane() {
+    ImagePlane * GetImagePlane() {
         return _imagePlane;
     }
     
@@ -120,8 +120,8 @@ public Perspective {
      * Purpose: Gets the corresponding camera position in the world
      * Return Value: Vec3<float>
      */
-    ImagePlane GetImagePlane() {
-        return _imagePlane;
+    Vec3<float> GetCameraPosition() {
+        return _cameraPosition;
     }
     
     
