@@ -119,7 +119,7 @@ void drawGradient(Vec3<float> gradientStart, Vec3<float> gradientEnd, int width,
 	}
 }
 
-void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights) {
+void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights, Perspective &perspective) {
 
 	// Load the xml file
 	tinyxml2::XMLDocument doc;
@@ -137,191 +137,214 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
 	// Go through the lights array and geometry array
 	while(objectParents) {
         
-		int isObject = 0, isLight = 0;
+		int isObject = 1, isLight = 1, isCamera = 1, isImagePlane = 1;
 
 		//Loop to find the objects or light parent element while the string is not "objects" or the size is non-zero
-		while(objectParents && ((isObject = strncmp(objectParents->Value(), "objects", 7)) || geom.size() != 0) && ((isLight = strncmp(objectParents->Value(), "lights", 6)) || lights.size() != 0)) {
+		while(objectParents && (isObject = strncmp(objectParents->Value(), "objects", 7)) && (isLight = strncmp(objectParents->Value(), "lights", 6)) && (isCamera = strncmp(objectParents->Value(), "camera", 6)) && (isImagePlane = strncmp(objectParents->Value(), "image_plane", 11)) ) {
 			//cout << "Element text " << objectParents->Value() << endl;
 			objectParents = objectParents->NextSiblingElement();
 		}
 		isObject = !isObject;
 		isLight = !isLight;
+        isCamera = !isCamera;
+        isImagePlane = !isImagePlane;
 
 		if (!objectParents) {
             break;
 		}
+        
+        
+        tinyxml2::XMLElement * objectChild = objectParents->FirstChildElement();
+        
+        // Camera parsing
+        if(isCamera) {
+            if (!strncmp(objectChild->Value(), "location", 8)) {
+                
+                // Read the 3 vectors' attributes and set their values
+                double a = 0, b = 0, c = 0;
+                objectChild->QueryDoubleAttribute("x", &a);
+                objectChild->QueryDoubleAttribute("y", &b);
+                objectChild->QueryDoubleAttribute("z", &c);
+            }
+        } else if(isImagePlane) { // imagePlane parsing
+            
+            
+        } else { // object/light parsing
 
-		// Iterate through the objects portion and add them to the geometry array
-		tinyxml2::XMLElement * objectChild = objectParents->FirstChildElement();
-		while (objectChild) {
+            // Iterate through the objects portion and add them to the geometry array
+            while (objectChild) {
 
-			// Triangle object
-			if (!strncmp(objectChild->Value(), "triangle", 8)) {
-				Vec3<float> vertexA;
-				Vec3<float> vertexB;
-				Vec3<float> vertexC;
-				Vec3<unsigned char> color = _ColorMapping.GetColor("WHITE");
-				Material mat = NONE;
-				std::string str;
+                // Triangle object
+                if (!strncmp(objectChild->Value(), "triangle", 8)) {
+                    Vec3<float> vertexA;
+                    Vec3<float> vertexB;
+                    Vec3<float> vertexC;
+                    Vec3<unsigned char> color = _ColorMapping.GetColor("WHITE");
+                    Material mat = NONE;
+                    std::string str;
 
-				// Go through and read all the attributes and tags
-				tinyxml2::XMLElement * tag = objectChild->FirstChildElement();
-				int vertexCount = 0;
-				while (tag) {
-					if (!strncmp(tag->Value(), "vertex", 6)) {
+                    // Go through and read all the attributes and tags
+                    tinyxml2::XMLElement * tag = objectChild->FirstChildElement();
+                    int vertexCount = 0;
+                    while (tag) {
+                        if (!strncmp(tag->Value(), "vertex", 6)) {
 
-						// Read the 3 vectors' attributes and set their values
-						double a = 0, b = 0, c = 0;
-						tag->QueryDoubleAttribute("x", &a);
-						tag->QueryDoubleAttribute("y", &b);
-						tag->QueryDoubleAttribute("z", &c);
+                            // Read the 3 vectors' attributes and set their values
+                            double a = 0, b = 0, c = 0;
+                            tag->QueryDoubleAttribute("x", &a);
+                            tag->QueryDoubleAttribute("y", &b);
+                            tag->QueryDoubleAttribute("z", &c);
 
-						// Set the vertex values
-						if (vertexCount == 0) {
-							vertexA.SetValues((float)a, (float)b, (float)c);
-						}
-						else if (vertexCount == 1) {
-							vertexB.SetValues((float)a, (float)b, (float)c);
-						}
-						else {
-							vertexC.SetValues((float)a, (float)b, (float)c);
-						}
-						vertexCount++;
-					}
-					else if (!strncmp(tag->Value(), "color", 5)) {
+                            // Set the vertex values
+                            if (vertexCount == 0) {
+                                vertexA.SetValues((float)a, (float)b, (float)c);
+                            }
+                            else if (vertexCount == 1) {
+                                vertexB.SetValues((float)a, (float)b, (float)c);
+                            }
+                            else {
+                                vertexC.SetValues((float)a, (float)b, (float)c);
+                            }
+                            vertexCount++;
+                        }
+                        else if (!strncmp(tag->Value(), "color", 5)) {
 
-						// Read the color and set the corresponding triangle color
-						str.assign(tag->GetText());
-						std::transform(str.begin(), str.end(), str.begin(), ::toupper);
-						color = _ColorMapping.GetColor(str);
+                            // Read the color and set the corresponding triangle color
+                            str.assign(tag->GetText());
+                            std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+                            color = _ColorMapping.GetColor(str);
 
-					}
-					else if (!strncmp(tag->Value(), "material", 8)) {
+                        }
+                        else if (!strncmp(tag->Value(), "material", 8)) {
 
-						// Read the material and set the corresponding material for the triangle
-						str.assign(tag->GetText());
-						std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+                            // Read the material and set the corresponding material for the triangle
+                            str.assign(tag->GetText());
+                            std::transform(str.begin(), str.end(), str.begin(), ::toupper);
 
-						// Assign the material
-						if (!strncmp(str.c_str(), "NONE", 4)) {
-							mat = NONE;
-						}
-						else if (!strncmp(str.c_str(), "REFLECTIVE", 10)) {
-							mat = REFLECTIVE;
-						}
-						else if (!strncmp(str.c_str(), "SPECULAR", 8)) {
-							mat = SPECULAR;
-						}
-						else if (!strncmp(str.c_str(), "GLASS", 5)) {
-							mat = GLASS;
-						}
-					}
-					tag = tag->NextSiblingElement();
-				}
+                            // Assign the material
+                            if (!strncmp(str.c_str(), "NONE", 4)) {
+                                mat = NONE;
+                            }
+                            else if (!strncmp(str.c_str(), "REFLECTIVE", 10)) {
+                                mat = REFLECTIVE;
+                            }
+                            else if (!strncmp(str.c_str(), "SPECULAR", 8)) {
+                                mat = SPECULAR;
+                            }
+                            else if (!strncmp(str.c_str(), "GLASS", 5)) {
+                                mat = GLASS;
+                            }
+                        }
+                        tag = tag->NextSiblingElement();
+                    }
 
-				// Create a new triangle object and add it to the arrayj
-				if (isObject) {
-					geom.push_back(new Triangle(vertexA, vertexB, vertexC, color, mat));
-				}
-				else {
-					lights.push_back(new Triangle(vertexA, vertexB, vertexC, color, mat));
-				}
+                    // Create a new triangle object and add it to the arrayj
+                    if (isObject) {
+                        geom.push_back(new Triangle(vertexA, vertexB, vertexC, color, mat));
+                    }
+                    else {
+                        lights.push_back(new Triangle(vertexA, vertexB, vertexC, color, mat));
+                    }
 
 
-			} //Sphere object
-			else if (!strncmp(objectChild->Value(), "sphere", 6)) {
-				Vec3<float> center;
-				float radius;
-				Material mat = NONE;
-				Vec3<unsigned char> color = _ColorMapping.GetColor("WHITE");
-				std::string str;
+                } //Sphere object
+                else if (!strncmp(objectChild->Value(), "sphere", 6)) {
+                    Vec3<float> center;
+                    float radius;
+                    Material mat = NONE;
+                    Vec3<unsigned char> color = _ColorMapping.GetColor("WHITE");
+                    std::string str;
 
-				// Go through and read all the attributes and tags
-				tinyxml2::XMLElement * tag = objectChild->FirstChildElement();
-				while (tag) {
-					if (!strncmp(tag->Value(), "center", 6)) {
-						double a, b, c;
-						tag->QueryDoubleAttribute("x", &a);
-						tag->QueryDoubleAttribute("y", &b);
-						tag->QueryDoubleAttribute("z", &c);
+                    // Go through and read all the attributes and tags
+                    tinyxml2::XMLElement * tag = objectChild->FirstChildElement();
+                    while (tag) {
+                        if (!strncmp(tag->Value(), "center", 6)) {
+                            double a, b, c;
+                            tag->QueryDoubleAttribute("x", &a);
+                            tag->QueryDoubleAttribute("y", &b);
+                            tag->QueryDoubleAttribute("z", &c);
 
-						center.SetValues((float)a, (float)b, (float)c);
-					}
-					else if (!strncmp(tag->Value(), "radius", 6)) {
+                            center.SetValues((float)a, (float)b, (float)c);
+                        }
+                        else if (!strncmp(tag->Value(), "radius", 6)) {
 
-						// Read the radius
-						radius = (float)atof(tag->GetText());
-					}
-					else if (!strncmp(tag->Value(), "color", 5)) {
+                            // Read the radius
+                            radius = (float)atof(tag->GetText());
+                        }
+                        else if (!strncmp(tag->Value(), "color", 5)) {
 
-						// Read the color and set the corresponding triangle color
-						str.assign(tag->GetText());
-						std::transform(str.begin(), str.end(), str.begin(), ::toupper);
-						color = _ColorMapping.GetColor(str);
+                            // Read the color and set the corresponding triangle color
+                            str.assign(tag->GetText());
+                            std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+                            color = _ColorMapping.GetColor(str);
 
-					}
-					else if (!strncmp(tag->Value(), "material", 8)) {
+                        }
+                        else if (!strncmp(tag->Value(), "material", 8)) {
 
-						// Read the material and set the corresponding material for the triangle
-						str.assign(tag->GetText());
-						std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+                            // Read the material and set the corresponding material for the triangle
+                            str.assign(tag->GetText());
+                            std::transform(str.begin(), str.end(), str.begin(), ::toupper);
 
-						// Assign the material
-						if (!strncmp(str.c_str(), "NONE", 4)) {
-							mat = NONE;
-						}
-						else if (!strncmp(str.c_str(), "REFLECTIVE", 10)) {
-							mat = REFLECTIVE;
-						}
-						else if (!strncmp(str.c_str(), "SPECULAR", 8)) {
-							mat = SPECULAR;
-						}
-						else if (!strncmp(str.c_str(), "GLASS", 5)) {
-							mat = GLASS;
-						}
-					}
-					tag = tag->NextSiblingElement();
-				}
+                            // Assign the material
+                            if (!strncmp(str.c_str(), "NONE", 4)) {
+                                mat = NONE;
+                            }
+                            else if (!strncmp(str.c_str(), "REFLECTIVE", 10)) {
+                                mat = REFLECTIVE;
+                            }
+                            else if (!strncmp(str.c_str(), "SPECULAR", 8)) {
+                                mat = SPECULAR;
+                            }
+                            else if (!strncmp(str.c_str(), "GLASS", 5)) {
+                                mat = GLASS;
+                            }
+                        }
+                        tag = tag->NextSiblingElement();
+                    }
 
-				// Add the object to the light/geometry vector
-				if (isObject) {
-					geom.push_back(new Sphere(center, radius, color, mat));
-				}
-				else {
-					lights.push_back(new Sphere(center, radius, color, mat));
-				}
-			}
-			else if (!strncmp(objectChild->Value(), "point", 5)) {
-				Vec3<float> point = Vec3<float>::vec3(0, 0, 0);
+                    // Add the object to the light/geometry vector
+                    if (isObject) {
+                        geom.push_back(new Sphere(center, radius, color, mat));
+                    }
+                    else {
+                        lights.push_back(new Sphere(center, radius, color, mat));
+                    }
+                }
+                else if (!strncmp(objectChild->Value(), "point", 5)) {
+                    Vec3<float> point = Vec3<float>::vec3(0, 0, 0);
 
-				// Go through and read all the attributes and tags
-				tinyxml2::XMLElement * tag = objectChild->FirstChildElement();
-				while (tag) {
-					if (!strncmp(tag->Value(), "location", 6)) {
-						double a, b, c;
-						tag->QueryDoubleAttribute("x", &a);
-						tag->QueryDoubleAttribute("y", &b);
-						tag->QueryDoubleAttribute("z", &c);
+                    // Go through and read all the attributes and tags
+                    tinyxml2::XMLElement * tag = objectChild->FirstChildElement();
+                    while (tag) {
+                        if (!strncmp(tag->Value(), "location", 6)) {
+                            double a, b, c;
+                            tag->QueryDoubleAttribute("x", &a);
+                            tag->QueryDoubleAttribute("y", &b);
+                            tag->QueryDoubleAttribute("z", &c);
 
-						point.SetValues((float)a, (float)b, (float)c);
-					}
-					tag = tag->NextSiblingElement();
-				}
+                            point.SetValues((float)a, (float)b, (float)c);
+                        }
+                        tag = tag->NextSiblingElement();
+                    }
 
-				// Add the object to the light/geometry vector
-				if (isObject) {
-					geom.push_back(new Point(point));
-				}
-				else {
-					lights.push_back(new Point(point));
-				}
-			}
+                    // Add the object to the light/geometry vector
+                    if (isObject) {
+                        geom.push_back(new Point(point));
+                    }
+                    else {
+                        lights.push_back(new Point(point));
+                    }
+                }
 
-			// Get the next object
-			objectChild = objectChild->NextSiblingElement();
-		}
+                // Get the next object
+                objectChild = objectChild->NextSiblingElement();
+            }
+        }
+        
+        // Next sibling element
         objectParents = objectParents->NextSiblingElement();
-	}
+        
+    }
 }
 
 void gammaCorrect(unsigned char * imageArray, int height, int width) {
@@ -424,6 +447,7 @@ Vec3<unsigned char> CheckShadows(float ambientLight, std::shared_ptr<RayHit> ray
 
 int main(int argc, char * argv[]) {
 
+    Perspective perspective;
 	bool anti_aliasing, gamma_correction, normal_correction, background_gradient, hsl_interpolation;
 	float ambient_light, plane_width, plane_height;
 	int image_width, image_height;
@@ -434,7 +458,7 @@ int main(int argc, char * argv[]) {
 
 	// Read the config setting
 	readConfig(anti_aliasing, gamma_correction, normal_correction, background_gradient, hsl_interpolation, ambient_light, image_width, image_height, gradientStart, gradientEnd);
-	initGeometry(geometryArray, lightArray);
+	initGeometry(geometryArray, lightArray, perspective);
 	
 
 	cout << "Anti-aliasing: " << anti_aliasing << endl;
