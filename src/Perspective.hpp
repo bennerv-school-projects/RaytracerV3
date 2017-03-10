@@ -42,6 +42,23 @@ class Perspective {
     }
     
     /*
+     * Date: 3/8/17
+     * Function Name: Perspective
+     * Arguments:
+     * Purpose: Constructor
+     * Return Value: void (Constructor)
+     */
+    Perspective() {
+        _pixelLength = 0;
+        _pixelHeight = 0;
+        _unitsPerHeightPixel = Vec3<float>(0, 0, 0);
+        _unitsPerLengthPixel = Vec3<float>(0, 0, 0);
+        _cameraPosition = Vec3<float>(0, 0, 0);
+        _imagePlane = new ImagePlane(Vec3<float>(-1, -1, -2), 2, 0, 2);
+    }
+    
+    
+    /*
      * Date: 3/4/17
      * Function Name: ~Perspective
      * Arguments:
@@ -123,6 +140,8 @@ class Perspective {
     Vec3<float> GetCameraPosition() {
         return _cameraPosition;
     }
+    
+    
     
     
     private:
