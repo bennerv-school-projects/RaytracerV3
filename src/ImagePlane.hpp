@@ -10,7 +10,7 @@
  * Classname: ImagePlane
  * Purpose: An ImagePlane used to define the plane the image is projected onto or where the rays are shot from the camera to the image plane
  */
-class ImagePlane : {
+class ImagePlane {
     
     public :
     
