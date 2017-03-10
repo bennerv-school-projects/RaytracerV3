@@ -11,6 +11,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
 /* Standard libs */
+#include <cassert>
 #include <iostream>
 #include <pthread.h>
 #include <vector>
@@ -34,6 +35,7 @@ typedef struct {
     Perspective * perspective;
     std::vector<Geometry *> * geometryArray;
     std::vector<Geometry *> * lightArray;
+    unsigned char * imageArray;
     
     
 } threadArgs;
@@ -61,19 +63,19 @@ void getPixelColor(Vec3<unsigned char> &color, Vec2<int> coordinate, unsigned ch
 
 }
 
-void readConfig(bool &anti_alias, bool &gamma, bool &normal, bool &gradient, bool &hsl, float &light, int &width, int &height, Vec3<float> &gStart, Vec3<float> &gEnd) {
+void readConfig(Perspective * perspective, bool &gamma, bool &normal, bool &gradient, bool &hsl, Vec3<float> &gStart, Vec3<float> &gEnd) {
 
 	// Read the ini settings file
 	INIReader reader(CONFIG_FILE);
 
-	anti_alias = reader.GetBoolean("settings", "anti-aliasing", false);
+    perspective->SetAntiAliasing(reader.GetBoolean("settings", "anti-aliasing", false));
 	gamma = reader.GetBoolean("settings", "gamma-correction", false);
 	normal = reader.GetBoolean("settings", "normal-correction", false);
 	gradient = reader.GetBoolean("settings", "background-gradient", false);
 	hsl = reader.GetBoolean("settings", "hsl-interpolation", false);
-	light = (float)reader.GetReal("settings", "ambient-light", 0.2);
-	width = reader.GetInteger("settings", "image-width", 512);
-	height = reader.GetInteger("settings", "image-height", 512);
+    perspective->SetAmbientLight(reader.GetReal("settings", "ambient-light", 0.2));
+	perspective->SetPixelLength(reader.GetInteger("settings", "image-length", 512));
+    perspective->SetPixelHeight(reader.GetInteger("settings", "image-height", 512));
 
 	if (gradient) {
 		std::string str("RED"), temp;
@@ -119,7 +121,7 @@ void drawGradient(Vec3<float> gradientStart, Vec3<float> gradientEnd, int width,
 	}
 }
 
-void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights, Perspective &perspective) {
+void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights, Perspective * perspective) {
 
 	// Load the xml file
 	tinyxml2::XMLDocument doc;
@@ -165,9 +167,35 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
                 objectChild->QueryDoubleAttribute("x", &a);
                 objectChild->QueryDoubleAttribute("y", &b);
                 objectChild->QueryDoubleAttribute("z", &c);
+                
+                perspective->SetCameraPosition(Vec3<float>::vec3(a, b, c));
             }
         } else if(isImagePlane) { // imagePlane parsing
+            float length = 0, width = 0, height = 0;
+            Vec3<float> corner;
             
+            // Get all the attributes for the ImagePlane
+            while(objectChild) {
+                if(!strncmp(objectChild->Value(), "corner", 6)) {
+                    double a = 0, b = 0, c = 0;
+                    objectChild->QueryDoubleAttribute("x", &a);
+                    objectChild->QueryDoubleAttribute("y", &b);
+                    objectChild->QueryDoubleAttribute("z", &c);
+                    
+                    corner = Vec3<float>::vec3(a, b, c);
+                    
+                } else if(!strncmp(objectChild->Value(), "length", 6)) {
+                    length = (float)atof(objectChild->GetText());
+                } else if(!strncmp(objectChild->Value(), "width", 5)) {
+                    width = (float)atof(objectChild->GetText());
+                } else if(!strncmp(objectChild->Value(), "height", 6)) {
+                    height = (float)atof(objectChild->GetText());
+                }
+                
+                objectChild = objectChild->NextSiblingElement();
+            }
+            
+            perspective->SetImagePlane(new ImagePlane(corner, length, width, height));
             
         } else { // object/light parsing
 
@@ -445,31 +473,61 @@ Vec3<unsigned char> CheckShadows(float ambientLight, std::shared_ptr<RayHit> ray
 	return rayHit->GetColor() * scale;
 }
 
+// pthreading shooting a single pixel per coordinate
+void ShootRays(threadArgs threadArgs) {
+
+    
+    // Start going through all pixels and draw them
+    for(int i = 0; i < threadArgs.perspective->GetPixelHeight(); i++) {
+        Vec3<float> heightOffset = threadArgs.perspective->GetImagePlane()->GetCorner() - (threadArgs.perspective->GetUnitsPerHeightPixel() * i);
+        for(int j = 0; j < threadArgs.perspective->GetPixelLength(); j++) {
+            Vec3<float> trueOffset = heightOffset + (threadArgs.perspective->GetUnitsPerLengthPixel() * j);
+            // Shoot five rays per pixel if anti-aliasing
+            if(threadArgs.perspective->GetAntiAliasing()) {
+                for(int k = 0; k < 4; k++) {
+                    
+                }
+            } else {
+                //Shoot a single ray
+                Vec3<float> tempRay = Vec3<float>::Normalize(trueOffset - threadArgs.perspective->GetCameraPosition());
+                std::shared_ptr<RayHit> rayHit = GetRay(tempRay, threadArgs.perspective->GetCameraPosition(), *(threadArgs.geometryArray), 0);
+                Vec2<int> coord(j, i);
+                
+                // Set the pixel color
+                if (rayHit == nullptr) {
+                    setPixelColor(_ColorMapping.GetColor("BLACK"), coord, threadArgs.imageArray, threadArgs.perspective->GetPixelLength());
+                }
+                else {
+                    Vec3<unsigned char> color = CheckShadows(threadArgs.perspective->GetAmbientLight(), rayHit, *(threadArgs.geometryArray), *(threadArgs.lightArray));
+                    setPixelColor(color, coord, threadArgs.imageArray, threadArgs.perspective->GetPixelLength());
+                }
+            }
+        }
+    }
+}
+
 int main(int argc, char * argv[]) {
 
-    Perspective perspective;
-	bool anti_aliasing, gamma_correction, normal_correction, background_gradient, hsl_interpolation;
-	float ambient_light, plane_width, plane_height;
-	int image_width, image_height;
-	Vec3<float> gradientStart(0, 0, 0), gradientEnd(0, 0, 0), cameraPos(0, -.25, 0);
-	float imagePlaneWidth = -2;
+    Perspective * perspective = new Perspective();
+	bool gamma_correction, normal_correction, background_gradient, hsl_interpolation;
+	Vec3<float> gradientStart(0, 0, 0), gradientEnd(0, 0, 0);
 	std::vector<Geometry *> geometryArray;
 	std::vector<Geometry *> lightArray;
 
 	// Read the config setting
-	readConfig(anti_aliasing, gamma_correction, normal_correction, background_gradient, hsl_interpolation, ambient_light, image_width, image_height, gradientStart, gradientEnd);
+	readConfig(perspective, gamma_correction, normal_correction, background_gradient, hsl_interpolation, gradientStart, gradientEnd);
 	initGeometry(geometryArray, lightArray, perspective);
 	
 
-	cout << "Anti-aliasing: " << anti_aliasing << endl;
+	cout << "Anti-aliasing: " << perspective->GetAntiAliasing() << endl;
 	cout << "Gamma correction: " << gamma_correction << endl;
 	cout << "Normal correction: " << normal_correction << endl;
-	cout << "Ambient light value: " << ambient_light << endl;
-	cout << "Image width: " << image_width << endl;
-	cout << "Image height: " << image_height << endl;
+	cout << "Ambient light value: " << perspective->GetAmbientLight() << endl;
+	cout << "Image length: " << perspective->GetPixelLength() << endl;
+	cout << "Image height: " << perspective->GetPixelHeight() << endl;
 
-	unsigned char * imageArray = (unsigned char *) malloc(3 * image_width * image_height * sizeof(unsigned char));
-    unsigned char * imageArray1 = (unsigned char *) malloc(3 * image_width * image_height * sizeof(unsigned char));
+	unsigned char * imageArray = (unsigned char *) malloc(3 * perspective->GetPixelLength() * perspective->GetPixelHeight() * sizeof(unsigned char));
+    unsigned char * imageArray1 = (unsigned char *) malloc(3 * perspective->GetPixelLength() * perspective->GetPixelHeight() * sizeof(unsigned char));
 
 	if(!imageArray) {
 		cout << "Failed to allocate memory for the image array.  Exiting" << endl;
@@ -478,62 +536,31 @@ int main(int argc, char * argv[]) {
 
 	// Draw the gradient on the image
 	if(background_gradient) {
-		drawGradient(gradientStart, gradientEnd, image_width, image_height, imageArray, hsl_interpolation);
+		drawGradient(gradientStart, gradientEnd, perspective->GetPixelLength(), perspective->GetPixelHeight(), imageArray, hsl_interpolation);
 	}
-
-	//Plane width (always 2 in the greatest direction)
-	if( image_width > image_height ) {
-		plane_width = 2.f;
-		plane_height = 2 * (image_height / (float) image_width);
-	} else {
-		plane_height = 2.f;
-		plane_width = 2 * (image_width / (float) image_height);
-	}
-
-	// Pixel height calculations
-	float pixel_width = plane_width / (float)image_width;
-	float pixel_height = plane_height / (float)image_height;
-
-	float width_offset = image_width % 2 == 0 ? pixel_width / 2.f : 0.f;
-	float height_offset = image_height % 2 == 0 ? pixel_height / 2.f : 0.f;
-
-	// Start going through all pixels and draw them
-	for(int i = 0; i < image_height; i++) {
-		float pixel_center_height = (plane_height / 2.f - i * pixel_height - height_offset);
-		for(int j = 0; j < image_width; j++) {
-			float pixel_center_width = (plane_width / -2.f + j * pixel_width + width_offset);
-			// Shoot five rays per pixel if anti-aliasing
-			if(anti_aliasing) {
-				for(int k = 0; k < 4; k++) {
-
-				}
-			} else {
-				//Shoot a single ray
-				Vec3<float> tempRay = Vec3<float>::Normalize(Vec3<float>::vec3(pixel_center_width, pixel_center_height, imagePlaneWidth) - cameraPos);
-				std::shared_ptr<RayHit> rayHit = GetRay(tempRay, cameraPos, geometryArray, 0);
-				Vec2<int> coord(j, i);
-
-				// Set the pixel color
-				if (rayHit == nullptr) {
-					setPixelColor(_ColorMapping.GetColor("BLACK"), coord, imageArray, image_width);
-				}
-				else {
-					Vec3<unsigned char> color = CheckShadows(ambient_light, rayHit, geometryArray, lightArray);
-					setPixelColor(color, coord, imageArray, image_width);
-				}
-			}
-		}
-	}
-
+    
+    // Make sure the ImagePlane is set already
+    assert(perspective->GetImagePlane() != nullptr);
+    
+    /* SEND PTHREADS AND SHIT */
+    threadArgs args;
+    args.geometryArray = &geometryArray;
+    args.imageArray = imageArray;
+    args.lightArray = &lightArray;
+    args.perspective = perspective;
+    args.threadId = 0;
+    ShootRays(args);
+    
 	// Gamma correction
 	if(gamma_correction) {
-		gammaCorrect(imageArray, image_height, image_width);
+		gammaCorrect(imageArray, perspective->GetPixelHeight(), perspective->GetPixelLength());
 	}
 
 	// Write out the image
-	stbi_write_png("output.png", image_width, image_height, 3, imageArray, image_width*3);
+	stbi_write_png("output.png", perspective->GetPixelLength(), perspective->GetPixelHeight(), 3, imageArray, perspective->GetPixelLength()*3);
 	DestroyGeometry(geometryArray);
 	DestroyGeometry(lightArray);
+    delete(perspective);
 	free(imageArray);
     free(imageArray1);
 }

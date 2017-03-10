@@ -18,7 +18,7 @@ class ImagePlane {
      * Date: 3/4/17
      * Function Name: Point
      * Arguments:
-     *      Vec3<float> - the bottom left corner of the ImagePlane
+     *      Vec3<float> - the top left corner of the ImagePlane
      *      float       - the length of the ImagePlane
      *      float       - the width of the ImagePlane
      *      float       - the height of the ImagePlane
@@ -60,7 +60,7 @@ class ImagePlane {
      * Function Name: GetCorner
      * Arguments:
      *      void
-     * Purpose: Gets the lower lefthand corner of the ImagePlane
+     * Purpose: Gets the upper lefthand corner of the ImagePlane
      * Return Value: Vec3<float>
      */
     Vec3<float> GetCorner() {
@@ -107,7 +107,7 @@ class ImagePlane {
 
     private :
     
-    Vec3<float> _corner; // bottom left corner
+    Vec3<float> _corner; // upper left corner
     float _length; // +/- x value
     float _width; // +/- z value
     float _height; // +/- y value
