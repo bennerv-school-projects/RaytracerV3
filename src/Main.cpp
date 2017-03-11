@@ -9,9 +9,11 @@
 
 /* STB Image write definition needed for writing png file */
 #define STB_IMAGE_WRITE_IMPLEMENTATION
+#define MAX_THREADS 100 // Must be at least 1
 
 /* Standard libs */
 #include <cassert>
+#include <cstring>
 #include <iostream>
 #include <pthread.h>
 #include <vector>
@@ -473,40 +475,43 @@ Vec3<unsigned char> CheckShadows(float ambientLight, std::shared_ptr<RayHit> ray
 }
 
 // pthreading shooting a single pixel per coordinate
-void ShootRays(threadArgs threadArgs) {
+void * ShootRays(void * arg) {
 
-    
+    threadArgs args;
+    args = *((threadArgs *) arg);
     // Start going through all pixels and draw them
-    for(int i = 0; i < threadArgs.perspective->GetPixelHeight(); i++) {
-        Vec3<float> heightOffset = threadArgs.perspective->GetImagePlane()->GetCorner() - (threadArgs.perspective->GetUnitsPerHeightPixel() * i);
-        for(int j = 0; j < threadArgs.perspective->GetPixelLength(); j++) {
-            Vec3<float> trueOffset = heightOffset + (threadArgs.perspective->GetUnitsPerLengthPixel() * j);
+    for(int i = args.threadId; i < args.perspective->GetPixelHeight(); i+=MAX_THREADS) {
+        Vec3<float> heightOffset = args.perspective->GetImagePlane()->GetCorner() - (args.perspective->GetUnitsPerHeightPixel() * i);
+        for(int j = 0; j < args.perspective->GetPixelLength(); j++) {
+            Vec3<float> trueOffset = heightOffset + (args.perspective->GetUnitsPerLengthPixel() * j);
             // Shoot five rays per pixel if anti-aliasing
-            if(threadArgs.perspective->GetAntiAliasing()) {
+            if(args.perspective->GetAntiAliasing()) {
                 for(int k = 0; k < 4; k++) {
                     
                 }
             } else {
                 //Shoot a single ray
-                Vec3<float> tempRay = Vec3<float>::Normalize(trueOffset - threadArgs.perspective->GetCameraPosition());
-                std::shared_ptr<RayHit> rayHit = GetRay(tempRay, threadArgs.perspective->GetCameraPosition(), *(threadArgs.geometryArray), 0);
+                Vec3<float> tempRay = Vec3<float>::Normalize(trueOffset - args.perspective->GetCameraPosition());
+                std::shared_ptr<RayHit> rayHit = GetRay(tempRay, args.perspective->GetCameraPosition(), *(args.geometryArray), 0);
                 Vec2<int> coord(j, i);
                 
                 // Set the pixel color
                 if (rayHit == nullptr) {
-                    setPixelColor(_ColorMapping.GetColor("BLACK"), coord, threadArgs.imageArray, threadArgs.perspective->GetPixelLength());
+                    setPixelColor(_ColorMapping.GetColor("BLACK"), coord, args.imageArray, args.perspective->GetPixelLength());
                 }
                 else {
-                    Vec3<unsigned char> color = CheckShadows(threadArgs.perspective->GetAmbientLight(), rayHit, *(threadArgs.geometryArray), *(threadArgs.lightArray));
-                    setPixelColor(color, coord, threadArgs.imageArray, threadArgs.perspective->GetPixelLength());
+                    Vec3<unsigned char> color = CheckShadows(args.perspective->GetAmbientLight(), rayHit, *(args.geometryArray), *(args.lightArray));
+                    setPixelColor(color, coord, args.imageArray, args.perspective->GetPixelLength());
                 }
             }
         }
     }
+    pthread_exit(NULL);
 }
 
 int main(int argc, char * argv[]) {
 
+    pthread_t pThreads[MAX_THREADS];
     Perspective * perspective = new Perspective();
 	bool gamma_correction, normal_correction, background_gradient, hsl_interpolation;
 	Vec3<float> gradientStart(0, 0, 0), gradientEnd(0, 0, 0);
@@ -517,13 +522,14 @@ int main(int argc, char * argv[]) {
 	readConfig(perspective, gamma_correction, normal_correction, background_gradient, hsl_interpolation, gradientStart, gradientEnd);
 	initGeometry(geometryArray, lightArray, perspective);
 	
-
+    /*
 	cout << "Anti-aliasing: " << perspective->GetAntiAliasing() << endl;
 	cout << "Gamma correction: " << gamma_correction << endl;
 	cout << "Normal correction: " << normal_correction << endl;
 	cout << "Ambient light value: " << perspective->GetAmbientLight() << endl;
 	cout << "Image length: " << perspective->GetPixelLength() << endl;
 	cout << "Image height: " << perspective->GetPixelHeight() << endl;
+     */
 
 	unsigned char * imageArray = (unsigned char *) malloc(3 * perspective->GetPixelLength() * perspective->GetPixelHeight() * sizeof(unsigned char));
     unsigned char * imageArray1 = (unsigned char *) malloc(3 * perspective->GetPixelLength() * perspective->GetPixelHeight() * sizeof(unsigned char));
@@ -542,13 +548,26 @@ int main(int argc, char * argv[]) {
     assert(perspective->GetImagePlane() != nullptr);
     
     /* SEND PTHREADS AND SHIT */
-    threadArgs args;
-    args.geometryArray = &geometryArray;
-    args.imageArray = imageArray;
-    args.lightArray = &lightArray;
-    args.perspective = perspective;
-    args.threadId = 0;
-    ShootRays(args);
+    threadArgs * tArgs = (threadArgs *) malloc(sizeof(threadArgs) * MAX_THREADS);
+    tArgs[0].geometryArray = &geometryArray;
+    tArgs[0].imageArray = imageArray;
+    tArgs[0].lightArray = &lightArray;
+    tArgs[0].perspective = perspective;
+    tArgs[0].threadId = 0;
+
+    for(int i = 0; i < MAX_THREADS; i++) {
+        std::memcpy(&tArgs[i], &tArgs[0], sizeof(threadArgs));
+    }
+    
+    for(int i = 0; i < MAX_THREADS; i++) {
+        tArgs[i].threadId = i;
+        pthread_create(&pThreads[i], NULL, ShootRays, &tArgs[i]);
+    }
+    
+    // Wait for the threads
+    for(int i = 0; i < MAX_THREADS; i++) {
+        pthread_join(pThreads[i], NULL);
+    }
     
 	// Gamma correction
 	if(gamma_correction) {
