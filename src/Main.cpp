@@ -139,15 +139,14 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
 	// Go through the lights array and geometry array
 	while(objectParents) {
         
-		int isObject = 1, isLight = 1, isCamera = 1, isImagePlane = 1;
+		int isObject = 1, isCamera = 1, isImagePlane = 1;
 
 		//Loop to find the objects or light parent element while the string is not "objects" or the size is non-zero
-		while(objectParents && (isObject = strncmp(objectParents->Value(), "objects", 7)) && (isLight = strncmp(objectParents->Value(), "lights", 6)) && (isCamera = strncmp(objectParents->Value(), "camera", 6)) && (isImagePlane = strncmp(objectParents->Value(), "image_plane", 11)) ) {
+		while(objectParents && (isObject = strncmp(objectParents->Value(), "objects", 7)) && (strncmp(objectParents->Value(), "lights", 6)) && (isCamera = strncmp(objectParents->Value(), "camera", 6)) && (isImagePlane = strncmp(objectParents->Value(), "image_plane", 11)) ) {
 			//cout << "Element text " << objectParents->Value() << endl;
 			objectParents = objectParents->NextSiblingElement();
 		}
 		isObject = !isObject;
-		isLight = !isLight;
         isCamera = !isCamera;
         isImagePlane = !isImagePlane;
 
@@ -277,8 +276,8 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
 
                 } //Sphere object
                 else if (!strncmp(objectChild->Value(), "sphere", 6)) {
-                    Vec3<float> center;
-                    float radius;
+                    Vec3<float> center(0, 0, 0);
+                    float radius = 0;
                     Material mat = NONE;
                     Vec3<unsigned char> color = _ColorMapping.GetColor("WHITE");
                     std::string str;
@@ -287,7 +286,7 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
                     tinyxml2::XMLElement * tag = objectChild->FirstChildElement();
                     while (tag) {
                         if (!strncmp(tag->Value(), "center", 6)) {
-                            double a, b, c;
+                            double a = 0, b = 0, c = 0;
                             tag->QueryDoubleAttribute("x", &a);
                             tag->QueryDoubleAttribute("y", &b);
                             tag->QueryDoubleAttribute("z", &c);
@@ -345,7 +344,7 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
                     tinyxml2::XMLElement * tag = objectChild->FirstChildElement();
                     while (tag) {
                         if (!strncmp(tag->Value(), "location", 6)) {
-                            double a, b, c;
+                            double a = 0, b = 0, c = 0;
                             tag->QueryDoubleAttribute("x", &a);
                             tag->QueryDoubleAttribute("y", &b);
                             tag->QueryDoubleAttribute("z", &c);
