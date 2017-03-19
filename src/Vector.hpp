@@ -145,12 +145,39 @@ class Vec3 {
 		 * Date: 1/30/17
 		 * Function Name: * (operator) 
 		 * Arguments:
-		 *     const T - the second argument
+		 *     const float - the second argument
 		 * Purpose: Returns the scalar multiplication of the vector 
 		 * Return Value: Vec3<T>
 		 */
 		Vec3<T> operator *(const float b) {
 			return Vec3<T>::vec3(this->x * b, this->y * b, this->z * b);
+		}
+
+		/*
+		* Date: 3/19/17
+		* Function Name: / (operator)
+		* Arguments:
+		*     const T - the second argument
+		* Purpose: Returns the division of two vectors
+		* Return Value: Vec3<T>
+		*/
+		Vec3<T> operator /(const Vec3<T> &b) {
+			return Vec3<T>::vec3(this->x / b.x, this->y / b.y, this->z / b.z);
+		}
+
+		/*
+		* Date: 3/19/17
+		* Function Name: / (operator)
+		* Arguments:
+		*     const float - the second argument
+		* Purpose: Returns the scalar division of a vector and a float
+		* Return Value: Vec3<T>
+		*/
+		Vec3<T> operator /(const float b) {
+			if (b == 0) {
+				return Vec3<T>::vec3(0, 0, 0);
+			}
+			return Vec3<T>::vec3(this->x / b, this->y / b, this->z / b);
 		}
 
 		/* 

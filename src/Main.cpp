@@ -5,6 +5,7 @@
 	#define OBJECTS_FILE "Objects.xml"
 	#define CONFIG_FILE "Config.ini"
 	#define HAVE_STRUCT_TIMESPEC // For pthread on windows VS2015
+	#define PTW32_STATIC_LIB 
 #endif
 
 /* STB Image write definition needed for writing png file */
@@ -474,7 +475,7 @@ Vec3<unsigned char> CheckShadows(float ambientLight, std::shared_ptr<RayHit> ray
 }
 
 // pthreading shooting a single pixel per coordinate
-void * ShootRays(void * arg) {
+void *ShootRays(void * arg) {
 
     threadArgs args;
     args = *((threadArgs *) arg);
@@ -506,6 +507,7 @@ void * ShootRays(void * arg) {
         }
     }
     pthread_exit(NULL);
+	return NULL;
 }
 
 int main(int argc, char * argv[]) {
