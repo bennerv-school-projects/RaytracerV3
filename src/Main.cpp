@@ -10,7 +10,7 @@
 
 /* STB Image write definition needed for writing png file */
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#define MAX_THREADS 100 // Must be at least 1
+#define MAX_THREADS 5 // Must be at least 1
 
 /* Standard libs */
 #include <cassert>
@@ -75,7 +75,7 @@ void readConfig(Perspective * perspective, bool &gamma, bool &normal, bool &grad
 	normal = reader.GetBoolean("settings", "normal-correction", false);
 	gradient = reader.GetBoolean("settings", "background-gradient", false);
 	hsl = reader.GetBoolean("settings", "hsl-interpolation", false);
-    perspective->SetAmbientLight(reader.GetReal("settings", "ambient-light", 0.2));
+    perspective->SetAmbientLight(reader.GetReal("settings", "ambient-light", 0.2f));
 	perspective->SetPixelLength(reader.GetInteger("settings", "image-length", 512));
     perspective->SetPixelHeight(reader.GetInteger("settings", "image-height", 512));
 
@@ -486,8 +486,12 @@ void *ShootRays(void * arg) {
             Vec3<float> trueOffset = heightOffset + (args.perspective->GetUnitsPerLengthPixel() * j);
             // Shoot five rays per pixel if anti-aliasing
             if(args.perspective->GetAntiAliasing()) {
-                for(int k = 0; k < 4; k++) {
-                    
+                for(int k = 0; k < 2; k++) {
+
+
+					for (int l = 0; l < 2; l++) {
+
+					}
                 }
             } else {
                 //Shoot a single ray
@@ -582,4 +586,5 @@ int main(int argc, char * argv[]) {
     delete(perspective);
 	free(imageArray);
     free(imageArray1);
+	pthread_exit(NULL);
 }

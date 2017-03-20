@@ -21,7 +21,7 @@ add_executable(raytracer-test ${TestFiles})
 # Must build static/shared library prior to running cmake
 if(WIN32) 
 	target_link_libraries(raytracer ${CMAKE_BINARY_DIR}/lib/tinyxml2/Debug/tinyxml2.lib)
-	target_link_libraries(raytracer ${CMAKE_BINARY_DIR}/lib/pthread/pthreadVCE2.lib)
+	target_link_libraries(raytracer ${CMAKE_BINARY_DIR}/lib/pthread/pthreadVC2.lib)
 else()
 	target_link_libraries(raytracer ${CMAKE_BINARY_DIR}/lib/tinyxml2/libtinyxml2.a)
 
