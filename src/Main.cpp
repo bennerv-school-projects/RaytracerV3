@@ -10,7 +10,7 @@
 
 /* STB Image write definition needed for writing png file */
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#define MAX_THREADS 5 // Must be at least 1
+#define MAX_THREADS 50 // Must be at least 1
 
 /* Standard libs */
 #include <cassert>
@@ -482,17 +482,41 @@ void *ShootRays(void * arg) {
     // Start going through all pixels and draw them
     for(int i = args.threadId; i < args.perspective->GetPixelHeight(); i+=MAX_THREADS) {
         Vec3<float> heightOffset = args.perspective->GetImagePlane()->GetCorner() - (args.perspective->GetUnitsPerHeightPixel() * i);
+        
         for(int j = 0; j < args.perspective->GetPixelLength(); j++) {
             Vec3<float> trueOffset = heightOffset + (args.perspective->GetUnitsPerLengthPixel() * j);
-            // Shoot five rays per pixel if anti-aliasing
+
+            // Anti-aliasing
             if(args.perspective->GetAntiAliasing()) {
+                std::vector<Vec3<unsigned char> > colorArray;
                 for(int k = 0; k < 2; k++) {
-
-
+                    Vec3<float> aliasHeightOffset = trueOffset - (args.perspective->GetUnitsPerHeightPixel() * (k+1) );
 					for (int l = 0; l < 2; l++) {
-
+                        Vec3<float> aliasTotalOffset = aliasHeightOffset + (args.perspective->GetUnitsPerLengthPixel() * l);
+                        Vec3<float> tempRay = Vec3<float>::Normalize(aliasTotalOffset - args.perspective->GetCameraPosition());
+                        std::shared_ptr<RayHit> rayHit = GetRay(tempRay, args.perspective->GetCameraPosition(), *(args.geometryArray), 0);
+                        
+                        // Push the colors back in the vector
+                        if(rayHit == nullptr) {
+                            colorArray.push_back(_ColorMapping.GetColor("BLACK"));
+                        } else {
+                            colorArray.push_back(CheckShadows(args.perspective->GetAmbientLight(), rayHit, *(args.geometryArray), *(args.lightArray)));
+                        }
 					}
                 }
+                
+                Vec2<int> coord(j, i);
+                // find the average between the four colored rays
+                int avg [3] = {0};
+                for(size_t size = 0; size < colorArray.size(); size++) {
+                    avg[0] += colorArray.at(size).x;
+                    avg[1] += colorArray.at(size).y;
+                    avg[2] += colorArray.at(size).z;
+                }
+                
+                Vec3<unsigned char> colorAvg(avg[0] / colorArray.size(), avg[1] / colorArray.size(), avg[2] / colorArray.size());
+                setPixelColor(colorAvg, coord, args.imageArray, args.perspective->GetPixelLength());
+                
             } else {
                 //Shoot a single ray
                 Vec3<float> tempRay = Vec3<float>::Normalize(trueOffset - args.perspective->GetCameraPosition());
@@ -502,8 +526,7 @@ void *ShootRays(void * arg) {
                 // Set the pixel color
                 if (rayHit == nullptr) {
                     setPixelColor(_ColorMapping.GetColor("BLACK"), coord, args.imageArray, args.perspective->GetPixelLength());
-                }
-                else {
+                } else {
                     Vec3<unsigned char> color = CheckShadows(args.perspective->GetAmbientLight(), rayHit, *(args.geometryArray), *(args.lightArray));
                     setPixelColor(color, coord, args.imageArray, args.perspective->GetPixelLength());
                 }
