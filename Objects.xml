@@ -10,11 +10,12 @@
 <!-- Camera location in world space -->
 <camera>
   <location x="0" y="-0.25" z="0"/>
+  <movement x="1" y="-0.25" z="0"/> <!-- Movement with anaglyph image -->
 </camera>
 
 <!-- Image plane locations.  Should specify the top left corner and work in the positive x/y/z directions -->
 <image_plane>
-  <corner x="-1" y="1" z="-2" />j
+  <corner x="-1" y="1" z="-2" />
   <length>2</length>
   <width>0</width>
   <height>2</height>

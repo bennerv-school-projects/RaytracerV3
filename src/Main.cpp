@@ -10,7 +10,7 @@
 
 /* STB Image write definition needed for writing png file */
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#define MAX_THREADS 50 // Must be at least 1
+#define MAX_THREADS 20 // Must be at least 1
 
 /* Standard libs */
 #include <cassert>
@@ -76,8 +76,8 @@ void readConfig(Perspective * perspective, bool &gamma, bool &normal, bool &grad
 	gradient = reader.GetBoolean("settings", "background-gradient", false);
 	hsl = reader.GetBoolean("settings", "hsl-interpolation", false);
     perspective->SetAmbientLight(reader.GetReal("settings", "ambient-light", 0.2f));
-	perspective->SetPixelLength(reader.GetInteger("settings", "image-length", 512));
-    perspective->SetPixelHeight(reader.GetInteger("settings", "image-height", 512));
+	perspective->SetPixelLength((int)reader.GetInteger("settings", "image-length", 512));
+    perspective->SetPixelHeight((int)reader.GetInteger("settings", "image-height", 512));
 
 	if (gradient) {
 		std::string str("RED"), temp;
@@ -559,17 +559,17 @@ int main(int argc, char * argv[]) {
 	cout << "Image height: " << perspective->GetPixelHeight() << endl;
      */
 
-	unsigned char * imageArray = (unsigned char *) malloc(3 * perspective->GetPixelLength() * perspective->GetPixelHeight() * sizeof(unsigned char));
+	unsigned char * imageArray0 = (unsigned char *) malloc(3 * perspective->GetPixelLength() * perspective->GetPixelHeight() * sizeof(unsigned char));
     unsigned char * imageArray1 = (unsigned char *) malloc(3 * perspective->GetPixelLength() * perspective->GetPixelHeight() * sizeof(unsigned char));
 
-	if(!imageArray) {
+	if(!imageArray0) {
 		cout << "Failed to allocate memory for the image array.  Exiting" << endl;
 		exit(1);
 	}
 
 	// Draw the gradient on the image
 	if(background_gradient) {
-		drawGradient(gradientStart, gradientEnd, perspective->GetPixelLength(), perspective->GetPixelHeight(), imageArray, hsl_interpolation);
+		drawGradient(gradientStart, gradientEnd, perspective->GetPixelLength(), perspective->GetPixelHeight(), imageArray0, hsl_interpolation);
 	}
     
     // Make sure the ImagePlane is set already
@@ -578,7 +578,7 @@ int main(int argc, char * argv[]) {
     /* SEND PTHREADS AND SHIT */
     threadArgs * tArgs = (threadArgs *) malloc(sizeof(threadArgs) * MAX_THREADS);
     tArgs[0].geometryArray = &geometryArray;
-    tArgs[0].imageArray = imageArray;
+    tArgs[0].imageArray = imageArray0;
     tArgs[0].lightArray = &lightArray;
     tArgs[0].perspective = perspective;
     tArgs[0].threadId = 0;
@@ -599,15 +599,15 @@ int main(int argc, char * argv[]) {
     
 	// Gamma correction
 	if(gamma_correction) {
-		gammaCorrect(imageArray, perspective->GetPixelHeight(), perspective->GetPixelLength());
+		gammaCorrect(imageArray0, perspective->GetPixelHeight(), perspective->GetPixelLength());
 	}
 
 	// Write out the image
-	stbi_write_png("output.png", perspective->GetPixelLength(), perspective->GetPixelHeight(), 3, imageArray, perspective->GetPixelLength()*3);
+	stbi_write_png("output.png", perspective->GetPixelLength(), perspective->GetPixelHeight(), 3, imageArray0, perspective->GetPixelLength()*3);
 	DestroyGeometry(geometryArray);
 	DestroyGeometry(lightArray);
     delete(perspective);
-	free(imageArray);
+	free(imageArray0);
     free(imageArray1);
 	pthread_exit(NULL);
 }
