@@ -18,7 +18,7 @@
 #include <pthread.h>
 #include <vector>
 
-/* Project libs */
+/* Project headers */
 #include "Color.hpp"
 #include "Material.hpp"
 #include "Perspective.hpp"
@@ -27,7 +27,7 @@
 #include "Triangle.hpp"
 #include "Vector.hpp"
 
-/* External libs*/
+/* External headers*/
 #include "INIReader.h"
 #include "stb_image_write.h"
 #include "tinyxml2.h"
@@ -38,8 +38,6 @@ typedef struct {
     std::vector<Geometry *> * geometryArray;
     std::vector<Geometry *> * lightArray;
     unsigned char * imageArray;
-    
-    
 } threadArgs;
 
 
@@ -75,7 +73,7 @@ void readConfig(Perspective * perspective, bool &gamma, bool &normal, bool &grad
 	normal = reader.GetBoolean("settings", "normal-correction", false);
 	gradient = reader.GetBoolean("settings", "background-gradient", false);
 	hsl = reader.GetBoolean("settings", "hsl-interpolation", false);
-    perspective->SetAmbientLight(reader.GetReal("settings", "ambient-light", 0.2f));
+    perspective->SetAmbientLight((float)reader.GetReal("settings", "ambient-light", 0.2f));
 	perspective->SetPixelLength((int)reader.GetInteger("settings", "image-length", 512));
     perspective->SetPixelHeight((int)reader.GetInteger("settings", "image-height", 512));
 
@@ -169,7 +167,7 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
                 objectChild->QueryDoubleAttribute("y", &b);
                 objectChild->QueryDoubleAttribute("z", &c);
                 
-                perspective->SetCameraPosition(Vec3<float>::vec3(a, b, c));
+                perspective->SetCameraPosition(Vec3<float>::vec3((float)a, (float)b, (float)c));
             }
         } else if(isImagePlane) { // imagePlane parsing
             float length = 0, width = 0, height = 0;
@@ -183,7 +181,7 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
                     objectChild->QueryDoubleAttribute("y", &b);
                     objectChild->QueryDoubleAttribute("z", &c);
                     
-                    corner = Vec3<float>::vec3(a, b, c);
+                    corner = Vec3<float>::vec3((float)a, (float)b, (float)c);
                     
                 } else if(!strncmp(objectChild->Value(), "length", 6)) {
                     length = (float)atof(objectChild->GetText());
@@ -481,18 +479,17 @@ void *ShootRays(void * arg) {
     args = *((threadArgs *) arg);
     // Start going through all pixels and draw them
     for(int i = args.threadId; i < args.perspective->GetPixelHeight(); i+=MAX_THREADS) {
-        Vec3<float> heightOffset = args.perspective->GetImagePlane()->GetCorner() - (args.perspective->GetUnitsPerHeightPixel() * i);
-        
+        Vec3<float> heightOffset = args.perspective->GetImagePlane()->GetCorner() - (args.perspective->GetUnitsPerHeightPixel() * (float)i);        
         for(int j = 0; j < args.perspective->GetPixelLength(); j++) {
-            Vec3<float> trueOffset = heightOffset + (args.perspective->GetUnitsPerLengthPixel() * j);
+            Vec3<float> trueOffset = heightOffset + (args.perspective->GetUnitsPerLengthPixel() * (float)j);
 
             // Anti-aliasing
             if(args.perspective->GetAntiAliasing()) {
                 std::vector<Vec3<unsigned char> > colorArray;
                 for(int k = 0; k < 2; k++) {
-                    Vec3<float> aliasHeightOffset = trueOffset - (args.perspective->GetUnitsPerHeightPixel() * (k+1) );
+                    Vec3<float> aliasHeightOffset = trueOffset - (args.perspective->GetUnitsPerHeightPixel() * ((float)k+1.f) );
 					for (int l = 0; l < 2; l++) {
-                        Vec3<float> aliasTotalOffset = aliasHeightOffset + (args.perspective->GetUnitsPerLengthPixel() * l);
+                        Vec3<float> aliasTotalOffset = aliasHeightOffset + (args.perspective->GetUnitsPerLengthPixel() * (float)l);
                         Vec3<float> tempRay = Vec3<float>::Normalize(aliasTotalOffset - args.perspective->GetCameraPosition());
                         std::shared_ptr<RayHit> rayHit = GetRay(tempRay, args.perspective->GetCameraPosition(), *(args.geometryArray), 0);
                         
@@ -514,7 +511,7 @@ void *ShootRays(void * arg) {
                     avg[2] += colorArray.at(size).z;
                 }
                 
-                Vec3<unsigned char> colorAvg(avg[0] / colorArray.size(), avg[1] / colorArray.size(), avg[2] / colorArray.size());
+                Vec3<unsigned char> colorAvg(avg[0] / (unsigned char)colorArray.size(), avg[1] / (unsigned char)colorArray.size(), avg[2] / (unsigned char)colorArray.size());
                 setPixelColor(colorAvg, coord, args.imageArray, args.perspective->GetPixelLength());
                 
             } else {
