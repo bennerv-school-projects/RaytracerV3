@@ -63,6 +63,7 @@ class Perspective {
     ~Perspective() {
         if(_imagePlane != nullptr) {
             delete(_imagePlane);
+            delete(_secondaryImagePlane);
         }
     }
     
@@ -273,6 +274,18 @@ class Perspective {
         _cameraPosition = camPos;
     }
     
+    /*
+     * Date: 4/5/17
+     * Function Name: SetIntereyeDistance
+     * Arguments:
+     *      float - the intereye distance between the two images
+     * Purpose: Sets the intereye distance
+     * Return Value: void
+     */
+    void SetIntereyeDistance(float dist) {
+        _intereye_distance = dist;
+    }
+    
     
     private:
     
@@ -289,6 +302,7 @@ class Perspective {
     ImagePlane * _imagePlane; // the ImagePlane being projected upon
     ImagePlane * _secondaryImagePlane = nullptr; // the secondary ImagePlane being projected upon (anaglyph mode)
     Vec3<float> _cameraPosition; // the camera position
+    float _intereye_distance = 0; // the intereye distance for anaglyph images
     
     
     

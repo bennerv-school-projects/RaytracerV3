@@ -198,6 +198,8 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
                         // Parse the anaglyph section of the xml file
                         if(!strncmp(anaglyphChild->Value(), "intereye_distance", 17)) {
                             intereye_distance = (float)atof(anaglyphChild->GetText());
+                            perspective->SetIntereyeDistance(intereye_distance);
+                            assert(intereye_distance != 0);
                         } else if(!strncmp(anaglyphChild->Value(), "translation_axis", 16)) {
                             axis = anaglyphChild->GetText()[0];
                         }
@@ -632,6 +634,7 @@ int main(int argc, char * argv[]) {
 	// Gamma correction
 	if(gamma_correction) {
 		gammaCorrect(imageArray0, perspective->GetPixelHeight(), perspective->GetPixelLength());
+        gammaCorrect(imageArray1, perspective->GetPixelHeight(), perspective->GetPixelLength());
 	}
 
 	// Write out the image
