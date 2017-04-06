@@ -152,6 +152,18 @@ class Perspective {
     }
     
     /*
+     * Date: 4/5/17
+     * Function Name: GetSecondaryImagePlane
+     * Arguments:
+     *      void
+     * Purpose: Gets the corresponding ImagePlane information about the image
+     * Return Value: ImagePlane *
+     */
+    ImagePlane * GetSecondaryImagePlane() {
+        return _secondaryImagePlane;
+    }
+    
+    /*
      * Date: 3/5/17
      * Function Name: GetCameraPosition
      * Arguments:
@@ -237,6 +249,18 @@ class Perspective {
         }
     }
     
+    /* Date: 4/5/17
+     * Function Name: SetSecondaryImagePlane
+     * Arguments:
+     *      ImagePlane * - the image plane
+     * Purpose: Sets the secondary image plane for anaglyph mode
+     * Return Value: void
+     */
+    void SetSecondaryImagePlane(ImagePlane * imagePlane) {
+        _secondaryImagePlane = imagePlane;
+    }
+    
+    
     /*
      * Date: 3/8/17
      * Function Name: SetCameraPosition
@@ -263,6 +287,7 @@ class Perspective {
     Vec3<float> _unitsPerLengthPixel; // the units per length pixel in the image (in meters)
     Vec3<float> _unitsPerHeightPixel; // the units per height pixel in the image (in meters)
     ImagePlane * _imagePlane; // the ImagePlane being projected upon
+    ImagePlane * _secondaryImagePlane = nullptr; // the secondary ImagePlane being projected upon (anaglyph mode)
     Vec3<float> _cameraPosition; // the camera position
     
     

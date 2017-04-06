@@ -139,10 +139,10 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
 	// Go through the lights array and geometry array
 	while(objectParents) {
         
-		int isObject = 1, isCamera = 1, isImagePlane = 1;
+        int isObject = 1, isCamera = 1, isImagePlane = 1;
 
 		//Loop to find the objects or light parent element while the string is not "objects" or the size is non-zero
-		while(objectParents && (isObject = strncmp(objectParents->Value(), "objects", 7)) && (strncmp(objectParents->Value(), "lights", 6)) && (isCamera = strncmp(objectParents->Value(), "camera", 6)) && (isImagePlane = strncmp(objectParents->Value(), "image_plane", 11)) ) {
+		while(objectParents && (isObject = strncmp(objectParents->Value(), "objects", 7)) && (strncmp(objectParents->Value(), "lights", 6)) && (isCamera = strncmp(objectParents->Value(), "camera", 6)) && (isImagePlane = strncmp(objectParents->Value(), "image_plane", 11) )) {
 			//cout << "Element text " << objectParents->Value() << endl;
 			objectParents = objectParents->NextSiblingElement();
 		}
@@ -171,7 +171,7 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
             }
         } else if(isImagePlane) { // imagePlane parsing
             float length = 0, width = 0, height = 0;
-            Vec3<float> corner;
+            Vec3<float> corner = Vec3<float>(0, 0, 0);
             
             // Get all the attributes for the ImagePlane
             while(objectChild) {
@@ -189,6 +189,41 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
                     width = (float)atof(objectChild->GetText());
                 } else if(!strncmp(objectChild->Value(), "height", 6)) {
                     height = (float)atof(objectChild->GetText());
+                } else if(!strncmp(objectChild->Value(), "anaglyph", 8)) {
+                    tinyxml2::XMLElement * anaglyphChild = objectChild->FirstChildElement();
+                    char axis = 'x';
+                    float intereye_distance = 0;
+                    while(anaglyphChild) {
+                        
+                        // Parse the anaglyph section of the xml file
+                        if(!strncmp(anaglyphChild->Value(), "intereye_distance", 17)) {
+                            intereye_distance = (float)atof(anaglyphChild->GetText());
+                        } else if(!strncmp(anaglyphChild->Value(), "translation_axis", 16)) {
+                            axis = anaglyphChild->GetText()[0];
+                        }
+                        anaglyphChild = anaglyphChild->NextSiblingElement();
+                    }
+                    // Switch on the axis
+                    Vec3<float> newCorner = corner;
+                    
+                    switch(axis) {
+                        case 'x':
+                        case 'X':
+                            newCorner.x += intereye_distance;
+                            break;
+                        case 'y':
+                        case 'Y':
+                            newCorner.y += intereye_distance;
+                            break;
+                        
+                        case 'z':
+                        case 'Z':
+                            newCorner.z += intereye_distance;
+                            break;
+                    }
+                    
+                    // Set the secondary image plane
+                    perspective->SetSecondaryImagePlane(new ImagePlane(newCorner, length, width, height));
                 }
                 
                 objectChild = objectChild->NextSiblingElement();
