@@ -10,7 +10,7 @@
 
 /* STB Image write definition needed for writing png file */
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#define MAX_THREADS 20 // Must be at least 1
+#define MAX_THREADS 4 // Must be at least 2
 
 /* Standard libs */
 #include <cassert>
@@ -517,7 +517,13 @@ void *ShootRays(void * arg) {
     args = *((threadArgs *) arg);
     // Start going through all pixels and draw them
     for(int i = args.threadId; i < args.perspective->GetPixelHeight(); i+=MAX_THREADS/2) {
-        Vec3<float> heightOffset = args.perspective->GetImagePlane()->GetCorner() - (args.perspective->GetUnitsPerHeightPixel() * (float)i);        
+		Vec3<float> heightOffset;
+		if(!args.isSecondary) {
+			heightOffset = args.perspective->GetImagePlane()->GetCorner() - (args.perspective->GetUnitsPerHeightPixel() * (float)i);        
+		}
+		else {
+			heightOffset = args.perspective->GetSecondaryImagePlane()->GetCorner() - (args.perspective->GetUnitsPerHeightPixel() * (float)i);
+		}
         for(int j = 0; j < args.perspective->GetPixelLength(); j++) {
             Vec3<float> trueOffset = heightOffset + (args.perspective->GetUnitsPerLengthPixel() * (float)j);
 
@@ -637,7 +643,7 @@ int main(int argc, char * argv[]) {
     }
     
     for(int i = 0; i < MAX_THREADS/2; i++) {
-        tArgs[i].threadId = i;
+        tArgs[MAX_THREADS/2 + i].threadId = i;
         pthread_create(&pThreads[i+MAX_THREADS/2], NULL, ShootRays, &tArgs[i+MAX_THREADS/2]);
     }
     
@@ -645,8 +651,6 @@ int main(int argc, char * argv[]) {
     for(int i = 0; i < MAX_THREADS; i++) {
         pthread_join(pThreads[i], NULL);
     }
-    
-    
     
 	// Gamma correction
 	if(gamma_correction) {
@@ -664,5 +668,4 @@ int main(int argc, char * argv[]) {
 	free(imageArray0);
     free(imageArray1);
     free(tArgs);
-	pthread_exit(NULL);
 }
