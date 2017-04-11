@@ -129,6 +129,18 @@ class Perspective {
     }
     
     /*
+     * Date: 4/5/17
+     * Function Name: GetIntereyeDistance
+     * Arguments:
+     *      void
+     * Purpose: Returns the intereye distance for an anaglyph image
+     * Return Value: float
+     */
+    float GetIntereyeDistance() {
+        return _intereye_distance;
+    }
+    
+    /*
      * Date: 3/5/17
      * Function Name: GetUnitsPerHeightPixel
      * Arguments:

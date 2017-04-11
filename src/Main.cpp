@@ -1,6 +1,6 @@
 #if defined(__linux) || defined(__APPLE__)
-	#define OBJECTS_FILE "../Objects.xml"
-	#define CONFIG_FILE "../Config.ini"
+	#define OBJECTS_FILE "./Objects.xml"
+	#define CONFIG_FILE "./Config.ini"
 #else 
 	#define OBJECTS_FILE "Objects.xml"
 	#define CONFIG_FILE "Config.ini"
@@ -34,6 +34,7 @@
 
 typedef struct {
     int threadId;
+    bool isSecondary;
     Perspective * perspective;
     std::vector<Geometry *> * geometryArray;
     std::vector<Geometry *> * lightArray;
@@ -515,7 +516,7 @@ void *ShootRays(void * arg) {
     threadArgs args;
     args = *((threadArgs *) arg);
     // Start going through all pixels and draw them
-    for(int i = args.threadId; i < args.perspective->GetPixelHeight(); i+=MAX_THREADS) {
+    for(int i = args.threadId; i < args.perspective->GetPixelHeight(); i+=MAX_THREADS/2) {
         Vec3<float> heightOffset = args.perspective->GetImagePlane()->GetCorner() - (args.perspective->GetUnitsPerHeightPixel() * (float)i);        
         for(int j = 0; j < args.perspective->GetPixelLength(); j++) {
             Vec3<float> trueOffset = heightOffset + (args.perspective->GetUnitsPerLengthPixel() * (float)j);
@@ -612,18 +613,32 @@ int main(int argc, char * argv[]) {
     /* SEND PTHREADS AND SHIT */
     threadArgs * tArgs = (threadArgs *) malloc(sizeof(threadArgs) * MAX_THREADS);
     tArgs[0].geometryArray = &geometryArray;
+    tArgs[0].isSecondary = false;
     tArgs[0].imageArray = imageArray0;
     tArgs[0].lightArray = &lightArray;
     tArgs[0].perspective = perspective;
     tArgs[0].threadId = 0;
+    
 
-    for(int i = 0; i < MAX_THREADS; i++) {
+    for(int i = 1; i < MAX_THREADS/2 + 1; i++) {
         std::memcpy(&tArgs[i], &tArgs[0], sizeof(threadArgs));
     }
     
-    for(int i = 0; i < MAX_THREADS; i++) {
+    tArgs[MAX_THREADS/2].isSecondary = true;
+    tArgs[MAX_THREADS/2].imageArray = imageArray1;
+    for(int i = MAX_THREADS/2; i < MAX_THREADS; i++) {
+        std::memcpy(&tArgs[i], &tArgs[MAX_THREADS/2], sizeof(threadArgs));
+    }
+
+    
+    for(int i = 0; i < MAX_THREADS/2; i++) {
         tArgs[i].threadId = i;
         pthread_create(&pThreads[i], NULL, ShootRays, &tArgs[i]);
+    }
+    
+    for(int i = 0; i < MAX_THREADS/2; i++) {
+        tArgs[i].threadId = i;
+        pthread_create(&pThreads[i+MAX_THREADS/2], NULL, ShootRays, &tArgs[i+MAX_THREADS/2]);
     }
     
     // Wait for the threads
@@ -631,18 +646,23 @@ int main(int argc, char * argv[]) {
         pthread_join(pThreads[i], NULL);
     }
     
+    
+    
 	// Gamma correction
 	if(gamma_correction) {
 		gammaCorrect(imageArray0, perspective->GetPixelHeight(), perspective->GetPixelLength());
         gammaCorrect(imageArray1, perspective->GetPixelHeight(), perspective->GetPixelLength());
 	}
 
-	// Write out the image
-	stbi_write_png("output.png", perspective->GetPixelLength(), perspective->GetPixelHeight(), 3, imageArray0, perspective->GetPixelLength()*3);
+	// Write out the image(s)
+	stbi_write_png("output1.png", perspective->GetPixelLength(), perspective->GetPixelHeight(), 3, imageArray0, perspective->GetPixelLength()*3);
+    stbi_write_png("output2.png", perspective->GetPixelLength(), perspective->GetPixelHeight(), 3, imageArray1, perspective->GetPixelLength()*3);
+    
 	DestroyGeometry(geometryArray);
 	DestroyGeometry(lightArray);
     delete(perspective);
 	free(imageArray0);
     free(imageArray1);
+    free(tArgs);
 	pthread_exit(NULL);
 }
