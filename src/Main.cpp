@@ -55,12 +55,14 @@ void setPixelColor(Vec3<unsigned char> color, Vec2<int> coordinate, unsigned cha
 	array[++pos] = color.z;
 }
 
-void getPixelColor(Vec3<unsigned char> &color, Vec2<int> coordinate, unsigned char * array, int width) {
+Vec3<unsigned char> getPixelColor(Vec2<int> coordinate, unsigned char * array, int width) {
 	int pos = (coordinate.y * 3 * width) + (coordinate.x * 3);
 
+    Vec3<unsigned char> color;
 	color.x = array[pos];
 	color.y = array[++pos];
 	color.z = array[++pos];
+    return color;
 
 }
 
@@ -116,7 +118,7 @@ void drawGradient(Vec3<float> gradientStart, Vec3<float> gradientEnd, int width,
 
 		for (int j = 0; j < width; j++) {
 			// a + (b - a) * t
-			Vec2<int> coordinate(i, j);
+			Vec2<int> coordinate(j, i);
 			setPixelColor(col, coordinate, imageArray, width);
 		}
 	}
@@ -420,9 +422,9 @@ void gammaCorrect(unsigned char * imageArray, int height, int width) {
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++) {
 
-			//Corrected = 255 * (Image/255)^(1/2.2)
+			// Corrected = 255 * (Image/255)^(1/2.2)
 			coordinate.SetValues(j, i);
-			getPixelColor(color, coordinate, imageArray, width);
+			color = getPixelColor(coordinate, imageArray, width);
 			color.x = (unsigned char)(255 * pow((color.x / 255.f), 0.45454545454));
 			color.z = (unsigned char)(255 * pow((color.z / 255.f), 0.45454545454));
 			color.y = (unsigned char)(255 * pow((color.y / 255.f), 0.45454545454));
@@ -687,20 +689,43 @@ int main(int argc, char * argv[]) {
     RemoveRedChannel(imageArray0, perspective->GetPixelLength(), perspective->GetPixelHeight());
     RemoveCyanChannel(imageArray1, perspective->GetPixelLength(), perspective->GetPixelHeight());
     
+    
+    int pixelExtender = (int)(perspective->GetIntereyeDistance() / perspective->GetUnitsPerLengthPixel().x) + 1;
+    
+    cout << "Pixel extention is " << pixelExtender << endl;
+    
+    unsigned char * anaglyphImage = (unsigned char *)malloc(sizeof(unsigned char) * (perspective->GetPixelLength()+pixelExtender) * perspective->GetPixelHeight() * 3);
+    if(!anaglyphImage) {
+        cout << "Failed to allocate memory.  Exiting" << endl;
+        exit(10);
+    }
+    
+    for(int i = 0; i < perspective->GetPixelLength(); i++) {
+        for(int j = 0; j < perspective->GetPixelHeight(); j++) {
+            Vec2<int> coord(i, j);
+            Vec3<unsigned char> color = getPixelColor(coord, imageArray0, perspective->GetPixelLength());
+            
+            setPixelColor(color, coord, anaglyphImage, perspective->GetPixelLength() + pixelExtender);
+        }
+    }
+    
 	// Gamma correction
 	if(gamma_correction) {
 		gammaCorrect(imageArray0, perspective->GetPixelHeight(), perspective->GetPixelLength());
         gammaCorrect(imageArray1, perspective->GetPixelHeight(), perspective->GetPixelLength());
+        gammaCorrect(anaglyphImage, perspective->GetPixelHeight(), perspective->GetPixelLength()+pixelExtender);
 	}
 
 	// Write out the image(s)
 	stbi_write_png("output1.png", perspective->GetPixelLength(), perspective->GetPixelHeight(), 3, imageArray0, perspective->GetPixelLength()*3);
     stbi_write_png("output2.png", perspective->GetPixelLength(), perspective->GetPixelHeight(), 3, imageArray1, perspective->GetPixelLength()*3);
+    stbi_write_png("anaglyph.png", perspective->GetPixelLength()+pixelExtender, perspective->GetPixelHeight(), 3, anaglyphImage, (perspective->GetPixelLength()+pixelExtender)*3);
     
 	DestroyGeometry(geometryArray);
 	DestroyGeometry(lightArray);
     delete(perspective);
 	free(imageArray0);
     free(imageArray1);
+    free(anaglyphImage);
     free(tArgs);
 }
