@@ -10,7 +10,7 @@
 
 /* STB Image write definition needed for writing png file */
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#define MAX_THREADS 4 // Must be at least 2
+#define MAX_THREADS 100 // Must be at least 2
 
 /* Standard libs */
 #include <cassert>
@@ -578,6 +578,32 @@ void *ShootRays(void * arg) {
 	return NULL;
 }
 
+void RemoveRedChannel(unsigned char * imageArray, int length, int height) {
+    for(int i = 0; i < height * length * 3; i++) {
+        if(i % 3 != 0) {
+            imageArray[i] = 0;
+        }
+    }
+}
+
+void RemoveCyanChannel(unsigned char * imageArray, int length, int height) {
+    for(int i = 0; i < height * length * 3; i++) {
+        if(i % 3 == 0) {
+            imageArray[i] = 0;
+        }
+    }
+}
+
+void ConvertImageToGrayScale(unsigned char * imageArray, int length, int height) {
+    //http://stackoverflow.com/questions/17615963/standard-rgb-to-grayscale-conversion
+    for(int i = 0; i < length * height * 3; i+=3) {
+        unsigned char y = 255 * (imageArray[i] / 255.f * 0.2126f +imageArray[i+1] / 255.f * 0.7152f + imageArray[i+2] / 255.f * 0.0722f);
+        imageArray[i]   = y;
+        imageArray[i+1] = y;
+        imageArray[i+2] = y;
+    }
+}
+
 int main(int argc, char * argv[]) {
 
     pthread_t pThreads[MAX_THREADS];
@@ -651,6 +677,15 @@ int main(int argc, char * argv[]) {
     for(int i = 0; i < MAX_THREADS; i++) {
         pthread_join(pThreads[i], NULL);
     }
+    
+    // Convert images to grayscale
+    ConvertImageToGrayScale(imageArray0, perspective->GetPixelLength(), perspective->GetPixelHeight());
+    ConvertImageToGrayScale(imageArray1, perspective->GetPixelLength(), perspective->GetPixelHeight());
+    
+    
+    // Remove red channel from the first image
+    RemoveRedChannel(imageArray0, perspective->GetPixelLength(), perspective->GetPixelHeight());
+    RemoveCyanChannel(imageArray1, perspective->GetPixelLength(), perspective->GetPixelHeight());
     
 	// Gamma correction
 	if(gamma_correction) {
