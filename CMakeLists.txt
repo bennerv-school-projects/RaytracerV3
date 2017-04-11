@@ -12,11 +12,9 @@ endif()
 
 # Glob all the source files 
 file(GLOB SourceFiles "src/*.cpp" "src/*.hpp" "src/*.h")
-file(GLOB TestFiles "test/*.cpp" "test/*.hpp" "src/*.hpp")
 
 # Executables
 add_executable(raytracer ${SourceFiles})
-add_executable(raytracer-test ${TestFiles})
 
 # Must build static/shared library prior to running cmake
 if(WIN32) 

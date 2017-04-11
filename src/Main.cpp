@@ -1,6 +1,6 @@
 #if defined(__linux) || defined(__APPLE__)
-	#define OBJECTS_FILE "./Objects.xml"
-	#define CONFIG_FILE "./Config.ini"
+	#define OBJECTS_FILE "../Objects.xml"
+	#define CONFIG_FILE "../Config.ini"
 #else 
 	#define OBJECTS_FILE "Objects.xml"
 	#define CONFIG_FILE "Config.ini"
