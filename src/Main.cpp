@@ -690,22 +690,23 @@ int main(int argc, char * argv[]) {
     RemoveCyanChannel(imageArray1, perspective->GetPixelLength(), perspective->GetPixelHeight());
     
     
-    int pixelExtender = (int)(perspective->GetIntereyeDistance() / perspective->GetUnitsPerLengthPixel().x) + 1;
     
-    cout << "Pixel extention is " << pixelExtender << endl;
-    
-    unsigned char * anaglyphImage = (unsigned char *)malloc(sizeof(unsigned char) * (perspective->GetPixelLength()+pixelExtender) * perspective->GetPixelHeight() * 3);
+    unsigned char * anaglyphImage = (unsigned char *)malloc(sizeof(unsigned char) * perspective->GetPixelLength() * perspective->GetPixelHeight() * 3);
     if(!anaglyphImage) {
         cout << "Failed to allocate memory.  Exiting" << endl;
         exit(10);
     }
     
+    // Copy the images on top of oneanother
     for(int i = 0; i < perspective->GetPixelLength(); i++) {
         for(int j = 0; j < perspective->GetPixelHeight(); j++) {
             Vec2<int> coord(i, j);
-            Vec3<unsigned char> color = getPixelColor(coord, imageArray0, perspective->GetPixelLength());
+            Vec3<unsigned char> imageOneColor = getPixelColor(coord, imageArray0, perspective->GetPixelLength());
+            Vec3<unsigned char> imageTwoColor = getPixelColor(coord, imageArray1, perspective->GetPixelLength());
             
-            setPixelColor(color, coord, anaglyphImage, perspective->GetPixelLength() + pixelExtender);
+            Vec3<unsigned char> newColor(min(imageOneColor.x + imageTwoColor.x, 255), min(imageOneColor.y + imageTwoColor.y, 255), min(imageOneColor.z + imageTwoColor.z, 255));
+            
+            setPixelColor(newColor, coord, anaglyphImage, perspective->GetPixelLength());
         }
     }
     
@@ -713,13 +714,13 @@ int main(int argc, char * argv[]) {
 	if(gamma_correction) {
 		gammaCorrect(imageArray0, perspective->GetPixelHeight(), perspective->GetPixelLength());
         gammaCorrect(imageArray1, perspective->GetPixelHeight(), perspective->GetPixelLength());
-        gammaCorrect(anaglyphImage, perspective->GetPixelHeight(), perspective->GetPixelLength()+pixelExtender);
+        gammaCorrect(anaglyphImage, perspective->GetPixelHeight(), perspective->GetPixelLength());
 	}
 
 	// Write out the image(s)
 	stbi_write_png("output1.png", perspective->GetPixelLength(), perspective->GetPixelHeight(), 3, imageArray0, perspective->GetPixelLength()*3);
     stbi_write_png("output2.png", perspective->GetPixelLength(), perspective->GetPixelHeight(), 3, imageArray1, perspective->GetPixelLength()*3);
-    stbi_write_png("anaglyph.png", perspective->GetPixelLength()+pixelExtender, perspective->GetPixelHeight(), 3, anaglyphImage, (perspective->GetPixelLength()+pixelExtender)*3);
+    stbi_write_png("anaglyph.png", perspective->GetPixelLength(), perspective->GetPixelHeight(), 3, anaglyphImage, perspective->GetPixelLength()*3);
     
 	DestroyGeometry(geometryArray);
 	DestroyGeometry(lightArray);

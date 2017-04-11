@@ -56,7 +56,7 @@
     <vertex x="-8" y="-2" z="-20"/>
     <vertex x="8" y="-2" z="-20"/>
     <vertex x="8" y="10" z="-20"/>
-    <color>BLUE</color>
+    <color>YELLOW</color>
     <material>NONE</material>
   </triangle>
 
@@ -64,7 +64,7 @@
     <vertex x="-8" y="-2" z="-20"/>
     <vertex x="8" y="10" z="-20"/>
     <vertex x="-8" y="10" z="-20"/>
-    <color>BLUE</color>
+    <color>YELLOW</color>
     <material>NONE</material>
   </triangle>
 
@@ -110,6 +110,7 @@
   <color name="GREEN" r="0" g="255" b="0"/>
   <color name="INDIANRED" r="205" g="92" b="92"/>
   <color name="LIGHTCORAL" r="240" g="128" b="128"/>
+  <color name="LIGHTGRAY" r="211" g="211" b="211"/>
   <color name="LIGHTSALMON" r="255" g="160" b="122"/>
   <color name="RED" r="255" g="0" b="0"/>
   <color name="SALMON" r="250" g="128" b="114"/>
