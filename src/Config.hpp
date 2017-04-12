@@ -29,7 +29,7 @@ class Config {
 			while (rootElement && strncmp(rootElement->Value(), "configuration", 13)) {
 				
 				// Go through each of the configuration sections
-				tinyxml2::XMLElement * configElement = rootElement->FirstChildElement;
+				tinyxml2::XMLElement * configElement = rootElement->FirstChildElement();
 				while (configElement) {
 
 					std::string str(configElement->GetText());
