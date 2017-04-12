@@ -5,7 +5,7 @@ project(Raytracer)
 aux_source_directory(./src SRC)
 
 # wxWidgets library
-find_package(wxWidgets COMPONENTS net gl core base)
+find_package(wxWidgets COMPONENTS gl core base)
 if(wxWidgets_FOUND) 
 	include(${wxWidgets_USE_FILE})
 endif()

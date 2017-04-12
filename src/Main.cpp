@@ -57,6 +57,7 @@ typedef struct {
 using namespace std;
 
 Color _ColorMapping(OBJECTS_FILE);
+Config _Configuration(OBJECTS_FILE);
 
 void setPixelColor(Vec3<unsigned char> color, Vec2<int> coordinate, unsigned char * array, int width) {
 

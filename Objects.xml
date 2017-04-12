@@ -7,6 +7,7 @@
   <image_length>1024</image_length>
   <image_height>1024</image_height>
   <gamma_correction>true</gamma_correction>
+  <anaglyph>true</anaglyph>
   
   <!-- Background gradient OPTIONAL
   <background_gradient>
