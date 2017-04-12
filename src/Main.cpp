@@ -10,7 +10,7 @@
 
 /* STB Image write definition needed for writing png file */
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#define MAX_THREADS 100 // Must be at least 2
+#define MAX_THREADS 2 // Must be at least 2
 
 /* Standard libs */
 #include <cassert>
@@ -31,6 +31,7 @@
 
 /* Project headers */
 #include "Color.hpp"
+#include "Config.hpp"
 #include "Material.hpp"
 #include "Perspective.hpp"
 #include "Point.hpp"

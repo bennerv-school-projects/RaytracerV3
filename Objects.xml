@@ -1,5 +1,21 @@
 <?xml version="1.0" ?>
 
+<!-- Configuration -->
+<configuration>
+  <anti_aliasing>true</anti_aliasing>
+  <ambient_light>0.2</ambient_light>
+  <image_length>1024</image_length>
+  <image_height>1024</image_height>
+  <gamma_correction>true</gamma_correction>
+  
+  <!-- Background gradient OPTIONAL
+  <background_gradient>
+    <hsl_interpolation>true</hsl_interpolation>
+    <start>RED</start>
+    <end>GREEN</end>
+  </background_gradient> OPTIONAL -->
+</configuration>
+
 <!-- Lights in world space -->
 <lights>
   <point>
