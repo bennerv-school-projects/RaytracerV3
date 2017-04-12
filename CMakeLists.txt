@@ -1,25 +1,20 @@
-cmake_minimum_required(VERSION 2.8.7)
+cmake_minimum_required(VERSION 2.8.12)
 project(Raytracer)
+
+# Grab all the source files
+aux_source_directory(./src SRC)
+
+# Executables
+add_executable(raytracer ${SRC})
 
 # Include inih library
 include_directories(${CMAKE_BINARY_DIR}/lib/inih ${CMAKE_BINARY_DIR}/lib/tinyxml2)
-
-if(WIN32) 
-	include_directories(${CMAKE_BINARY_DIR}/lib/pthread)
-else() 
-	
-endif()
-
-# Glob all the source files 
-file(GLOB SourceFiles "src/*.cpp" "src/*.hpp" "src/*.h")
-
-# Executables
-add_executable(raytracer ${SourceFiles})
 
 # Must build static/shared library prior to running cmake
 if(WIN32) 
 	target_link_libraries(raytracer ${CMAKE_BINARY_DIR}/lib/tinyxml2/Debug/tinyxml2.lib)
 	target_link_libraries(raytracer ${CMAKE_BINARY_DIR}/lib/pthread/pthreadVC2.lib)
+	include_directories(${CMAKE_BINARY_DIR}/lib/pthread)
 else()
 	target_link_libraries(raytracer ${CMAKE_BINARY_DIR}/lib/tinyxml2/libtinyxml2.a)
 
