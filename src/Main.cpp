@@ -17,6 +17,17 @@
 #include <iostream>
 #include <pthread.h>
 #include <vector>
+#include <wx/setup.h>
+
+#include <wx/wx.h>
+#include <wx/glcanvas.h>
+
+#ifdef __WXMAC__
+	#include <GLUT/glut.h>
+#else 
+	#include <gl/GLU.h>
+#endif
+
 
 /* Project headers */
 #include "Color.hpp"

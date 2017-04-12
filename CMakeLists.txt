@@ -4,11 +4,21 @@ project(Raytracer)
 # Grab all the source files
 aux_source_directory(./src SRC)
 
+# wxWidgets library
+find_package(wxWidgets COMPONENTS net gl core base)
+if(wxWidgets_FOUND) 
+	include(${wxWidgets_USE_FILE})
+endif()
+
 # Executables
 add_executable(raytracer ${SRC})
 
-# Include inih library
+# Include inih and tinyxml libraries
 include_directories(${CMAKE_BINARY_DIR}/lib/inih ${CMAKE_BINARY_DIR}/lib/tinyxml2)
+
+if(wxWidgets_FOUND)
+	target_link_libraries(raytracer ${wxWidgets_LIBRARIES})
+endif()
 
 # Must build static/shared library prior to running cmake
 if(WIN32) 
