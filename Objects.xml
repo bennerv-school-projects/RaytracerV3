@@ -18,32 +18,35 @@
   </background_gradient> OPTIONAL -->
 </configuration>
 
+<!-- Image plane and camera information -->
+<image_plane>
+  
+  <!-- Camera location in world space -->
+  <camera>
+    <location x="0" y="-0.25" z="0"/>
+  </camera>
+
+  <!-- Top left corner of the image plane -->
+  <corner x="-1" y="1" z="-2" />
+
+  <!-- These must be a positive non-zero integer -->
+  <length>2</length>
+  <height>2</height>
+
+  <!-- Anaglyph settings. Will be ignored if anaglyph mode is false -->
+  <anaglyph>
+    <mode>PARALLEL</mode> <!-- PARALLEL or CONVERGE -->
+    <intereye_distance>.06</intereye_distance>
+  </anaglyph>
+  
+</image_plane>
+
 <!-- Lights in world space -->
 <lights>
   <point>
     <location x="3" y="5" z="-15"/>
   </point>
 </lights>
-
-<!-- Camera location in world space -->
-<camera>
-  <location x="0" y="-0.25" z="0"/>
-</camera>
-
-<!-- Image plane locations.  Should specify the top left corner and work in the positive x/y/z directions -->
-<image_plane>
-  <corner x="-1" y="1" z="-2" />
-  <length>2</length>
-  <width>0</width>
-  <height>2</height>
-
-  <anaglyph>
-    <mode>NONE</mode>
-    <intereye_distance>.06</intereye_distance>
-    <translation_axis>x</translation_axis>
-  </anaglyph>
-  
-</image_plane>
   
 
 <!-- Geometry in world space and color parsing -->
@@ -52,7 +55,7 @@
     <center x="0" y="0" z="-16"/>
     <radius>2</radius>
     <color>RED</color>
-    <material>REFLECTIVE</material>
+    <material>REFLECTIVE</material> <!-- NONE, GLASS, REFLECTIVE, SPECULAR (reflective and none currently supported) -->
   </sphere>
 
   <sphere>

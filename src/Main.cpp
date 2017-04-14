@@ -10,7 +10,7 @@
 
 /* STB Image write definition needed for writing png file */
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#define MAX_THREADS 100 // Must be at least 2
+#define MAX_THREADS 2 // Must be at least 2
 
 /* Standard libs */
 #include <cassert>
@@ -39,14 +39,12 @@
 #include "Vector.hpp"
 
 /* External headers */
-#include "INIReader.h"
 #include "stb_image_write.h"
 #include "tinyxml2.h"
 
 typedef struct {
     int threadId;
     bool isSecondary;
-    Perspective * perspective;
     std::vector<Geometry *> * geometryArray;
     std::vector<Geometry *> * lightArray;
     unsigned char * imageArray;
@@ -57,6 +55,7 @@ using namespace std;
 
 Color _ColorMapping(OBJECTS_FILE);
 Config _Configuration(OBJECTS_FILE);
+Perspective _Perspective(_Configuration, OBJECTS_FILE);
 
 void setPixelColor(Vec3<unsigned char> color, Vec2<int> coordinate, unsigned char * array, int width) {
 
@@ -76,32 +75,6 @@ Vec3<unsigned char> getPixelColor(Vec2<int> coordinate, unsigned char * array, i
 	color.z = array[++pos];
     return color;
 
-}
-
-void readConfig(Perspective * perspective, bool &gradient, bool &hsl, Vec3<float> &gStart, Vec3<float> &gEnd) {
-
-	// Read the ini settings file
-	INIReader reader(CONFIG_FILE);
-
-    perspective->SetAntiAliasing(reader.GetBoolean("settings", "anti-aliasing", false));
-	gradient = reader.GetBoolean("settings", "background-gradient", false);
-	hsl = reader.GetBoolean("settings", "hsl-interpolation", false);
-    perspective->SetAmbientLight((float)reader.GetReal("settings", "ambient-light", 0.2f));
-	perspective->SetPixelLength((int)reader.GetInteger("settings", "image-length", 512));
-    perspective->SetPixelHeight((int)reader.GetInteger("settings", "image-height", 512));
-
-	if (gradient) {
-		std::string str("RED"), temp;
-		Vec3<unsigned char> charColor;
-		temp = reader.Get("Gradient", "start", str);
-		charColor = _ColorMapping.GetColor(temp);
-		gStart = Vec3<float>::vec3(charColor.x, charColor.y, charColor.z);
-
-		temp = reader.Get("Gradient", "end", str);
-		charColor = _ColorMapping.GetColor(temp);
-		gEnd = Vec3<float>::vec3(charColor.x, charColor.y, charColor.z);
-
-	}
 }
 
 void drawGradient(Vec3<float> gradientStart, Vec3<float> gradientEnd, int width, int height, unsigned char * imageArray, bool hsl) {
@@ -134,7 +107,7 @@ void drawGradient(Vec3<float> gradientStart, Vec3<float> gradientEnd, int width,
 	}
 }
 
-void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights, Perspective * perspective) {
+void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights) {
 
 	// Load the xml file
 	tinyxml2::XMLDocument doc;
@@ -152,16 +125,14 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
 	// Go through the lights array and geometry array
 	while(objectParents) {
         
-        int isObject = 1, isCamera = 1, isImagePlane = 1;
+        int isObject = 1;
 
 		//Loop to find the objects or light parent element while the string is not "objects" or the size is non-zero
-		while(objectParents && (isObject = strncmp(objectParents->Value(), "objects", 7)) && (strncmp(objectParents->Value(), "lights", 6)) && (isCamera = strncmp(objectParents->Value(), "camera", 6)) && (isImagePlane = strncmp(objectParents->Value(), "image_plane", 11) )) {
+		while(objectParents && (isObject = strncmp(objectParents->Value(), "objects", 7)) && (strncmp(objectParents->Value(), "lights", 6)) ) {
 			//cout << "Element text " << objectParents->Value() << endl;
 			objectParents = objectParents->NextSiblingElement();
 		}
 		isObject = !isObject;
-        isCamera = !isCamera;
-        isImagePlane = !isImagePlane;
 
 		if (!objectParents) {
             break;
@@ -169,84 +140,9 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
         
         
         tinyxml2::XMLElement * objectChild = objectParents->FirstChildElement();
-        
-        // Camera parsing
-        if(isCamera) {
-            if (!strncmp(objectChild->Value(), "location", 8)) {
-                
-                // Read the 3 vectors' attributes and set their values
-                double a = 0, b = 0, c = 0;
-                objectChild->QueryDoubleAttribute("x", &a);
-                objectChild->QueryDoubleAttribute("y", &b);
-                objectChild->QueryDoubleAttribute("z", &c);
-                
-                perspective->SetCameraPosition(Vec3<float>::vec3((float)a, (float)b, (float)c));
-            }
-        } else if(isImagePlane) { // imagePlane parsing
-            float length = 0, width = 0, height = 0;
-            Vec3<float> corner = Vec3<float>(0, 0, 0);
+    
             
-            // Get all the attributes for the ImagePlane
-            while(objectChild) {
-                if(!strncmp(objectChild->Value(), "corner", 6)) {
-                    double a = 0, b = 0, c = 0;
-                    objectChild->QueryDoubleAttribute("x", &a);
-                    objectChild->QueryDoubleAttribute("y", &b);
-                    objectChild->QueryDoubleAttribute("z", &c);
-                    
-                    corner = Vec3<float>::vec3((float)a, (float)b, (float)c);
-                    
-                } else if(!strncmp(objectChild->Value(), "length", 6)) {
-                    length = (float)atof(objectChild->GetText());
-                } else if(!strncmp(objectChild->Value(), "width", 5)) {
-                    width = (float)atof(objectChild->GetText());
-                } else if(!strncmp(objectChild->Value(), "height", 6)) {
-                    height = (float)atof(objectChild->GetText());
-                } else if(!strncmp(objectChild->Value(), "anaglyph", 8)) {
-                    tinyxml2::XMLElement * anaglyphChild = objectChild->FirstChildElement();
-                    char axis = 'x';
-                    float intereye_distance = 0;
-                    while(anaglyphChild) {
-                        
-                        // Parse the anaglyph section of the xml file
-                        if(!strncmp(anaglyphChild->Value(), "intereye_distance", 17)) {
-                            intereye_distance = (float)atof(anaglyphChild->GetText());
-                            perspective->SetIntereyeDistance(intereye_distance);
-                            assert(intereye_distance != 0);
-                        } else if(!strncmp(anaglyphChild->Value(), "translation_axis", 16)) {
-                            axis = anaglyphChild->GetText()[0];
-                        }
-                        anaglyphChild = anaglyphChild->NextSiblingElement();
-                    }
-                    // Switch on the axis
-                    Vec3<float> newCorner = corner;
-                    
-                    switch(axis) {
-                        case 'x':
-                        case 'X':
-                            newCorner.x += intereye_distance;
-                            break;
-                        case 'y':
-                        case 'Y':
-                            newCorner.y += intereye_distance;
-                            break;
-                        
-                        case 'z':
-                        case 'Z':
-                            newCorner.z += intereye_distance;
-                            break;
-                    }
-                    
-                    // Set the secondary image plane
-                    perspective->SetSecondaryImagePlane(new ImagePlane(newCorner, length, width, height));
-                }
-                
-                objectChild = objectChild->NextSiblingElement();
-            }
-            
-            perspective->SetImagePlane(new ImagePlane(corner, length, width, height));
-            
-        } else { // object/light parsing
+        if(objectChild) { // object/light parsing
 
             // Iterate through the objects portion and add them to the geometry array
             while (objectChild) {
@@ -257,7 +153,7 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
                     Vec3<float> vertexB;
                     Vec3<float> vertexC;
                     Vec3<unsigned char> color = _ColorMapping.GetColor("WHITE");
-                    Material mat = NONE;
+                    Material mat = MATERIAL_NONE;
                     std::string str;
 
                     // Go through and read all the attributes and tags
@@ -300,16 +196,16 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
 
                             // Assign the material
                             if (!strncmp(str.c_str(), "NONE", 4)) {
-                                mat = NONE;
+                                mat = MATERIAL_NONE;
                             }
                             else if (!strncmp(str.c_str(), "REFLECTIVE", 10)) {
-                                mat = REFLECTIVE;
+                                mat = MATERIAL_REFLECTIVE;
                             }
                             else if (!strncmp(str.c_str(), "SPECULAR", 8)) {
-                                mat = SPECULAR;
+                                mat = MATERIAL_SPECULAR;
                             }
                             else if (!strncmp(str.c_str(), "GLASS", 5)) {
-                                mat = GLASS;
+                                mat = MATERIAL_GLASS;
                             }
                         }
                         tag = tag->NextSiblingElement();
@@ -328,7 +224,7 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
                 else if (!strncmp(objectChild->Value(), "sphere", 6)) {
                     Vec3<float> center(0, 0, 0);
                     float radius = 0;
-                    Material mat = NONE;
+                    Material mat = MATERIAL_NONE;
                     Vec3<unsigned char> color = _ColorMapping.GetColor("WHITE");
                     std::string str;
 
@@ -364,16 +260,16 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
 
                             // Assign the material
                             if (!strncmp(str.c_str(), "NONE", 4)) {
-                                mat = NONE;
+                                mat = MATERIAL_NONE;
                             }
                             else if (!strncmp(str.c_str(), "REFLECTIVE", 10)) {
-                                mat = REFLECTIVE;
+                                mat = MATERIAL_REFLECTIVE;
                             }
                             else if (!strncmp(str.c_str(), "SPECULAR", 8)) {
-                                mat = SPECULAR;
+                                mat = MATERIAL_SPECULAR;
                             }
                             else if (!strncmp(str.c_str(), "GLASS", 5)) {
-                                mat = GLASS;
+                                mat = MATERIAL_GLASS;
                             }
                         }
                         tag = tag->NextSiblingElement();
@@ -477,7 +373,7 @@ std::shared_ptr<RayHit> GetRay(Vec3<float> ray, Vec3<float> startingPos, vector<
 	}
 
 	/* Check reflection */
-	if(minHit->GetMaterial() == REFLECTIVE) {
+	if(minHit->GetMaterial() == MATERIAL_REFLECTIVE) {
 		if(depth > 9) {
 			return nullptr;
 		}
@@ -529,25 +425,35 @@ void *ShootRays(void * arg) {
     args = *((threadArgs *) arg);
     // Start going through all pixels and draw them
     for(int i = args.threadId; i < _Configuration.GetPixelHeight(); i+=MAX_THREADS/2) {
-		Vec3<float> heightOffset;
+		float heightOffset;
 		if(!args.isSecondary) {
-			heightOffset = args.perspective->GetImagePlane()->GetCorner() - (args.perspective->GetUnitsPerHeightPixel() * (float)i);        
+			heightOffset = _Perspective.GetImagePlane()->GetCorner().y - (_Perspective.GetUnitsPerHeightPixel() * (float)i);
 		}
 		else {
-			heightOffset = args.perspective->GetSecondaryImagePlane()->GetCorner() - (args.perspective->GetUnitsPerHeightPixel() * (float)i);
+			heightOffset = _Perspective.GetSecondaryImagePlane()->GetCorner().y - (_Perspective.GetUnitsPerHeightPixel() * (float)i);
 		}
         for(int j = 0; j < _Configuration.GetPixelLength(); j++) {
-            Vec3<float> trueOffset = heightOffset + (args.perspective->GetUnitsPerLengthPixel() * (float)j);
+            Vec3<float> trueOffset;
+            
+            // Start at the corner of the image plane (x length)
+            float xStart;
+            if(args.isSecondary) {
+                xStart = _Perspective.GetSecondaryImagePlane()->GetCorner().x;
+            } else {
+                xStart = _Perspective.GetImagePlane()->GetCorner().x;
+            }
+            trueOffset = Vec3<float>::vec3(xStart + (_Perspective.GetUnitsPerLengthPixel() * (float)j), heightOffset, _Perspective.GetImagePlane()->GetCorner().z);
+        
 
             // Anti-aliasing
             if(_Configuration.IsAntialiased()) {
                 std::vector<Vec3<unsigned char> > colorArray;
                 for(int k = 0; k < 2; k++) {
-                    Vec3<float> aliasHeightOffset = trueOffset - (args.perspective->GetUnitsPerHeightPixel() * ((float)k+1.f) );
+                    Vec3<float> aliasHeightOffset(trueOffset.x, trueOffset.y - (_Perspective.GetUnitsPerHeightPixel() * ((float)k+1.f) ), trueOffset.z);
 					for (int l = 0; l < 2; l++) {
-                        Vec3<float> aliasTotalOffset = aliasHeightOffset + (args.perspective->GetUnitsPerLengthPixel() * (float)l);
-                        Vec3<float> tempRay = Vec3<float>::Normalize(aliasTotalOffset - args.perspective->GetCameraPosition());
-                        std::shared_ptr<RayHit> rayHit = GetRay(tempRay, args.perspective->GetCameraPosition(), *(args.geometryArray), 0);
+                        Vec3<float> aliasTotalOffset(aliasHeightOffset.x + (_Perspective.GetUnitsPerLengthPixel() * (float)l), aliasHeightOffset.y, aliasHeightOffset.z);
+                        Vec3<float> tempRay = Vec3<float>::Normalize(aliasTotalOffset - _Perspective.GetCameraPosition());
+                        std::shared_ptr<RayHit> rayHit = GetRay(tempRay, _Perspective.GetCameraPosition(), *(args.geometryArray), 0);
                         
                         // Push the colors back in the vector
                         if(rayHit == nullptr) {
@@ -572,8 +478,8 @@ void *ShootRays(void * arg) {
                 
             } else {
                 //Shoot a single ray
-                Vec3<float> tempRay = Vec3<float>::Normalize(trueOffset - args.perspective->GetCameraPosition());
-                std::shared_ptr<RayHit> rayHit = GetRay(tempRay, args.perspective->GetCameraPosition(), *(args.geometryArray), 0);
+                Vec3<float> tempRay = Vec3<float>::Normalize(trueOffset - _Perspective.GetCameraPosition());
+                std::shared_ptr<RayHit> rayHit = GetRay(tempRay, _Perspective.GetCameraPosition(), *(args.geometryArray), 0);
                 Vec2<int> coord(j, i);
                 
                 // Set the pixel color
@@ -619,23 +525,34 @@ void ConvertImageToGrayScale(unsigned char * imageArray, int length, int height)
 int main(int argc, char * argv[]) {
 
     pthread_t pThreads[MAX_THREADS];
-    Perspective * perspective = new Perspective();
-	bool background_gradient, hsl_interpolation;
+	bool background_gradient = false, hsl_interpolation = false;
 	Vec3<float> gradientStart(0, 0, 0), gradientEnd(0, 0, 0);
 	std::vector<Geometry *> geometryArray;
 	std::vector<Geometry *> lightArray;
 
 	// Read the config setting
-	readConfig(perspective, background_gradient, hsl_interpolation, gradientStart, gradientEnd);
-	initGeometry(geometryArray, lightArray, perspective);
+	initGeometry(geometryArray, lightArray);
 	
-    
-	cout << "Anti-aliasing: " << perspective->GetAntiAliasing() << " " << _Configuration.IsAntialiased() << endl;
+    // Debug --- Configuration information
+	cout << "Anti-aliasing: "  << _Configuration.IsAntialiased() << endl;
     cout << "Gamma correction: " << _Configuration.GammaCorrect() << endl;
     cout << "Normal correction: "  << _Configuration.NormalCorrect() << endl;
-	cout << "Ambient light value: " << perspective->GetAmbientLight() << " " << _Configuration.GetAmbientLight() << endl;
-	cout << "Image length: " << perspective->GetPixelLength() << " " << _Configuration.GetPixelLength() << endl;
-	cout << "Image height: " << perspective->GetPixelHeight() << " " << _Configuration.GetPixelHeight() << endl;
+	cout << "Ambient light value: " << _Configuration.GetAmbientLight() << endl;
+	cout << "Image length: " << _Configuration.GetPixelLength() << endl;
+	cout << "Image height: "  << _Configuration.GetPixelHeight() << endl;
+    
+    
+    // Debug --- PERSPECTIVE INFORMATION
+    Vec3<float> temp = _Perspective.GetImagePlane()->GetCorner();
+    cout << "Image Plane " << temp.x << " " << temp.y << " " << temp.z << endl;
+    cout << "Length of image plane " << _Perspective.GetImagePlane()->GetLength() << endl;
+    cout << "Height of image plane " << _Perspective.GetImagePlane()->GetHeight() << endl;
+    temp = _Perspective.GetCameraPosition();
+    cout << "Camera Location " << temp.x << " " << temp.y << " " << temp.z << endl;
+    cout << "Anaglyph mode " << _Perspective.GetAnaglyphMode() << endl;
+    cout << "Intereye distance " << _Perspective.GetIntereyeDistance() << endl;
+    cout << "Units per length " << _Perspective.GetUnitsPerLengthPixel() << endl;
+    cout << "Units per height " << _Perspective.GetUnitsPerHeightPixel() << endl;
    
 
 	unsigned char * imageArray0 = (unsigned char *) malloc(3 * _Configuration.GetPixelLength() * _Configuration.GetPixelHeight() * sizeof(unsigned char));
@@ -652,7 +569,7 @@ int main(int argc, char * argv[]) {
 	}
     
     // Make sure the ImagePlane is set already
-    assert(perspective->GetImagePlane() != nullptr);
+    assert(_Perspective.GetImagePlane() != nullptr);
     
     /* SEND PTHREADS AND SHIT */
     threadArgs * tArgs = (threadArgs *) malloc(sizeof(threadArgs) * MAX_THREADS);
@@ -660,14 +577,13 @@ int main(int argc, char * argv[]) {
     tArgs[0].isSecondary = false;
     tArgs[0].imageArray = imageArray0;
     tArgs[0].lightArray = &lightArray;
-    tArgs[0].perspective = perspective;
     tArgs[0].threadId = 0;
     
 
     for(int i = 1; i < MAX_THREADS/2 + 1; i++) {
         std::memcpy(&tArgs[i], &tArgs[0], sizeof(threadArgs));
     }
-    
+
     tArgs[MAX_THREADS/2].isSecondary = true;
     tArgs[MAX_THREADS/2].imageArray = imageArray1;
     for(int i = MAX_THREADS/2; i < MAX_THREADS; i++) {
@@ -684,6 +600,7 @@ int main(int argc, char * argv[]) {
         tArgs[MAX_THREADS/2 + i].threadId = i;
         pthread_create(&pThreads[i+MAX_THREADS/2], NULL, ShootRays, &tArgs[i+MAX_THREADS/2]);
     }
+    
     
     // Wait for the threads
     for(int i = 0; i < MAX_THREADS; i++) {
@@ -734,7 +651,6 @@ int main(int argc, char * argv[]) {
     
 	DestroyGeometry(geometryArray);
 	DestroyGeometry(lightArray);
-    delete(perspective);
 	free(imageArray0);
     free(imageArray1);
     free(anaglyphImage);

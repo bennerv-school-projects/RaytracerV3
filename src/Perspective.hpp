@@ -1,7 +1,18 @@
 #pragma once
 
 #include "ImagePlane.hpp"
+#include "tinyxml2.h"
 #include "Vector.hpp"
+#include "Config.hpp"
+
+#include <string>
+
+// The type of anaglyph images we can render
+enum anaglyph_type {
+    ANAGLYPH_PARALLEL,
+    ANAGLYPH_CONVERGE,
+    ANAGLYPH_NONE
+};
 
 /*
  * Author: Ben Vesel
@@ -12,44 +23,146 @@ class Perspective {
     public :
     
     /*
-     * Date: 3/4/17
-     * Function Name: Perspective
-     * Arguments:
-     *      int         - the width of the image in pixels
-     *      int         - the height of the image in pixels
-     *      ImagePlane  - the ImagePlane the 'world' is being projected onto
-     *      Vec3<float> - the camera position
-     * Purpose: Constructor
-     * Return Value: void (Constructor)
-     */
-    Perspective(int length, int height, ImagePlane * imagePlane, Vec3<float> cam) {
-        _pixelLength = length;
-        _pixelHeight = height;
-        _imagePlane = imagePlane;
-        _cameraPosition = cam;
-        
-        // Calculate the units per pixel
-        if(_imagePlane->GetLength() == 0) { // x doesn't change so as coords(i, j) progress i corresponds with the z direction and j with the y
-            _unitsPerLengthPixel = Vec3<float>::vec3(0.f, 0.f, _imagePlane->GetWidth() / (float)_pixelLength);
-            _unitsPerHeightPixel = Vec3<float>::vec3(0.f, _imagePlane->GetHeight() / (float) _pixelHeight, 0.f);
-        } else if(_imagePlane->GetWidth() == 0) { // z doesn't change so as coords(i, j) progress i corresponds with the x direction and j with the y
-            _unitsPerLengthPixel = Vec3<float>::vec3(_imagePlane->GetLength() / (float)_pixelLength, 0.f, 0.f);
-            _unitsPerHeightPixel = Vec3<float>::vec3(0.f, _imagePlane->GetHeight() / (float) _pixelHeight, 0.f);
-        } else { // y doesn't change so as coords(i, j) progress i corresponds with the x direction and j with the z
-            _unitsPerLengthPixel = Vec3<float>::vec3(_imagePlane->GetLength() / (float)_pixelLength, 0.f, 0.f);
-            _unitsPerHeightPixel = Vec3<float>::vec3(0.f, 0.f, _imagePlane->GetWidth() / (float) _pixelHeight);
-        }
-    }
-    
-    /*
      * Date: 3/8/17
      * Function Name: Perspective
      * Arguments:
      * Purpose: Constructor
      * Return Value: void (Constructor)
      */
-    Perspective() {
-        _imagePlane = nullptr;
+    Perspective(Config config, std::string fileName) : _unitsPerLengthPixel(0), _unitsPerHeightPixel(0), _imagePlane(nullptr), _secondaryImagePlane(nullptr), _cameraPosition(0, 0, 0), _intereyeDistance(0), _anaglyphMode(ANAGLYPH_NONE) {
+        
+        
+        tinyxml2::XMLDocument doc;
+        doc.LoadFile(fileName.c_str());
+        
+        // Parse the xml document
+        if (doc.Error()) {
+            std::cout << "There was an error parsing " << fileName << std::endl;
+            doc.PrintError();
+            exit(1);
+        }
+        
+        // Iterate through the xml elements for the configuration section
+        tinyxml2::XMLElement * rootElement = doc.FirstChildElement();
+        while (rootElement && strncmp(rootElement->Value(), "image_plane", 11)) {
+            rootElement = rootElement->NextSiblingElement();
+        }
+        
+        
+        if(rootElement) {
+            
+            tinyxml2::XMLElement * imagePlaneElement = rootElement->FirstChildElement();
+            
+            Vec3<float> corner(-1, -1, -1);
+            float length = -1, height = -1;
+            bool anaglyphSettings = false;
+            float intereyeDistance = -1;
+            anaglyph_type anaglyphMode = ANAGLYPH_NONE;
+            
+            // Go through each of the image plane information portions
+            while(imagePlaneElement) {
+                
+                // Parse the camera location
+                if(!strncmp(imagePlaneElement->Value(), "camera", 6)) {
+                    tinyxml2::XMLElement * cameraLocationElement = imagePlaneElement->FirstChildElement();
+                    
+                    if(cameraLocationElement) {
+                        double x = -1, y = -1, z = -1;
+                        
+                        cameraLocationElement->QueryDoubleAttribute("x", &x);
+                        cameraLocationElement->QueryDoubleAttribute("y", &y);
+                        cameraLocationElement->QueryDoubleAttribute("z", &z);
+                        
+                        // Set the camera postition
+                        _cameraPosition = Vec3<float>::vec3(x, y, z);
+                    }
+                }
+                else if(!strncmp(imagePlaneElement->Value(), "corner", 6)) {
+                    double x = -1, y = -1, z = -1;
+                    
+                    // Parse the corners
+                    imagePlaneElement->QueryDoubleAttribute("x", &x);
+                    imagePlaneElement->QueryDoubleAttribute("y", &y);
+                    imagePlaneElement->QueryDoubleAttribute("z", &z);
+                    
+                    corner = Vec3<float>::vec3((float)x, (float)y, (float)z);
+                }
+                else if(!strncmp(imagePlaneElement->Value(), "length", 6)) {
+                    length = (float)atof(imagePlaneElement->GetText());
+                }
+                else if(!strncmp(imagePlaneElement->Value(), "height", 6)) {
+                    height = (float)atof(imagePlaneElement->GetText());
+                }
+                else if(!strncmp(imagePlaneElement->Value(), "anaglyph", 8)) {
+                    anaglyphSettings = true;
+                    // Make sure it is an anaglyph image
+                    if(config.IsAnaglyph()) {
+                        tinyxml2::XMLElement * anaglyphElement = imagePlaneElement->FirstChildElement();
+                        
+                        // Go through each of the portions of anaglyphElement
+                        while(anaglyphElement) {
+                            
+                            // Parse the mode portion
+                            if(!strncmp(anaglyphElement->Value(), "mode", 4)) {
+                                std::string mode(anaglyphElement->GetText());
+                                std::transform(mode.begin(), mode.end(), mode.begin(), ::toupper);
+                                
+                                
+                                // Set the anaglyph mode
+                                if(!strncmp(mode.c_str(), "PARALLEL", 8)) {
+                                    anaglyphMode = ANAGLYPH_PARALLEL;
+                                }
+                                else if(!strncmp(mode.c_str(), "CONVERGE", 8) || !strncmp(mode.c_str(), "CONVERGING", 10)) {
+                                    anaglyphMode = ANAGLYPH_CONVERGE;
+                                }
+                            }
+                            
+                            // Parse the intereye distance portion
+                            else if(!strncmp(anaglyphElement->Value(), "intereye_distance", 17)) {
+                                intereyeDistance = (float)atof(anaglyphElement->GetText());
+                            }
+                            anaglyphElement = anaglyphElement->NextSiblingElement();
+                        }
+                    }
+                }
+                imagePlaneElement = imagePlaneElement->NextSiblingElement();
+            }
+            
+            // Make sure if anaglyph mode is enabled that they specified the intereye distance and mode
+            if(!anaglyphSettings && config.IsAnaglyph()) {
+                std::cout << "You must have an anaglyph portion in the xml in order to process an anaglyph image" << std::endl;
+                exit(11);
+            }
+            
+            // Make sure anaglyph mode is configured and the intereyeDistance is greater than zero
+            if(config.IsAnaglyph() && (anaglyphMode == ANAGLYPH_NONE || intereyeDistance <= 0)) {
+                std::cout << "You must configure an anaglyph mode if you enable anaglyphs, or intereye distance must be greater than 0" << std::endl;
+                exit(12);
+            }
+            
+            // Create the image plane
+            _imagePlane = new ImagePlane(corner, length, height);
+            
+            // Set up the secondary image plane and anaglyph modes
+            if(config.IsAnaglyph() ) {
+                _anaglyphMode = anaglyphMode;
+                _intereyeDistance = intereyeDistance;
+                
+                // Set the secondary image plane
+                Vec3<float> newCorner(corner.x + _intereyeDistance, corner.y, corner.z);
+                _secondaryImagePlane = new ImagePlane(newCorner, length, height);
+            }
+            
+            // Set the units per pixel lengths
+            _unitsPerLengthPixel = _imagePlane->GetLength() / config.GetPixelLength();
+            _unitsPerHeightPixel = _imagePlane->GetHeight() / config.GetPixelHeight();
+        }
+        
+        // Make sure that we set our pixelLength units
+        if(_imagePlane == nullptr) {
+            std::cout << "Didn't find an image_plane section in the xml file.  Exiting" << std::endl;
+            exit(12);
+        }
     }
     
     
@@ -63,57 +176,10 @@ class Perspective {
     ~Perspective() {
         if(_imagePlane != nullptr) {
             delete(_imagePlane);
+        }
+        if(_secondaryImagePlane != nullptr) {
             delete(_secondaryImagePlane);
         }
-    }
-    
-    
-    /*
-     * Date: 3/8/17
-     * Function Name: GetAmbientLight
-     * Arguments:
-     *      void
-     * Purpose: Gets the ambient light value
-     * Return Value: float
-     */
-    float GetAmbientLight() {
-        return _ambientLight;
-    }
-    
-    /*
-     * Date: 3/8/17
-     * Function Name: GetAntiAliasing
-     * Arguments:
-     *      void
-     * Purpose: Gets whether to anti-alias or not
-     * Return Value: bool
-     */
-    bool GetAntiAliasing() {
-        return _antiAliasing;
-    }
-    
-    /*
-     * Date: 3/5/17
-     * Function Name: GetPixelLength
-     * Arguments:
-     *      void
-     * Purpose: Gets the length of the output image in pixels
-     * Return Value: int
-     */
-    int GetPixelLength() {
-        return _pixelLength;
-    }
-    
-    /*
-     * Date: 3/5/17
-     * Function Name: GetPixelHeight
-     * Arguments:
-     *      void
-     * Purpose: Gets the height of the output image in pixels
-     * Return Value: int
-     */
-    int GetPixelHeight() {
-        return _pixelHeight;
     }
     
     /*
@@ -121,11 +187,23 @@ class Perspective {
      * Function Name: GetUnitsPerLengthPixel
      * Arguments:
      *      void
-     * Purpose: Returns the offset in the x,y,z direction of the corresponding units per length pixel
-     * Return Value: Vec3<float>
+     * Purpose: Returns the offset in the x direction of the corresponding units per length pixel
+     * Return Value: float
      */
-    Vec3<float> GetUnitsPerLengthPixel() {
+    float GetUnitsPerLengthPixel() {
         return _unitsPerLengthPixel;
+    }
+    
+    /*
+     * Date: 3/5/17
+     * Function Name: GetUnitsPerHeightPixel
+     * Arguments:
+     *      void
+     * Purpose: Returns the offset in the y direction of the corresponding units per height pixel
+     * Return Value: float
+     */
+    float GetUnitsPerHeightPixel() {
+        return _unitsPerHeightPixel;
     }
     
     /*
@@ -137,19 +215,7 @@ class Perspective {
      * Return Value: float
      */
     float GetIntereyeDistance() {
-        return _intereye_distance;
-    }
-    
-    /*
-     * Date: 3/5/17
-     * Function Name: GetUnitsPerHeightPixel
-     * Arguments:
-     *      void
-     * Purpose: Returns the offset in the x,y,z direction of the corresponding units per height pixel
-     * Return Value: Vec3<float>
-     */
-    Vec3<float> GetUnitsPerHeightPixel() {
-        return _unitsPerHeightPixel;
+        return _intereyeDistance;
     }
     
     /*
@@ -189,132 +255,27 @@ class Perspective {
     }
     
     /*
-     * Date: 3/8/17
-     * Function Name: SetAmbientLight
+     * Date: 4/14/17
+     * Function Name: GetAnaglyphMode
      * Arguments:
-     *      float - the ambient light value
-     * Purpose: Sets the ambient light value to use
-     * Return Value: void
+     *      void
+     * Purpose: Gets the anaglyph mode (assuming anaglyph mode is activated)
+     * Return Value: anaglyph_type
      */
-    void SetAmbientLight(float ambientLight) {
-        _ambientLight = ambientLight;
+    anaglyph_type GetAnaglyphMode() {
+        return _anaglyphMode;
     }
-    
-    /*
-     * Date: 3/8/17
-     * Function Name: SetAmbientLight
-     * Arguments:
-     *      bool - whether or not to anti-alias
-     * Purpose: Sets whether to anti-alias or not
-     * Return Value: void
-     */
-    void SetAntiAliasing(bool val) {
-        _antiAliasing = val;
-    }
-    
-    
-    /*
-     * Date: 3/8/17
-     * Function Name: SetPixelHeight
-     * Arguments:
-     *      int - the height of the image in pixels
-     * Purpose: Sets the pixel height of the image
-     * Return Value: void
-     */
-    void SetPixelHeight(int pixelHeight) {
-        _pixelHeight = pixelHeight;
-    }
-    
-    /*
-     * Date: 3/8/17
-     * Function Name: SetPixelLength
-     * Arguments:
-     *      int - the length of the image in pixels
-     * Purpose: Sets the pixel length of the image
-     * Return Value: void
-     */
-    void SetPixelLength(int pixelLength) {
-        _pixelLength = pixelLength;
-    }
-    
-    /*
-     * Date: 3/8/17
-     * Function Name: SetImagePlane
-     * Arguments:
-     *      ImagePlane * - the image plane
-     * Purpose: Sets the image plane and the pixel length untis as well
-     * Return Value: void
-     */
-    void SetImagePlane(ImagePlane * imagePlane) {
-        _imagePlane = imagePlane;
-        
-        
-        // Calculate the units per pixel
-        if(_imagePlane->GetLength() == 0) { // x doesn't change so as coords(i, j) progress i corresponds with the z direction and j with the y
-            _unitsPerLengthPixel = Vec3<float>::vec3(0.f, 0.f, _imagePlane->GetWidth() / (float)_pixelLength);
-            _unitsPerHeightPixel = Vec3<float>::vec3(0.f, _imagePlane->GetHeight() / (float) _pixelHeight, 0.f);
-        } else if(_imagePlane->GetWidth() == 0) { // z doesn't change so as coords(i, j) progress i corresponds with the x direction and j with the y
-            _unitsPerLengthPixel = Vec3<float>::vec3(_imagePlane->GetLength() / (float)_pixelLength, 0.f, 0.f);
-            _unitsPerHeightPixel = Vec3<float>::vec3(0.f, _imagePlane->GetHeight() / (float) _pixelHeight, 0.f);
-        } else { // y doesn't change so as coords(i, j) progress i corresponds with the x direction and j with the z
-            _unitsPerLengthPixel = Vec3<float>::vec3(_imagePlane->GetLength() / (float)_pixelLength, 0.f, 0.f);
-            _unitsPerHeightPixel = Vec3<float>::vec3(0.f, 0.f, _imagePlane->GetWidth() / (float) _pixelHeight);
-        }
-    }
-    
-    /* Date: 4/5/17
-     * Function Name: SetSecondaryImagePlane
-     * Arguments:
-     *      ImagePlane * - the image plane
-     * Purpose: Sets the secondary image plane for anaglyph mode
-     * Return Value: void
-     */
-    void SetSecondaryImagePlane(ImagePlane * imagePlane) {
-        _secondaryImagePlane = imagePlane;
-    }
-    
-    
-    /*
-     * Date: 3/8/17
-     * Function Name: SetCameraPosition
-     * Arguments:
-     *      Vec3<float> - the world-space camera coordinates
-     * Purpose: Sets the camera position
-     * Return Value: void
-     */
-    void SetCameraPosition(Vec3<float> camPos) {
-        _cameraPosition = camPos;
-    }
-    
-    /*
-     * Date: 4/5/17
-     * Function Name: SetIntereyeDistance
-     * Arguments:
-     *      float - the intereye distance between the two images
-     * Purpose: Sets the intereye distance
-     * Return Value: void
-     */
-    void SetIntereyeDistance(float dist) {
-        _intereye_distance = dist;
-    }
-    
     
     private:
     
-    int _pixelLength; // the size of the image width in pixels
-    int _pixelHeight; // the size of the image height in pixels
-    
-    float _ambientLight; // the ambient light value
-    
-    bool _antiAliasing; // whether the image is anti-aliased or not
-    
     // For every length/height pixel we move (x, y, z) in the corresponding directions
-    Vec3<float> _unitsPerLengthPixel; // the units per length pixel in the image (in meters)
-    Vec3<float> _unitsPerHeightPixel; // the units per height pixel in the image (in meters)
+    float _unitsPerLengthPixel; // the units per length pixel in the image (in meters)
+    float _unitsPerHeightPixel; // the units per height pixel in the image (in meters)
     ImagePlane * _imagePlane; // the ImagePlane being projected upon
-    ImagePlane * _secondaryImagePlane = nullptr; // the secondary ImagePlane being projected upon (anaglyph mode)
+    ImagePlane * _secondaryImagePlane; // the secondary ImagePlane being projected upon (anaglyph mode)
     Vec3<float> _cameraPosition; // the camera position
-    float _intereye_distance = 0; // the intereye distance for anaglyph images
+    float _intereyeDistance; // the intereye distance for anaglyph images
+    anaglyph_type _anaglyphMode;
     
     
     

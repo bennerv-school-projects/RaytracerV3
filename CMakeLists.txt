@@ -13,8 +13,8 @@ endif()
 # Executables
 add_executable(raytracer ${SRC})
 
-# Include inih and tinyxml libraries
-include_directories(${CMAKE_BINARY_DIR}/lib/inih ${CMAKE_BINARY_DIR}/lib/tinyxml2)
+# Include tinyxml library
+include_directories(${CMAKE_BINARY_DIR}/lib/tinyxml2)
 
 if(wxWidgets_FOUND)
 	target_link_libraries(raytracer ${wxWidgets_LIBRARIES})

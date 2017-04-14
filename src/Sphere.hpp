@@ -10,8 +10,8 @@
 class Sphere : public Geometry {
 	
 	public: 
-		Sphere(Vec3<float> a, float r, Vec3<unsigned char> color, Material mat = NONE);
-		Sphere(float ax, float ay, float az, float r, Vec3<unsigned char> color, Material mat = NONE);
+		Sphere(Vec3<float> a, float r, Vec3<unsigned char> color, Material mat = MATERIAL_NONE);
+		Sphere(float ax, float ay, float az, float r, Vec3<unsigned char> color, Material mat = MATERIAL_NONE);
 		std::shared_ptr<RayHit> Intersect(Vec3<float> ray, Vec3<float> startingPos);
 
 	private :
