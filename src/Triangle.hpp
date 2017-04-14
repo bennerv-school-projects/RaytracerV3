@@ -17,8 +17,8 @@
 class Triangle : public Geometry {
 
 	public :
-		Triangle(Vec3<float> a, Vec3<float> b, Vec3<float> c, Vec3<unsigned char> color, Material mat = NONE);
-		Triangle(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, Vec3<unsigned char> color, Material mat = NONE);
+		Triangle(Vec3<float> a, Vec3<float> b, Vec3<float> c, Vec3<unsigned char> color, Material mat = MATERIAL_NONE);
+		Triangle(float ax, float ay, float az, float bx, float by, float bz, float cx, float cy, float cz, Vec3<unsigned char> color, Material mat = MATERIAL_NONE);
 		std::shared_ptr<RayHit> Intersect(Vec3<float> ray, Vec3<float> startingPos);
 
 	private : 

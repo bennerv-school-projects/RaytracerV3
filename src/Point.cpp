@@ -10,7 +10,7 @@
  */
 Point::Point(Vec3<float> pos) : super(POINT) {
 	_position = pos;
-	Material mat = NONE;
+	Material mat = MATERIAL_NONE;
 	SetMaterial(mat);
 	SetColor(Vec3<unsigned char>::vec3(255, 255, 255));
 }
