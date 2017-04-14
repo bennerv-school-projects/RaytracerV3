@@ -10,7 +10,7 @@
 
 /* STB Image write definition needed for writing png file */
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#define MAX_THREADS 2 // Must be at least 2
+#define MAX_THREADS 100 // Must be at least 2
 
 /* Standard libs */
 #include <cassert>
@@ -38,7 +38,7 @@
 #include "Triangle.hpp"
 #include "Vector.hpp"
 
-/* External headers*/
+/* External headers */
 #include "INIReader.h"
 #include "stb_image_write.h"
 #include "tinyxml2.h"
@@ -530,7 +530,7 @@ void *ShootRays(void * arg) {
     threadArgs args;
     args = *((threadArgs *) arg);
     // Start going through all pixels and draw them
-    for(int i = args.threadId; i < args.perspective->GetPixelHeight(); i+=MAX_THREADS/2) {
+    for(int i = args.threadId; i < _Configuration.GetPixelHeight(); i+=MAX_THREADS/2) {
 		Vec3<float> heightOffset;
 		if(!args.isSecondary) {
 			heightOffset = args.perspective->GetImagePlane()->GetCorner() - (args.perspective->GetUnitsPerHeightPixel() * (float)i);        
@@ -538,11 +538,11 @@ void *ShootRays(void * arg) {
 		else {
 			heightOffset = args.perspective->GetSecondaryImagePlane()->GetCorner() - (args.perspective->GetUnitsPerHeightPixel() * (float)i);
 		}
-        for(int j = 0; j < args.perspective->GetPixelLength(); j++) {
+        for(int j = 0; j < _Configuration.GetPixelLength(); j++) {
             Vec3<float> trueOffset = heightOffset + (args.perspective->GetUnitsPerLengthPixel() * (float)j);
 
             // Anti-aliasing
-            if(args.perspective->GetAntiAliasing()) {
+            if(_Configuration.IsAntialiased()) {
                 std::vector<Vec3<unsigned char> > colorArray;
                 for(int k = 0; k < 2; k++) {
                     Vec3<float> aliasHeightOffset = trueOffset - (args.perspective->GetUnitsPerHeightPixel() * ((float)k+1.f) );
@@ -555,7 +555,7 @@ void *ShootRays(void * arg) {
                         if(rayHit == nullptr) {
                             colorArray.push_back(_ColorMapping.GetColor("BLACK"));
                         } else {
-                            colorArray.push_back(CheckShadows(args.perspective->GetAmbientLight(), rayHit, *(args.geometryArray), *(args.lightArray)));
+                            colorArray.push_back(CheckShadows(_Configuration.GetAmbientLight(), rayHit, *(args.geometryArray), *(args.lightArray)));
                         }
 					}
                 }
@@ -570,7 +570,7 @@ void *ShootRays(void * arg) {
                 }
                 
                 Vec3<unsigned char> colorAvg(avg[0] / (unsigned char)colorArray.size(), avg[1] / (unsigned char)colorArray.size(), avg[2] / (unsigned char)colorArray.size());
-                setPixelColor(colorAvg, coord, args.imageArray, args.perspective->GetPixelLength());
+                setPixelColor(colorAvg, coord, args.imageArray, _Configuration.GetPixelLength());
                 
             } else {
                 //Shoot a single ray
@@ -580,10 +580,10 @@ void *ShootRays(void * arg) {
                 
                 // Set the pixel color
                 if (rayHit == nullptr) {
-                    setPixelColor(_ColorMapping.GetColor("BLACK"), coord, args.imageArray, args.perspective->GetPixelLength());
+                    setPixelColor(_ColorMapping.GetColor("BLACK"), coord, args.imageArray, _Configuration.GetPixelLength());
                 } else {
-                    Vec3<unsigned char> color = CheckShadows(args.perspective->GetAmbientLight(), rayHit, *(args.geometryArray), *(args.lightArray));
-                    setPixelColor(color, coord, args.imageArray, args.perspective->GetPixelLength());
+                    Vec3<unsigned char> color = CheckShadows(_Configuration.GetAmbientLight(), rayHit, *(args.geometryArray), *(args.lightArray));
+                    setPixelColor(color, coord, args.imageArray, _Configuration.GetPixelLength());
                 }
             }
         }
@@ -631,17 +631,17 @@ int main(int argc, char * argv[]) {
 	readConfig(perspective, gamma_correction, normal_correction, background_gradient, hsl_interpolation, gradientStart, gradientEnd);
 	initGeometry(geometryArray, lightArray, perspective);
 	
-    /*
-	cout << "Anti-aliasing: " << perspective->GetAntiAliasing() << endl;
-	cout << "Gamma correction: " << gamma_correction << endl;
+    
+	cout << "Anti-aliasing: " << perspective->GetAntiAliasing() << " " << _Configuration.IsAntialiased() << endl;
+    cout << "Gamma correction: " << gamma_correction << " " << _Configuration.GammaCorrect() << endl;
 	cout << "Normal correction: " << normal_correction << endl;
-	cout << "Ambient light value: " << perspective->GetAmbientLight() << endl;
-	cout << "Image length: " << perspective->GetPixelLength() << endl;
-	cout << "Image height: " << perspective->GetPixelHeight() << endl;
-     */
+	cout << "Ambient light value: " << perspective->GetAmbientLight() << " " << _Configuration.GetAmbientLight() << endl;
+	cout << "Image length: " << perspective->GetPixelLength() << " " << _Configuration.GetPixelLength() << endl;
+	cout << "Image height: " << perspective->GetPixelHeight() << " " << _Configuration.GetPixelHeight() << endl;
+   
 
-	unsigned char * imageArray0 = (unsigned char *) malloc(3 * perspective->GetPixelLength() * perspective->GetPixelHeight() * sizeof(unsigned char));
-    unsigned char * imageArray1 = (unsigned char *) malloc(3 * perspective->GetPixelLength() * perspective->GetPixelHeight() * sizeof(unsigned char));
+	unsigned char * imageArray0 = (unsigned char *) malloc(3 * _Configuration.GetPixelLength() * _Configuration.GetPixelHeight() * sizeof(unsigned char));
+    unsigned char * imageArray1 = (unsigned char *) malloc(3 * _Configuration.GetPixelLength() * _Configuration.GetPixelHeight() * sizeof(unsigned char));
 
 	if(!imageArray0) {
 		cout << "Failed to allocate memory for the image array.  Exiting" << endl;
@@ -650,7 +650,7 @@ int main(int argc, char * argv[]) {
 
 	// Draw the gradient on the image
 	if(background_gradient) {
-		drawGradient(gradientStart, gradientEnd, perspective->GetPixelLength(), perspective->GetPixelHeight(), imageArray0, hsl_interpolation);
+		drawGradient(gradientStart, gradientEnd, _Configuration.GetPixelLength(), _Configuration.GetPixelHeight(), imageArray0, hsl_interpolation);
 	}
     
     // Make sure the ImagePlane is set already
@@ -693,46 +693,46 @@ int main(int argc, char * argv[]) {
     }
     
     // Convert images to grayscale
-    ConvertImageToGrayScale(imageArray0, perspective->GetPixelLength(), perspective->GetPixelHeight());
-    ConvertImageToGrayScale(imageArray1, perspective->GetPixelLength(), perspective->GetPixelHeight());
+    ConvertImageToGrayScale(imageArray0, _Configuration.GetPixelLength(), _Configuration.GetPixelHeight());
+    ConvertImageToGrayScale(imageArray1, _Configuration.GetPixelLength(), _Configuration.GetPixelHeight());
     
     
     // Remove red channel from the first image
-    RemoveRedChannel(imageArray0, perspective->GetPixelLength(), perspective->GetPixelHeight());
-    RemoveCyanChannel(imageArray1, perspective->GetPixelLength(), perspective->GetPixelHeight());
+    RemoveRedChannel(imageArray0, _Configuration.GetPixelLength(), _Configuration.GetPixelHeight());
+    RemoveCyanChannel(imageArray1, _Configuration.GetPixelLength(), _Configuration.GetPixelHeight());
     
     
     
-    unsigned char * anaglyphImage = (unsigned char *)malloc(sizeof(unsigned char) * perspective->GetPixelLength() * perspective->GetPixelHeight() * 3);
+    unsigned char * anaglyphImage = (unsigned char *)malloc(sizeof(unsigned char) * _Configuration.GetPixelLength() * _Configuration.GetPixelHeight() * 3);
     if(!anaglyphImage) {
         cout << "Failed to allocate memory.  Exiting" << endl;
         exit(10);
     }
     
     // Copy the images on top of oneanother
-    for(int i = 0; i < perspective->GetPixelLength(); i++) {
-        for(int j = 0; j < perspective->GetPixelHeight(); j++) {
+    for(int i = 0; i < _Configuration.GetPixelLength(); i++) {
+        for(int j = 0; j < _Configuration.GetPixelHeight(); j++) {
             Vec2<int> coord(i, j);
-            Vec3<unsigned char> imageOneColor = getPixelColor(coord, imageArray0, perspective->GetPixelLength());
-            Vec3<unsigned char> imageTwoColor = getPixelColor(coord, imageArray1, perspective->GetPixelLength());
+            Vec3<unsigned char> imageOneColor = getPixelColor(coord, imageArray0, _Configuration.GetPixelLength());
+            Vec3<unsigned char> imageTwoColor = getPixelColor(coord, imageArray1, _Configuration.GetPixelLength());
             
             Vec3<unsigned char> newColor(min(imageOneColor.x + imageTwoColor.x, 255), min(imageOneColor.y + imageTwoColor.y, 255), min(imageOneColor.z + imageTwoColor.z, 255));
             
-            setPixelColor(newColor, coord, anaglyphImage, perspective->GetPixelLength());
+            setPixelColor(newColor, coord, anaglyphImage, _Configuration.GetPixelLength());
         }
     }
     
 	// Gamma correction
 	if(gamma_correction) {
-		gammaCorrect(imageArray0, perspective->GetPixelHeight(), perspective->GetPixelLength());
-        gammaCorrect(imageArray1, perspective->GetPixelHeight(), perspective->GetPixelLength());
-        gammaCorrect(anaglyphImage, perspective->GetPixelHeight(), perspective->GetPixelLength());
+		gammaCorrect(imageArray0, _Configuration.GetPixelHeight(), _Configuration.GetPixelLength());
+        gammaCorrect(imageArray1, _Configuration.GetPixelHeight(), _Configuration.GetPixelLength());
+        gammaCorrect(anaglyphImage, _Configuration.GetPixelHeight(), _Configuration.GetPixelLength());
 	}
 
 	// Write out the image(s)
-	stbi_write_png("output1.png", perspective->GetPixelLength(), perspective->GetPixelHeight(), 3, imageArray0, perspective->GetPixelLength()*3);
-    stbi_write_png("output2.png", perspective->GetPixelLength(), perspective->GetPixelHeight(), 3, imageArray1, perspective->GetPixelLength()*3);
-    stbi_write_png("anaglyph.png", perspective->GetPixelLength(), perspective->GetPixelHeight(), 3, anaglyphImage, perspective->GetPixelLength()*3);
+	stbi_write_png("output1.png", _Configuration.GetPixelLength(), _Configuration.GetPixelHeight(), 3, imageArray0, _Configuration.GetPixelLength()*3);
+    stbi_write_png("output2.png", _Configuration.GetPixelLength(), _Configuration.GetPixelHeight(), 3, imageArray1, _Configuration.GetPixelLength()*3);
+    stbi_write_png("anaglyph.png", _Configuration.GetPixelLength(), _Configuration.GetPixelHeight(), 3, anaglyphImage, _Configuration.GetPixelLength()*3);
     
 	DestroyGeometry(geometryArray);
 	DestroyGeometry(lightArray);

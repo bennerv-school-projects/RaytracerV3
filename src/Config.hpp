@@ -27,7 +27,12 @@ class Config {
 			// Iterate through the xml elements for the configuration section
 			tinyxml2::XMLElement * rootElement = doc.FirstChildElement();
 			while (rootElement && strncmp(rootElement->Value(), "configuration", 13)) {
-				
+                rootElement = rootElement->NextSiblingElement();
+            }
+            
+            
+            if(rootElement) {
+            
 				// Go through each of the configuration sections
 				tinyxml2::XMLElement * configElement = rootElement->FirstChildElement();
 				while (configElement) {
