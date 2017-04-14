@@ -78,14 +78,12 @@ Vec3<unsigned char> getPixelColor(Vec2<int> coordinate, unsigned char * array, i
 
 }
 
-void readConfig(Perspective * perspective, bool &gamma, bool &normal, bool &gradient, bool &hsl, Vec3<float> &gStart, Vec3<float> &gEnd) {
+void readConfig(Perspective * perspective, bool &gradient, bool &hsl, Vec3<float> &gStart, Vec3<float> &gEnd) {
 
 	// Read the ini settings file
 	INIReader reader(CONFIG_FILE);
 
     perspective->SetAntiAliasing(reader.GetBoolean("settings", "anti-aliasing", false));
-	gamma = reader.GetBoolean("settings", "gamma-correction", false);
-	normal = reader.GetBoolean("settings", "normal-correction", false);
 	gradient = reader.GetBoolean("settings", "background-gradient", false);
 	hsl = reader.GetBoolean("settings", "hsl-interpolation", false);
     perspective->SetAmbientLight((float)reader.GetReal("settings", "ambient-light", 0.2f));
@@ -622,19 +620,19 @@ int main(int argc, char * argv[]) {
 
     pthread_t pThreads[MAX_THREADS];
     Perspective * perspective = new Perspective();
-	bool gamma_correction, normal_correction, background_gradient, hsl_interpolation;
+	bool background_gradient, hsl_interpolation;
 	Vec3<float> gradientStart(0, 0, 0), gradientEnd(0, 0, 0);
 	std::vector<Geometry *> geometryArray;
 	std::vector<Geometry *> lightArray;
 
 	// Read the config setting
-	readConfig(perspective, gamma_correction, normal_correction, background_gradient, hsl_interpolation, gradientStart, gradientEnd);
+	readConfig(perspective, background_gradient, hsl_interpolation, gradientStart, gradientEnd);
 	initGeometry(geometryArray, lightArray, perspective);
 	
     
 	cout << "Anti-aliasing: " << perspective->GetAntiAliasing() << " " << _Configuration.IsAntialiased() << endl;
-    cout << "Gamma correction: " << gamma_correction << " " << _Configuration.GammaCorrect() << endl;
-	cout << "Normal correction: " << normal_correction << endl;
+    cout << "Gamma correction: " << _Configuration.GammaCorrect() << endl;
+    cout << "Normal correction: "  << _Configuration.NormalCorrect() << endl;
 	cout << "Ambient light value: " << perspective->GetAmbientLight() << " " << _Configuration.GetAmbientLight() << endl;
 	cout << "Image length: " << perspective->GetPixelLength() << " " << _Configuration.GetPixelLength() << endl;
 	cout << "Image height: " << perspective->GetPixelHeight() << " " << _Configuration.GetPixelHeight() << endl;
@@ -723,7 +721,7 @@ int main(int argc, char * argv[]) {
     }
     
 	// Gamma correction
-	if(gamma_correction) {
+	if(_Configuration.GammaCorrect()) {
 		gammaCorrect(imageArray0, _Configuration.GetPixelHeight(), _Configuration.GetPixelLength());
         gammaCorrect(imageArray1, _Configuration.GetPixelHeight(), _Configuration.GetPixelLength());
         gammaCorrect(anaglyphImage, _Configuration.GetPixelHeight(), _Configuration.GetPixelLength());

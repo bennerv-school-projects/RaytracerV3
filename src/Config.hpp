@@ -75,6 +75,12 @@ class Config {
 						if (!strncmp(str.c_str(), "TRUE", 4)) {
 							_isAnaglyph = true;
 						}
+					} else if(!strncmp(configElement->Value(), "normal_correction", 17)) {
+						if(!strncmp(str.c_str(), "TRUE", 4)) {
+							_normalCorrection = true;
+						} else {
+							_normalCorrection = false;
+						}
 					}
 
 					// Get the next sibling element
@@ -122,6 +128,18 @@ class Config {
 			return _gammaCorrect;
 		}
 
+	   /*
+		* Date: 4/14/17
+		* Function Name: NormalCorrect
+		* Arguments:
+		*     void
+		* Purpose: Returns true if normal correction is activated
+		* Return Value: bool
+		*/
+		bool NormalCorrect() {
+			return _normalCorrection;
+		}
+
 		/*
 		* Date: 4/12/17
 		* Function Name: GetPixelLength
@@ -163,8 +181,10 @@ class Config {
 		bool _antiAliasing = false;
 		bool _gammaCorrect = false;
 		bool _isAnaglyph = false;
+		bool _normalCorrection = true;
 		float _ambientLight = 0.2f;
 		int _imageLength = 512;
 		int _imageHeight = 512;
+
 
 };
