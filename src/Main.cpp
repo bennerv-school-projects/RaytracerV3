@@ -10,7 +10,7 @@
 
 /* STB Image write definition needed for writing png file */
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#define MAX_THREADS 10 // Must be at least 2
+#define MAX_THREADS 200 // Must be at least 2
 
 /* Standard libs */
 #include <cassert>
@@ -35,6 +35,7 @@
 #include "Perspective.hpp"
 #include "Point.hpp"
 #include "Sphere.hpp"
+#include "Square.hpp"
 #include "Triangle.hpp"
 #include "Vector.hpp"
 
@@ -306,6 +307,84 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
                     }
                     else {
                         lights.push_back(new Point(point));
+                    }
+                }
+                
+                
+                // Square object
+                if (!strncmp(objectChild->Value(), "square", 6)) {
+                    Vec3<float> vertexA;
+                    Vec3<float> vertexB;
+                    Vec3<float> vertexC;
+                    Vec3<float> vertexD;
+                    Vec3<unsigned char> color = _ColorMapping.GetColor("WHITE");
+                    Material mat = MATERIAL_NONE;
+                    std::string str;
+                    
+                    // Go through and read all the attributes and tags
+                    tinyxml2::XMLElement * tag = objectChild->FirstChildElement();
+                    int vertexCount = 0;
+                    while (tag) {
+                        if (!strncmp(tag->Value(), "vertex", 6)) {
+                            
+                            // Read the 3 vectors' attributes and set their values
+                            double a = 0, b = 0, c = 0;
+                            tag->QueryDoubleAttribute("x", &a);
+                            tag->QueryDoubleAttribute("y", &b);
+                            tag->QueryDoubleAttribute("z", &c);
+                            
+                            // Set the vertex values
+                            if (vertexCount == 0) {
+                                vertexA.SetValues((float)a, (float)b, (float)c);
+                            }
+                            else if (vertexCount == 1) {
+                                vertexB.SetValues((float)a, (float)b, (float)c);
+                            }
+                            else if (vertexCount == 2){
+                                vertexC.SetValues((float)a, (float)b, (float)c);
+                            }
+                            else {
+                                vertexD.SetValues((float)a, (float)b, (float)c);
+                            }
+                            vertexCount++;
+                        }
+                        else if (!strncmp(tag->Value(), "color", 5)) {
+                            
+                            // Read the color and set the corresponding triangle color
+                            str.assign(tag->GetText());
+                            std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+                            color = _ColorMapping.GetColor(str);
+                            
+                        }
+                        else if (!strncmp(tag->Value(), "material", 8)) {
+                            
+                            // Read the material and set the corresponding material for the triangle
+                            str.assign(tag->GetText());
+                            std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+                            
+                            // Assign the material
+                            if (!strncmp(str.c_str(), "NONE", 4)) {
+                                mat = MATERIAL_NONE;
+                            }
+                            else if (!strncmp(str.c_str(), "REFLECTIVE", 10)) {
+                                mat = MATERIAL_REFLECTIVE;
+                            }
+                            else if (!strncmp(str.c_str(), "SPECULAR", 8)) {
+                                mat = MATERIAL_SPECULAR;
+                            }
+                            else if (!strncmp(str.c_str(), "GLASS", 5)) {
+                                mat = MATERIAL_GLASS;
+                            }
+                        }
+                        tag = tag->NextSiblingElement();
+                    }
+                    
+                    // Create a new triangle object and add it to the arrayj
+                    if (isObject) {
+                        geom.push_back(new Square(vertexA, vertexB, vertexC, vertexD, color, mat));
+                    }
+                    else {
+                        lights.push_back(new Square(vertexA, vertexB, vertexC, vertexD, color, mat));
                     }
                 }
 

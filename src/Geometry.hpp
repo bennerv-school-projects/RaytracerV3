@@ -9,7 +9,8 @@ class Geometry {
 		enum Shape {
 			TRIANGLE,
 			SPHERE, 
-			POINT
+			POINT,
+            SQUARE
 		};
 
 		/* 
