@@ -211,6 +211,8 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
                         }
                         tag = tag->NextSiblingElement();
                     }
+                    
+                    assert(vertexCount == 3);
 
                     // Create a new triangle object and add it to the arrayj
                     if (isObject) {
@@ -247,7 +249,7 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
                         }
                         else if (!strncmp(tag->Value(), "color", 5)) {
 
-                            // Read the color and set the corresponding triangle color
+                            // Read the color and set the corresponding square color
                             str.assign(tag->GetText());
                             std::transform(str.begin(), str.end(), str.begin(), ::toupper);
                             color = _ColorMapping.GetColor(str);
@@ -255,7 +257,7 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
                         }
                         else if (!strncmp(tag->Value(), "material", 8)) {
 
-                            // Read the material and set the corresponding material for the triangle
+                            // Read the material and set the corresponding material for the square
                             str.assign(tag->GetText());
                             std::transform(str.begin(), str.end(), str.begin(), ::toupper);
 
@@ -378,6 +380,7 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
                         }
                         tag = tag->NextSiblingElement();
                     }
+                    assert(vertexCount == 4);
                     
                     // Create a new triangle object and add it to the arrayj
                     if (isObject) {
