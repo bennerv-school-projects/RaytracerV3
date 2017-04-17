@@ -26,6 +26,7 @@ class Triangle : public Geometry {
 		Vec3<float> _vertexB;
 		Vec3<float> _vertexC;
 		Vec3<float> _normal;
+		Vec3<float> _secondNormal;
 
 		typedef Geometry super;
 

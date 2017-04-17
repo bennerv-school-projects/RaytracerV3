@@ -92,7 +92,7 @@ std::shared_ptr<RayHit> Triangle::Intersect(Vec3<float> ray, Vec3<float> startin
 	}
 	
 	Vec3<float> hitLocation = Vec3<float>::Add(Vec3<float>::vec3(t * ray.x, t * ray.y, t* ray.z), startingPos);
-	std::shared_ptr<RayHit> rayHit(new RayHit(t, GetMaterial(), GetColor(), _normal, hitLocation, ray));
+	std::shared_ptr<RayHit> rayHit(new RayHit(t, GetMaterial(), GetColor(), _normal, Vec3<float>::vec3(0, 0, 0) - _normal,  hitLocation, ray));
 	 
 	return rayHit;
 }

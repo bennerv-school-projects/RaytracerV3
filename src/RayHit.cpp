@@ -13,10 +13,34 @@
  * Purpose: Constructor
  * Return Value: void
 */
-RayHit::RayHit(float t, Material mat, Vec3<unsigned char> color, Vec3<float> norm, Vec3<float> loc, Vec3<float> r) {
+RayHit::RayHit(float t, Material mat, Vec3<unsigned char> color, Vec3<float> norm, Vec3<float> loc, Vec3<float> r) : _secondNorm(0, 0, 0){
 	_time = t;
 	_material = mat;
 	_normal = Vec3<float>::vec3(norm.x, norm.y, norm.z);
+	_hitLocation = Vec3<float>::vec3(loc.x, loc.y, loc.z);
+	_ray = Vec3<float>::vec3(r.x, r.y, r.z);
+	_color = color;
+}
+
+/*
+* Date: 12/28/16
+* Function Name: RayHit (constructor)
+* Arguments:
+*     float       - time to hit
+*     Material    - material of the intesected object
+*     Color       - color of the intersected object
+*     Vec3<float> - the normal of the intersected object
+*     Vec3<float> - the secondary normal of the intersected object.  - of normal
+*     Vec3<float> - the hit location of the intersected object
+*     Vec3<float> - the original ray
+* Purpose: Constructor
+* Return Value: void
+*/
+RayHit::RayHit(float t, Material mat, Vec3<unsigned char> color, Vec3<float> norm, Vec3<float> secondNorm, Vec3<float> loc, Vec3<float> r) {
+	_time = t;
+	_material = mat;
+	_normal = Vec3<float>::vec3(norm.x, norm.y, norm.z);
+	_secondNorm = Vec3<float>::vec3(secondNorm.x, secondNorm.y, secondNorm.z);
 	_hitLocation = Vec3<float>::vec3(loc.x, loc.y, loc.z);
 	_ray = Vec3<float>::vec3(r.x, r.y, r.z);
 	_color = color;
@@ -68,6 +92,18 @@ Material RayHit::GetMaterial() {
  */
 Vec3<float> RayHit::GetNormal() {
 	return _normal;
+}
+
+/*
+* Date: 4/6/17
+* Function Name: GetSecondaryNormal()
+* Arguments:
+*     void
+* Purpose: Returns the secondary normal of the ray hit object
+* Return Value: Vec3<float>
+*/
+Vec3<float> RayHit::GetSecondaryNormal() {
+	return _secondNorm;
 }
 
 /*

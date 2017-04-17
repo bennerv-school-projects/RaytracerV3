@@ -10,7 +10,7 @@
 
 /* STB Image write definition needed for writing png file */
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#define MAX_THREADS 2 // Must be at least 2
+#define MAX_THREADS 10 // Must be at least 2
 
 /* Standard libs */
 #include <cassert>
@@ -391,11 +391,12 @@ Vec3<unsigned char> CheckShadows(float ambientLight, std::shared_ptr<RayHit> ray
 	for (size_t i = 0; i < lights.size(); i++) {
 		Vec3<float> randomPoint = lights.at(i)->GetRandomPoint();
 		Vec3<float> toLightRay = Vec3<float>::Normalize(randomPoint - (rayHit->GetHitLocation() + (rayHit->GetNormal() * .00005f)) ); // Bump
+		Vec3<float> toLightSecondary = Vec3<float>::Normalize(randomPoint - (rayHit->GetHitLocation() + (rayHit->GetSecondaryNormal() * .00005f))); // Bump
 
 		// See if the ray from the light source is in shadow or figure out the dot product between the two
 		for (size_t j = 0; j < geometry.size(); j++) {
 			std::shared_ptr<RayHit> tempHit;
-			if ((tempHit = geometry.at(j)->Intersect(toLightRay, rayHit->GetHitLocation())) != nullptr) {
+			if ((tempHit = geometry.at(j)->Intersect(toLightRay, rayHit->GetHitLocation())) != nullptr || (tempHit = geometry.at(j)->Intersect(toLightSecondary, rayHit->GetHitLocation())) != nullptr) {
 
 				//Make sure we didn't hit anything behind us
 				if (tempHit->GetTime() > 0.0005f) {
@@ -406,11 +407,15 @@ Vec3<unsigned char> CheckShadows(float ambientLight, std::shared_ptr<RayHit> ray
 
 		// We didn't hit anything so take the dot product
 		if (!intersected) {
-			float temp = toLightRay * rayHit->GetNormal();
+			float temp1 = toLightRay * rayHit->GetNormal();
+			float temp2 = toLightRay * rayHit->GetSecondaryNormal();
 
-			// Ambient light calculation
-			if (temp > scale) {
-				scale = temp;
+			// Ambient light calculation (with multiple normals)
+			if (temp1 > scale) {
+				scale = temp1;
+			}
+			if (temp2 > scale) {
+				scale = temp2;
 			}
 		}
 	}
