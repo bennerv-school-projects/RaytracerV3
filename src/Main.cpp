@@ -516,34 +516,47 @@ void *ShootRays(void * arg) {
     // Start going through all pixels and draw them
     for(int i = args.threadId; i < _Configuration.GetPixelHeight(); i+=MAX_THREADS/2) {
         float heightOffset;
-        if(!args.isSecondary) {
+        if(_Perspective.GetAnaglyphMode() == ANAGLYPH_PARALLEL) {
             heightOffset = _Perspective.GetImagePlane()->GetCorner().y - (_Perspective.GetUnitsPerHeightPixel() * (float)i);
         }
         else {
             heightOffset = _Perspective.GetSecondaryImagePlane()->GetCorner().y - (_Perspective.GetUnitsPerHeightPixel() * (float)i);
         }
+        
+        // Go through each length pixel (think columns) of the image
         for(int j = 0; j < _Configuration.GetPixelLength(); j++) {
             Vec3<float> trueOffset;
             
             // Start at the corner of the image plane (x length)
             float xStart;
-            if(args.isSecondary) {
+            if(_Perspective.GetAnaglyphMode() == ANAGLYPH_PARALLEL) {
                 xStart = _Perspective.GetSecondaryImagePlane()->GetCorner().x;
+                trueOffset = Vec3<float>::vec3(xStart + (_Perspective.GetUnitsPerLengthPixel() * (float)j), heightOffset, _Perspective.GetSecondaryImagePlane()->GetCorner().z);
             } else {
                 xStart = _Perspective.GetImagePlane()->GetCorner().x;
+                trueOffset = Vec3<float>::vec3(xStart + (_Perspective.GetUnitsPerLengthPixel() * (float)j), heightOffset, _Perspective.GetImagePlane()->GetCorner().z);
             }
-            trueOffset = Vec3<float>::vec3(xStart + (_Perspective.GetUnitsPerLengthPixel() * (float)j), heightOffset, _Perspective.GetImagePlane()->GetCorner().z);
-            
             
             // Anti-aliasing
             if(_Configuration.IsAntialiased()) {
                 std::vector<Vec3<unsigned char> > colorArray;
+                
+                // Anti-aliasing 4 rays per pixel
                 for(int k = 0; k < 2; k++) {
                     Vec3<float> aliasHeightOffset(trueOffset.x, trueOffset.y - (_Perspective.GetUnitsPerHeightPixel() * ((float)k+1.f) ), trueOffset.z);
                     for (int l = 0; l < 2; l++) {
                         Vec3<float> aliasTotalOffset(aliasHeightOffset.x + (_Perspective.GetUnitsPerLengthPixel() * (float)l), aliasHeightOffset.y, aliasHeightOffset.z);
-                        Vec3<float> tempRay = Vec3<float>::Normalize(aliasTotalOffset - _Perspective.GetCameraPosition());
-                        std::shared_ptr<RayHit> rayHit = GetRay(tempRay, _Perspective.GetCameraPosition(), *(args.geometryArray), 0);
+                        Vec3<float> tempRay;
+                        std::shared_ptr<RayHit> rayHit;
+                        
+                        // Switch on the first versus second image perspective
+                        if(args.isSecondary) {
+                            tempRay = Vec3<float>::Normalize(aliasTotalOffset - Vec3<float>::vec3((_Perspective.GetCameraPosition().x + _Perspective.GetIntereyeDistance()), _Perspective.GetCameraPosition().y, _Perspective.GetCameraPosition().z));
+                            rayHit = GetRay(tempRay, Vec3<float>::vec3((_Perspective.GetCameraPosition().x + _Perspective.GetIntereyeDistance()), _Perspective.GetCameraPosition().y, _Perspective.GetCameraPosition().z), *(args.geometryArray), 0);
+                        } else {
+                            tempRay = Vec3<float>::Normalize(aliasTotalOffset - _Perspective.GetCameraPosition());
+                            rayHit = GetRay(tempRay, _Perspective.GetCameraPosition(), *(args.geometryArray), 0);
+                        }
                         
                         // Push the colors back in the vector
                         if(rayHit == nullptr) {
@@ -568,8 +581,18 @@ void *ShootRays(void * arg) {
                 
             } else {
                 //Shoot a single ray
-                Vec3<float> tempRay = Vec3<float>::Normalize(trueOffset - _Perspective.GetCameraPosition());
-                std::shared_ptr<RayHit> rayHit = GetRay(tempRay, _Perspective.GetCameraPosition(), *(args.geometryArray), 0);
+                Vec3<float> tempRay;
+                std::shared_ptr<RayHit> rayHit;
+                
+                // Switch on the first versus second image perspective
+                if(args.isSecondary) {
+                    tempRay = Vec3<float>::Normalize(trueOffset - Vec3<float>::vec3((_Perspective.GetCameraPosition().x + _Perspective.GetIntereyeDistance()), _Perspective.GetCameraPosition().y, _Perspective.GetCameraPosition().z));
+                    rayHit = GetRay(tempRay, Vec3<float>::vec3((_Perspective.GetCameraPosition().x + _Perspective.GetIntereyeDistance()), _Perspective.GetCameraPosition().y, _Perspective.GetCameraPosition().z), *(args.geometryArray), 0);
+                } else {
+                    tempRay = Vec3<float>::Normalize(trueOffset - _Perspective.GetCameraPosition());
+                    rayHit = GetRay(tempRay, _Perspective.GetCameraPosition(), *(args.geometryArray), 0);
+                }
+                
                 Vec2<int> coord(j, i);
                 
                 // Set the pixel color
@@ -614,6 +637,7 @@ void ConvertImageToGrayScale(unsigned char * imageArray, int length, int height)
 
 int main(int argc, char * argv[]) {
     
+    assert(MAX_THREADS >= 2);
     pthread_t pThreads[MAX_THREADS];
     bool background_gradient = false, hsl_interpolation = false;
     Vec3<float> gradientStart(0, 0, 0), gradientEnd(0, 0, 0);
@@ -693,16 +717,11 @@ int main(int argc, char * argv[]) {
             pthread_create(&pThreads[i], NULL, ShootRays, &tArgs[i]);
         }
         
-        // Switch the image plane on the anaglyph mode (parallel is separate image planes)
-        if(_Perspective.GetAnaglyphMode() == ANAGLYPH_PARALLEL) {
-            tArgs[MAX_THREADS / 2].isSecondary = true;
-        } else {
-            tArgs[MAX_THREADS / 2].isSecondary = false;
-        }
         
         // Set the second image array and start the first row thread in the second image
         tArgs[MAX_THREADS / 2].imageArray = imageArray1;
         tArgs[MAX_THREADS / 2].threadId = 0;
+        tArgs[MAX_THREADS / 2].isSecondary = true;
         pthread_create(&pThreads[MAX_THREADS / 2], NULL, ShootRays, &tArgs[MAX_THREADS / 2]);
         
         // Copy the arguments for the second image array and start the pthreads
