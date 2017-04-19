@@ -10,7 +10,7 @@
 
 /* STB Image write definition needed for writing png file */
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#define MAX_THREADS 200 // Must be at least 2
+#define MAX_THREADS 4 // Must be at least 2
 
 /* Standard libs */
 #include <cassert>
@@ -19,9 +19,12 @@
 #include <vector>
 
 #include <wx/wxprec.h>
-#ifndef WX_PRECOMP
-#include <wx/glcanvas.h>
 
+#ifndef WX_PRECOMP
+#include <wx/wx.h>
+#endif
+
+#include <wx/glcanvas.h>
 #ifdef __WXMAC__
 	#include <GLUT/glut.h>
 #else
@@ -39,7 +42,7 @@
 #include "Square.hpp"
 #include "Triangle.hpp"
 #include "Vector.hpp"
-#include "main.h"
+#include "BasicGLPane.h"
 
 /* External headers */
 #include "stb_image_write.h"
@@ -634,14 +637,10 @@ void ConvertImageToGrayScale(unsigned char * imageArray, int length, int height)
     }
 }
 
-<<<<<<< HEAD
-int temp(int argc, char * argv[]) {
 
-=======
 int main(int argc, char * argv[]) {
     
     assert(MAX_THREADS >= 2);
->>>>>>> 1c5b82a999346bb2bf687a4d92b3b5936e5d8a91
     pthread_t pThreads[MAX_THREADS];
     bool background_gradient = false, hsl_interpolation = false;
     Vec3<float> gradientStart(0, 0, 0), gradientEnd(0, 0, 0);
@@ -822,7 +821,7 @@ int main(int argc, char * argv[]) {
     return 0;
 }
 
-
+/*
 class MyApp : public wxApp
 {
 	virtual bool OnInit();
@@ -832,6 +831,7 @@ class MyApp : public wxApp
 public:
 
 };
+
 
 IMPLEMENT_APP(MyApp)
 
@@ -881,7 +881,7 @@ void BasicGLPane::keyReleased(wxKeyEvent& event) {}
 // Vertices and faces of a simple cube to demonstrate 3D render
 // source: http://www.opengl.org/resources/code/samples/glut_examples/examples/cube.c
 GLfloat v[8][3];
-GLint faces[6][4] = {  /* Vertex indices for the 6 faces of a cube. */
+GLint faces[6][4] = {  // Vertex indices for the 6 faces of a cube. 
 	{ 0, 1, 2, 3 },{ 3, 2, 6, 7 },{ 7, 6, 5, 4 },
 	{ 4, 5, 1, 0 },{ 5, 6, 2, 1 },{ 7, 4, 0, 3 } };
 
@@ -916,7 +916,7 @@ void BasicGLPane::resized(wxSizeEvent& evt)
 	Refresh();
 }
 
-/** Inits the OpenGL viewport for drawing in 2D. */
+// Inits the OpenGL viewport for drawing in 2D. 
 void BasicGLPane::prepare2DViewport(int topleft_x, int topleft_y, int bottomrigth_x, int bottomrigth_y)
 {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Black Background
@@ -972,4 +972,4 @@ void BasicGLPane::render(wxPaintEvent& evt)
 
 	glFlush();
 	SwapBuffers();
-}
+}*/
