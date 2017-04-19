@@ -18,6 +18,7 @@ Triangle::Triangle(Vec3<float> a, Vec3<float> b, Vec3<float> c, Vec3<unsigned ch
 	_vertexB = Vec3<float>::vec3(b.x, b.y, b.z);
 	_vertexC = Vec3<float>::vec3(c.x, c.y, c.z);
 	_normal = Vec3<float>::Normalize(Vec3<float>::Cross(Vec3<float>::Sub(_vertexB, _vertexA), Vec3<float>::Sub(_vertexC, _vertexA)));
+	_secondNormal = Vec3<float>::vec3(0, 0, 0) - _normal;
 	SetMaterial(mat);
 	SetColor(color);
 }
@@ -45,6 +46,7 @@ Triangle::Triangle(float ax, float ay, float az, float bx, float by, float bz, f
 	_vertexB = Vec3<float>::vec3(bx, by, bz);
 	_vertexC = Vec3<float>::vec3(cx, cy, cz);
 	_normal = Vec3<float>::Normalize(Vec3<float>::Cross(_vertexB - _vertexA, _vertexC - _vertexA));
+	_secondNormal = Vec3<float>::vec3(0, 0, 0) - _normal;
 	SetMaterial(mat);
 	SetColor(color);
 }
@@ -92,7 +94,7 @@ std::shared_ptr<RayHit> Triangle::Intersect(Vec3<float> ray, Vec3<float> startin
 	}
 	
 	Vec3<float> hitLocation = Vec3<float>::Add(Vec3<float>::vec3(t * ray.x, t * ray.y, t* ray.z), startingPos);
-	std::shared_ptr<RayHit> rayHit(new RayHit(t, GetMaterial(), GetColor(), _normal, Vec3<float>::vec3(0, 0, 0) - _normal,  hitLocation, ray));
+	std::shared_ptr<RayHit> rayHit(new RayHit(t, GetMaterial(), GetColor(), _normal, _secondNormal,  hitLocation, ray));
 	 
 	return rayHit;
 }
