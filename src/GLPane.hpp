@@ -3,6 +3,8 @@
 #include <wx/wx.h>
 #include <wx/glcanvas.h> 
 #include <wx/timer.h>
+#include <pthread.h>
+
 
 class BasicGLPane : public wxGLCanvas
 {
@@ -33,9 +35,11 @@ public:
 	}
 	void UpdateDisplay(wxTimerEvent& evt);
 	void OnClose(wxCommandEvent& evt);
+	void OnExit(wxCloseEvent& evt);
 
 	wxDECLARE_EVENT_TABLE();
 
 private:
 	wxTimer *timer;
+	pthread_t raytracingThread;
 };

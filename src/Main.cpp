@@ -10,7 +10,7 @@
 
 /* STB Image write definition needed for writing png file */
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#define MAX_THREADS 4 // Must be at least 2
+#define MAX_THREADS 2 // Must be at least 2
 
 /* Standard libs */
 #include <cassert>
@@ -59,9 +59,14 @@ typedef struct {
 
 using namespace std;
 
+
+// Globals
 Color _ColorMapping(OBJECTS_FILE);
 Config _Configuration(OBJECTS_FILE);
 Perspective _Perspective(_Configuration, OBJECTS_FILE);
+bool pthreadDone = false;
+unsigned char * imageArray0 = (unsigned char *) malloc(3 * _Configuration.GetPixelLength() * _Configuration.GetPixelHeight() * sizeof(unsigned char));
+GLuint tex;
 
 void setPixelColor(Vec3<unsigned char> color, Vec2<int> coordinate, unsigned char * array, int width) {
     
@@ -518,7 +523,7 @@ void *ShootRays(void * arg) {
     // Start going through all pixels and draw them
     for(int i = args.threadId; i < _Configuration.GetPixelHeight(); i+=MAX_THREADS/2) {
         float heightOffset;
-        if(_Perspective.GetAnaglyphMode() == ANAGLYPH_PARALLEL) {
+        if(_Perspective.GetAnaglyphMode() == ANAGLYPH_PARALLEL || !_Configuration.IsAnaglyph()) {
             heightOffset = _Perspective.GetImagePlane()->GetCorner().y - (_Perspective.GetUnitsPerHeightPixel() * (float)i);
         }
         else {
@@ -638,7 +643,7 @@ void ConvertImageToGrayScale(unsigned char * imageArray, int length, int height)
 }
 
 
-void anaglyphMain(int argc, char * argv[]) {
+void * anaglyphMain(void * args) {
     
     assert(MAX_THREADS >= 2);
     pthread_t pThreads[MAX_THREADS];
@@ -661,7 +666,8 @@ void anaglyphMain(int argc, char * argv[]) {
     
     
     // Debug --- PERSPECTIVE INFORMATION
-    cout << "Perspective Information" << endl;
+    
+    cout << endl << "Perspective Information" << endl;
     Vec3<float> temp = _Perspective.GetImagePlane()->GetCorner();
     cout << "Image Plane " << temp.x << " " << temp.y << " " << temp.z << endl;
     cout << "Length of image plane " << _Perspective.GetImagePlane()->GetLength() << endl;
@@ -673,8 +679,6 @@ void anaglyphMain(int argc, char * argv[]) {
     cout << "Units per length " << _Perspective.GetUnitsPerLengthPixel() << endl;
     cout << "Units per height " << _Perspective.GetUnitsPerHeightPixel() << endl;
     
-    
-    unsigned char * imageArray0 = (unsigned char *) malloc(3 * _Configuration.GetPixelLength() * _Configuration.GetPixelHeight() * sizeof(unsigned char));
     unsigned char * imageArray1;
     
     // only allocate the second image array if we need to
@@ -818,6 +822,9 @@ void anaglyphMain(int argc, char * argv[]) {
     DestroyGeometry(lightArray);
     free(imageArray0);
     free(tArgs);
+    
+    pthreadDone = true;
+    return NULL;
 }
 
 
@@ -829,10 +836,8 @@ class MyApp : public wxApp
 public:
 
 	MyFrame * frame;
-	BasicGLPane * glPane;
-
+    BasicGLPane * glPane;
 };
-
 
 IMPLEMENT_APP(MyApp)
 
@@ -850,7 +855,7 @@ bool MyApp::OnInit()
 	frame->SetSizer(sizer);
 	frame->SetAutoLayout(true);
 	frame->Show();
-
+    
 	return true;
 }
 
@@ -859,9 +864,12 @@ int MyApp::OnExit() {
 	return 0;
 }
 
-MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Raytracing in Realtime", wxPoint(0, 0), wxSize(_Configuration.GetPixelLength(), _Configuration.GetPixelHeight())) {
+MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Raytracing in Realtime", wxPoint(50, 50), wxSize(_Configuration.GetPixelLength(), _Configuration.GetPixelHeight())) {
 	timer = new wxTimer(this, -1);
-	timer->Start(1000);
+	timer->Start(20);
+    
+    // Start the anaglyph program
+    pthread_create(&raytracingThread, NULL, anaglyphMain, NULL);
 }
 
 void MyFrame::UpdateDisplay(wxTimerEvent& evt) {
@@ -872,8 +880,17 @@ void MyFrame::OnClose(wxCommandEvent& evt) {
 	timer->Stop();
 }
 
+void MyFrame::OnExit(wxCloseEvent& evt) {
+    if(!pthreadDone && evt.CanVeto()) {
+        return;
+    }
+    this->Destroy();
+    
+}
+
 BEGIN_EVENT_TABLE(MyFrame, wxFrame)
 EVT_TIMER(-1, MyFrame::UpdateDisplay)
+EVT_CLOSE(MyFrame::OnExit)
 EVT_MENU(wxID_EXIT, MyFrame::OnClose)
 END_EVENT_TABLE()
 
@@ -952,11 +969,28 @@ void BasicGLPane::render(wxPaintEvent& evt)
 
 	// white background
 	glColor4f(1, 0, 0, 1);
+    
+    // Generate a texture to use
+    glGenTextures(1, &tex);
+    
+    // Bind the texture
+    glBindTexture(GL_TEXTURE_2D, tex);
+    
+    // Set glRepeat on
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    
+    // Set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _Configuration.GetPixelLength(), _Configuration.GetPixelHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, imageArray0);
+    
 	glBegin(GL_QUADS);
-	glVertex3f(0, 0, 0);
-	glVertex3f(getWidth(), 0, 0);
-	glVertex3f(getWidth(), getHeight(), 0);
-	glVertex3f(0, getHeight(), 0);
+    glTexCoord2f(0.0, 0.0); glVertex3f(0, 0, 0);
+    glTexCoord2f(0.0, 1.0); glVertex3f(getWidth(), 0, 0);
+    glTexCoord2f(1.0, 1.0); glVertex3f(getWidth(), getHeight(), 0);
+    glTexCoord2f(1.0, 0.0); glVertex3f(0, getHeight(), 0);
 	glEnd();
 	//http://stackoverflow.com/questions/8774521/how-to-scale-gldrawpixels
 
