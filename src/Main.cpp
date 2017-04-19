@@ -42,7 +42,7 @@
 #include "Square.hpp"
 #include "Triangle.hpp"
 #include "Vector.hpp"
-#include "BasicGLPane.h"
+#include "GLPane.hpp"
 
 /* External headers */
 #include "stb_image_write.h"
@@ -638,7 +638,7 @@ void ConvertImageToGrayScale(unsigned char * imageArray, int length, int height)
 }
 
 
-int main(int argc, char * argv[]) {
+void anaglyphMain(int argc, char * argv[]) {
     
     assert(MAX_THREADS >= 2);
     pthread_t pThreads[MAX_THREADS];
@@ -818,17 +818,18 @@ int main(int argc, char * argv[]) {
     DestroyGeometry(lightArray);
     free(imageArray0);
     free(tArgs);
-    return 0;
 }
 
-/*
+
 class MyApp : public wxApp
 {
 	virtual bool OnInit();
+	virtual int OnExit();
 
-	wxFrame *frame;
-	BasicGLPane * glPane;
 public:
+
+	MyFrame * frame;
+	BasicGLPane * glPane;
 
 };
 
@@ -839,7 +840,7 @@ IMPLEMENT_APP(MyApp)
 bool MyApp::OnInit()
 {
 	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-	frame = new wxFrame((wxFrame *)NULL, -1, wxT("Hello GL World"), wxPoint(50, 50), wxSize(1000, 1000));
+	frame = new MyFrame();
 
 	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0 };
 
@@ -848,42 +849,34 @@ bool MyApp::OnInit()
 
 	frame->SetSizer(sizer);
 	frame->SetAutoLayout(true);
-
 	frame->Show();
+
 	return true;
 }
 
-BEGIN_EVENT_TABLE(BasicGLPane, wxGLCanvas)
-EVT_MOTION(BasicGLPane::mouseMoved)
-EVT_LEFT_DOWN(BasicGLPane::mouseDown)
-EVT_LEFT_UP(BasicGLPane::mouseReleased)
-EVT_RIGHT_DOWN(BasicGLPane::rightClick)
-EVT_LEAVE_WINDOW(BasicGLPane::mouseLeftWindow)
-EVT_SIZE(BasicGLPane::resized)
-EVT_KEY_DOWN(BasicGLPane::keyPressed)
-EVT_KEY_UP(BasicGLPane::keyReleased)
-EVT_MOUSEWHEEL(BasicGLPane::mouseWheelMoved)
-EVT_PAINT(BasicGLPane::render)
+
+int MyApp::OnExit() {
+	return 0;
+}
+
+MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Raytracing in Realtime", wxPoint(0, 0), wxSize(_Configuration.GetPixelLength(), _Configuration.GetPixelHeight())) {
+	timer = new wxTimer(this, -1);
+	timer->Start(1000);
+}
+
+void MyFrame::UpdateDisplay(wxTimerEvent& evt) {
+	this->Refresh();
+}
+
+void MyFrame::OnClose(wxCommandEvent& evt) {
+	timer->Stop();
+}
+
+BEGIN_EVENT_TABLE(MyFrame, wxFrame)
+EVT_TIMER(-1, MyFrame::UpdateDisplay)
+EVT_MENU(wxID_EXIT, MyFrame::OnClose)
 END_EVENT_TABLE()
 
-
-// some useful events to use
-void BasicGLPane::mouseMoved(wxMouseEvent& event) {}
-void BasicGLPane::mouseDown(wxMouseEvent& event) {}
-void BasicGLPane::mouseWheelMoved(wxMouseEvent& event) {}
-void BasicGLPane::mouseReleased(wxMouseEvent& event) {}
-void BasicGLPane::rightClick(wxMouseEvent& event) {}
-void BasicGLPane::mouseLeftWindow(wxMouseEvent& event) {}
-void BasicGLPane::keyPressed(wxKeyEvent& event) {}
-void BasicGLPane::keyReleased(wxKeyEvent& event) {}
-
-
-// Vertices and faces of a simple cube to demonstrate 3D render
-// source: http://www.opengl.org/resources/code/samples/glut_examples/examples/cube.c
-GLfloat v[8][3];
-GLint faces[6][4] = {  // Vertex indices for the 6 faces of a cube. 
-	{ 0, 1, 2, 3 },{ 3, 2, 6, 7 },{ 7, 6, 5, 4 },
-	{ 4, 5, 1, 0 },{ 5, 6, 2, 1 },{ 7, 4, 0, 3 } };
 
 
 
@@ -891,14 +884,6 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
 	wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE)
 {
 	m_context = new wxGLContext(this);
-	// prepare a simple cube to demonstrate 3D render
-	// source: http://www.opengl.org/resources/code/samples/glut_examples/examples/cube.c
-	v[0][0] = v[1][0] = v[2][0] = v[3][0] = -1;
-	v[4][0] = v[5][0] = v[6][0] = v[7][0] = 1;
-	v[0][1] = v[1][1] = v[4][1] = v[5][1] = -1;
-	v[2][1] = v[3][1] = v[6][1] = v[7][1] = 1;
-	v[0][2] = v[3][2] = v[4][2] = v[7][2] = 1;
-	v[1][2] = v[2][2] = v[5][2] = v[6][2] = -1;
 
 	// To avoid flashing on MSW
 	SetBackgroundStyle(wxBG_STYLE_CUSTOM);
@@ -949,9 +934,15 @@ int BasicGLPane::getHeight()
 void BasicGLPane::render(wxPaintEvent& evt)
 {
 	if (!IsShown()) return;
+	static int y = 0;
+	y += 2;
+	if (y > 400) {
+		y = 0;
+	}
 
 	wxGLCanvas::SetCurrent(*m_context);
-	wxPaintDC(this); // only to be used in paint events. use wxClientDC to paint outside the paint event
+	wxPaintDC dc(this); // only to be used in paint events. use wxClientDC to paint outside the paint event
+	dc.DrawText(wxT("Testing"), 40, y);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -969,7 +960,13 @@ void BasicGLPane::render(wxPaintEvent& evt)
 	glEnd();
 	//http://stackoverflow.com/questions/8774521/how-to-scale-gldrawpixels
 
+	
+
 
 	glFlush();
 	SwapBuffers();
-}*/
+}
+
+BEGIN_EVENT_TABLE(BasicGLPane, wxGLCanvas)
+EVT_PAINT(BasicGLPane::render)
+END_EVENT_TABLE()
