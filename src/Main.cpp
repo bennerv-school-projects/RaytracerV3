@@ -820,7 +820,6 @@ void * anaglyphMain(void * args) {
     // Free memory
     DestroyGeometry(geometryArray);
     DestroyGeometry(lightArray);
-    free(imageArray0);
     free(tArgs);
     
     pthreadDone = true;
@@ -909,6 +908,7 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
 BasicGLPane::~BasicGLPane()
 {
 	delete m_context;
+	free(imageArray0);
 }
 
 void BasicGLPane::resized(wxSizeEvent& evt)
@@ -951,15 +951,9 @@ int BasicGLPane::getHeight()
 void BasicGLPane::render(wxPaintEvent& evt)
 {
 	if (!IsShown()) return;
-	static int y = 0;
-	y += 2;
-	if (y > 400) {
-		y = 0;
-	}
 
 	wxGLCanvas::SetCurrent(*m_context);
 	wxPaintDC dc(this); // only to be used in paint events. use wxClientDC to paint outside the paint event
-	dc.DrawText(wxT("Testing"), 40, y);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -968,7 +962,7 @@ void BasicGLPane::render(wxPaintEvent& evt)
 	glLoadIdentity();
 
 	// white background
-	glColor4f(1, 0, 0, 1);
+	glColor4f(1, 1, 1, 1);
     
     // Generate a texture to use
     glGenTextures(1, &tex);
@@ -983,19 +977,14 @@ void BasicGLPane::render(wxPaintEvent& evt)
     // Set texture filtering parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _Configuration.GetPixelLength(), _Configuration.GetPixelHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, imageArray0);
     
 	glBegin(GL_QUADS);
     glTexCoord2f(0.0, 0.0); glVertex3f(0, 0, 0);
-    glTexCoord2f(0.0, 1.0); glVertex3f(getWidth(), 0, 0);
+    glTexCoord2f(1.0, 0.0); glVertex3f(getWidth(), 0, 0);
     glTexCoord2f(1.0, 1.0); glVertex3f(getWidth(), getHeight(), 0);
-    glTexCoord2f(1.0, 0.0); glVertex3f(0, getHeight(), 0);
+    glTexCoord2f(0.0, 1.0); glVertex3f(0, getHeight(), 0);
 	glEnd();
-	//http://stackoverflow.com/questions/8774521/how-to-scale-gldrawpixels
-
-	
-
 
 	glFlush();
 	SwapBuffers();
