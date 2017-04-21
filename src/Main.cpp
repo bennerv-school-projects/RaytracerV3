@@ -10,7 +10,7 @@
 
 /* STB Image write definition needed for writing png file */
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#define MAX_THREADS 2 // Must be at least 2
+#define MAX_THREADS 50 // Must be at least 2
 
 /* Standard libs */
 #include <cassert>
@@ -70,6 +70,7 @@ GLuint tex1, tex2;
 /* Image arrays */
 unsigned char * imageArray0 = (unsigned char *) malloc(3 * _Configuration.GetPixelLength() * _Configuration.GetPixelHeight() * sizeof(unsigned char));
 unsigned char * imageArray1 = (unsigned char *)malloc(3 * _Configuration.GetPixelLength() * _Configuration.GetPixelHeight() * sizeof(unsigned char));
+unsigned char * anaglyphImage = (unsigned char *)malloc(3 * _Configuration.GetPixelLength() * _Configuration.GetPixelHeight() * sizeof(unsigned char));
 
 void setPixelColor(Vec3<unsigned char> color, Vec2<int> coordinate, unsigned char * array, int width) {
     
@@ -765,7 +766,6 @@ void * anaglyphMain(void * args) {
         RemoveRedChannel(imageArray0, _Configuration.GetPixelLength(), _Configuration.GetPixelHeight());
         RemoveCyanChannel(imageArray1, _Configuration.GetPixelLength(), _Configuration.GetPixelHeight());
         
-        unsigned char * anaglyphImage = (unsigned char *)malloc(sizeof(unsigned char) * _Configuration.GetPixelLength() * _Configuration.GetPixelHeight() * 3);
         if(!anaglyphImage) {
             cout << "Failed to allocate memory.  Exiting" << endl;
             exit(10);
@@ -794,9 +794,6 @@ void * anaglyphMain(void * args) {
         // Write out the images
         stbi_write_png("output2.png", _Configuration.GetPixelLength(), _Configuration.GetPixelHeight(), 3, imageArray1, _Configuration.GetPixelLength()*3);
         stbi_write_png("anaglyph.png", _Configuration.GetPixelLength(), _Configuration.GetPixelHeight(), 3, anaglyphImage, _Configuration.GetPixelLength()*3);
-        
-        // Destroy the image arrays
-        free(anaglyphImage);
     }
     
     
@@ -828,8 +825,10 @@ public:
 
 	MyFrame * frame;
 	MyFrame * frame2;
+    MyFrame * frame3;
     BasicGLPane * glPane;
 	BasicGLPane * glPane2;
+    BasicGLPane * glPane3;
 
 private :
 	pthread_t raytracingThread;
@@ -841,7 +840,7 @@ IMPLEMENT_APP(MyApp)
 bool MyApp::OnInit()
 {
 	wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
-	frame = new MyFrame();
+	frame = new MyFrame(512, 512);
 
 	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0 };
 
@@ -852,14 +851,23 @@ bool MyApp::OnInit()
 	frame->SetAutoLayout(true);
 	frame->Show();
 
+    // Draw the anaglyph image and the second eye perspective
 	if (_Configuration.IsAnaglyph()) {
 		wxBoxSizer* sizer2 = new wxBoxSizer(wxHORIZONTAL);
-		frame2 = new MyFrame();
+		frame2 = new MyFrame(512, 512, 512+50);
 		glPane2 = new BasicGLPane((wxFrame*)frame2, args, imageArray1, 2);
 		sizer2->Add(glPane2, 1, wxEXPAND);
 		frame2->SetSizer(sizer2);
 		frame2->SetAutoLayout(true);
 		frame2->Show();
+        
+        wxBoxSizer* sizer3 = new wxBoxSizer(wxHORIZONTAL);
+        frame3 = new MyFrame(512, 512, 50+(512/2), 50+512);
+        glPane3 = new BasicGLPane((wxFrame*)frame3, args, anaglyphImage, 2);
+        sizer3->Add(glPane3, 1, wxEXPAND);
+        frame3->SetSizer(sizer3);
+        frame3->SetAutoLayout(true);
+        frame3->Show();
 	}
 
 	// Start the anaglyph program
@@ -873,7 +881,7 @@ int MyApp::OnExit() {
 	return 0;
 }
 
-MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Raytracing in Realtime", wxPoint(50, 50), wxSize(_Configuration.GetPixelLength(), _Configuration.GetPixelHeight())) {
+MyFrame::MyFrame(int width, int height, int xPos, int yPos) : wxFrame(NULL, wxID_ANY, "Raytracing in Realtime", wxPoint(xPos, yPos), wxSize(width, height)) {
 	timer = new wxTimer(this, -1);
 	timer->Start(20);
 }
@@ -903,8 +911,8 @@ END_EVENT_TABLE()
 
 
 
-BasicGLPane::BasicGLPane(wxFrame* parent, int* args, unsigned char * image, int id) : image(image), _id(id),
-	wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE)
+BasicGLPane::BasicGLPane(wxFrame* parent, int* args, unsigned char * image, int id) :
+	wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE), image(image), _id(id)
 {
 	m_context = new wxGLContext(this);
 

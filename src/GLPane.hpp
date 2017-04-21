@@ -33,7 +33,7 @@ private:
 
 class MyFrame : public wxFrame {
 public:
-	MyFrame();
+	MyFrame(int width, int height, int xPos = 50, int yPos = 50);
 	~MyFrame() {
 		delete timer;
 	}
