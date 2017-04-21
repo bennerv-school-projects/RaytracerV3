@@ -65,8 +65,11 @@ Color _ColorMapping(OBJECTS_FILE);
 Config _Configuration(OBJECTS_FILE);
 Perspective _Perspective(_Configuration, OBJECTS_FILE);
 bool pthreadDone = false;
+GLuint tex1, tex2;
+
+/* Image arrays */
 unsigned char * imageArray0 = (unsigned char *) malloc(3 * _Configuration.GetPixelLength() * _Configuration.GetPixelHeight() * sizeof(unsigned char));
-GLuint tex;
+unsigned char * imageArray1 = (unsigned char *)malloc(3 * _Configuration.GetPixelLength() * _Configuration.GetPixelHeight() * sizeof(unsigned char));
 
 void setPixelColor(Vec3<unsigned char> color, Vec2<int> coordinate, unsigned char * array, int width) {
     
@@ -677,20 +680,10 @@ void * anaglyphMain(void * args) {
     cout << "Anaglyph mode " << _Perspective.GetAnaglyphMode() << endl;
     cout << "Intereye distance " << _Perspective.GetIntereyeDistance() << endl;
     cout << "Units per length " << _Perspective.GetUnitsPerLengthPixel() << endl;
-    cout << "Units per height " << _Perspective.GetUnitsPerHeightPixel() << endl;
-    
-    unsigned char * imageArray1;
-    
-    // only allocate the second image array if we need to
-    if(_Configuration.IsAnaglyph()) {
-        imageArray1 = (unsigned char *) malloc(3 * _Configuration.GetPixelLength() * _Configuration.GetPixelHeight() * sizeof(unsigned char));
-        if(!imageArray1) {
-            cout << "Failed to allocate memory for the image array.  Exiting" << endl;
-        }
-    }
+	cout << "Units per height " << _Perspective.GetUnitsPerHeightPixel() << endl;
     
     // Make sure the image array was allocated correctly
-    if(!imageArray0) {
+    if(!imageArray0 || !imageArray1) {
         cout << "Failed to allocate memory for the image array.  Exiting" << endl;
         exit(1);
     }
@@ -803,7 +796,6 @@ void * anaglyphMain(void * args) {
         stbi_write_png("anaglyph.png", _Configuration.GetPixelLength(), _Configuration.GetPixelHeight(), 3, anaglyphImage, _Configuration.GetPixelLength()*3);
         
         // Destroy the image arrays
-        free(imageArray1);
         free(anaglyphImage);
     }
     
@@ -835,7 +827,12 @@ class MyApp : public wxApp
 public:
 
 	MyFrame * frame;
+	MyFrame * frame2;
     BasicGLPane * glPane;
+	BasicGLPane * glPane2;
+
+private :
+	pthread_t raytracingThread;
 };
 
 IMPLEMENT_APP(MyApp)
@@ -848,13 +845,26 @@ bool MyApp::OnInit()
 
 	int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0 };
 
-	glPane = new BasicGLPane((wxFrame*)frame, args);
+	glPane = new BasicGLPane((wxFrame*)frame, args, imageArray0, 1);
 	sizer->Add(glPane, 1, wxEXPAND);
 
 	frame->SetSizer(sizer);
 	frame->SetAutoLayout(true);
 	frame->Show();
-    
+
+	if (_Configuration.IsAnaglyph()) {
+		wxBoxSizer* sizer2 = new wxBoxSizer(wxHORIZONTAL);
+		frame2 = new MyFrame();
+		glPane2 = new BasicGLPane((wxFrame*)frame2, args, imageArray1, 2);
+		sizer2->Add(glPane2, 1, wxEXPAND);
+		frame2->SetSizer(sizer2);
+		frame2->SetAutoLayout(true);
+		frame2->Show();
+	}
+
+	// Start the anaglyph program
+	pthread_create(&raytracingThread, NULL, anaglyphMain, NULL);
+	   
 	return true;
 }
 
@@ -866,9 +876,6 @@ int MyApp::OnExit() {
 MyFrame::MyFrame() : wxFrame(NULL, wxID_ANY, "Raytracing in Realtime", wxPoint(50, 50), wxSize(_Configuration.GetPixelLength(), _Configuration.GetPixelHeight())) {
 	timer = new wxTimer(this, -1);
 	timer->Start(20);
-    
-    // Start the anaglyph program
-    pthread_create(&raytracingThread, NULL, anaglyphMain, NULL);
 }
 
 void MyFrame::UpdateDisplay(wxTimerEvent& evt) {
@@ -896,7 +903,7 @@ END_EVENT_TABLE()
 
 
 
-BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
+BasicGLPane::BasicGLPane(wxFrame* parent, int* args, unsigned char * image, int id) : image(image), _id(id),
 	wxGLCanvas(parent, wxID_ANY, args, wxDefaultPosition, wxDefaultSize, wxFULL_REPAINT_ON_RESIZE)
 {
 	m_context = new wxGLContext(this);
@@ -908,7 +915,7 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args) :
 BasicGLPane::~BasicGLPane()
 {
 	delete m_context;
-	free(imageArray0);
+	free(image);
 }
 
 void BasicGLPane::resized(wxSizeEvent& evt)
@@ -965,13 +972,24 @@ void BasicGLPane::render(wxPaintEvent& evt)
 	glColor4f(1, 1, 1, 1);
 
 	// Delete the old texture
-	glDeleteTextures(1, &tex);
-    
-    // Generate a texture to use
-    glGenTextures(1, &tex);
-    
-    // Bind the texture
-    glBindTexture(GL_TEXTURE_2D, tex);
+	if(_id == 1) {
+		glDeleteTextures(1, &tex1);
+		
+	    // Generate a texture to use
+	    glGenTextures(1, &tex1);
+	    
+		// Bind the texture
+		glBindTexture(GL_TEXTURE_2D, tex1);
+	}
+	else {
+		glDeleteTextures(1, &tex2);
+
+		// Generate a texture to use
+		glGenTextures(1, &tex2);
+
+		// Bind the texture
+		glBindTexture(GL_TEXTURE_2D, tex2);
+	}
     
     // Set glRepeat on
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -980,7 +998,7 @@ void BasicGLPane::render(wxPaintEvent& evt)
     // Set texture filtering parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _Configuration.GetPixelLength(), _Configuration.GetPixelHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, imageArray0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _Configuration.GetPixelLength(), _Configuration.GetPixelHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, image);
     
 	glBegin(GL_QUADS);
     glTexCoord2f(0.0, 0.0); glVertex3f(0, 0, 0);

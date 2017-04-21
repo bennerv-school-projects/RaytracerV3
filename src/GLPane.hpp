@@ -11,7 +11,7 @@ class BasicGLPane : public wxGLCanvas
 	wxGLContext*	m_context;
 
 public:
-	BasicGLPane(wxFrame* parent, int* args);
+	BasicGLPane(wxFrame* parent, int* args, unsigned char * image, int id);
 	virtual ~BasicGLPane();
 
 	void resized(wxSizeEvent& evt);
@@ -24,6 +24,10 @@ public:
 
 
 	DECLARE_EVENT_TABLE()
+
+private:
+	unsigned char * image;
+	int _id;
 };
 
 
@@ -37,9 +41,8 @@ public:
 	void OnClose(wxCommandEvent& evt);
 	void OnExit(wxCloseEvent& evt);
 
-	wxDECLARE_EVENT_TABLE();
+	DECLARE_EVENT_TABLE();
 
 private:
 	wxTimer *timer;
-	pthread_t raytracingThread;
 };
