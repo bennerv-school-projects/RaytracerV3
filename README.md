@@ -1,11 +1,20 @@
 # RayTracerV3
-C++ Raytracer implementation with nifty features
+C++ Anaglyph Raytracer Implementation
 
-## Default Image Configuration (as defined in Objects.xml)
-```C
-ambient_light = 0.2; 
-anaglyph = false; 
-gamma_correction = false; 
-image_height = 512; 
-image_length = 512; 
-```
+## Overview
+Using the Objects.xml file, one can add geometry to the program, customize settings, and change the image completely.
+
+## Dependencies
+Windows:
+
+  [CMake](https://cmake.org)
+  
+  [pthreads](https://www.sourceware.org/pthreads-win32/)
+  
+  [wxWidgets](http://www.wxwidgets.org)
+  
+Linux/Unix/Mac OS
+
+  [CMake](https://cmake.org)
+  
+  [wxWidgets](http://www.wxwidgets.org)
