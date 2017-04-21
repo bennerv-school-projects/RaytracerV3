@@ -963,6 +963,9 @@ void BasicGLPane::render(wxPaintEvent& evt)
 
 	// white background
 	glColor4f(1, 1, 1, 1);
+
+	// Delete the old texture
+	glDeleteTextures(1, &tex);
     
     // Generate a texture to use
     glGenTextures(1, &tex);
