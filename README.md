@@ -5,16 +5,16 @@ C++ Anaglyph Raytracer Implementation
 Using the Objects.xml file, one can add geometry to the program, customize settings, and change the image completely.
 
 ## Dependencies
-Windows:
+### Windows:
 
-  [CMake](https://cmake.org)
+* [CMake](https://cmake.org)
   
-  [pthreads](https://www.sourceware.org/pthreads-win32/)
+* [pthreads](https://www.sourceware.org/pthreads-win32/)
   
-  [wxWidgets](http://www.wxwidgets.org)
+* [wxWidgets](http://www.wxwidgets.org)
   
-Linux/Unix/Mac OS
+### Linux/Unix/Mac OS
 
-  [CMake](https://cmake.org)
+* [CMake](https://cmake.org)
   
-  [wxWidgets](http://www.wxwidgets.org)
+* [wxWidgets](http://www.wxwidgets.org)
