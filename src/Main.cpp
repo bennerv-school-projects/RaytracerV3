@@ -10,7 +10,7 @@
 
 /* STB Image write definition needed for writing png file */
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#define MAX_THREADS 50 // Must be at least 2
+#define MAX_THREADS 2 // Must be at least 2
 
 /* Standard libs */
 #include <cassert>
@@ -474,7 +474,7 @@ std::shared_ptr<RayHit> GetRay(Vec3<float> ray, Vec3<float> startingPos, vector<
             return nullptr;
         }
         return GetRay(GetReflection(minHit->GetRay(), minHit->GetNormal()), minHit->GetHitLocation() + (minHit->GetNormal() * .00005f), geom, depth+1);
-    }
+	}
     return minHit;
 }
 
@@ -828,7 +828,6 @@ public:
     MyFrame * frame3;
     BasicGLPane * glPane;
 	BasicGLPane * glPane2;
-    BasicGLPane * glPane3;
 
 private :
 	pthread_t raytracingThread;
@@ -862,17 +861,12 @@ bool MyApp::OnInit()
 		frame2->Show();
         
         wxBoxSizer* sizer3 = new wxBoxSizer(wxHORIZONTAL);
-        frame3 = new MyFrame(512, 512, 50+(512/2), 50+512);
-        glPane3 = new BasicGLPane((wxFrame*)frame3, args, anaglyphImage, 2);
-        sizer3->Add(glPane3, 1, wxEXPAND);
-        frame3->SetSizer(sizer3);
-        frame3->SetAutoLayout(true);
+        frame3 = new MyFrame(600, 512, 50+256, 50+512);
         frame3->Show();
 	}
 
-	// Start the anaglyph program
-	pthread_create(&raytracingThread, NULL, anaglyphMain, NULL);
-	   
+	// Start the raytracing
+	pthread_create(&raytracingThread, NULL, anaglyphMain, NULL);   
 	return true;
 }
 
@@ -881,8 +875,17 @@ int MyApp::OnExit() {
 	return 0;
 }
 
-MyFrame::MyFrame(int width, int height, int xPos, int yPos) : wxFrame(NULL, wxID_ANY, "Raytracing in Realtime", wxPoint(xPos, yPos), wxSize(width, height)) {
+MyFrame::MyFrame(int width, int height, int xPos, int yPos) : wxFrame(NULL, wxID_ANY, "Real-time Raytracing", wxPoint(xPos, yPos), wxSize(width, height)) {
 	timer = new wxTimer(this, -1);
+	if (yPos > 50) {
+		wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
+		int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0 };
+		sizer->Add(new BasicGLPane((wxFrame*)this, args, anaglyphImage, 2), 2, wxEXPAND);
+		sizer->Add(new wxSlider((wxFrame*)this, -1, 0, -100, 100), 0, wxRIGHT);
+		this->SetSizer(sizer);
+		this->SetAutoLayout(true);
+		this->Show();
+	}
 	timer->Start(20);
 }
 
@@ -902,10 +905,17 @@ void MyFrame::OnExit(wxCloseEvent& evt) {
     
 }
 
+void MyFrame::OnSlideEvent(wxCommandEvent& evt) {
+	if (pthreadDone) {
+		cout << "Slider event " << endl;
+	}
+}
+
 BEGIN_EVENT_TABLE(MyFrame, wxFrame)
 EVT_TIMER(-1, MyFrame::UpdateDisplay)
 EVT_CLOSE(MyFrame::OnExit)
 EVT_MENU(wxID_EXIT, MyFrame::OnClose)
+EVT_SLIDER(-1, MyFrame::OnSlideEvent)
 END_EVENT_TABLE()
 
 
