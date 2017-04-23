@@ -40,8 +40,8 @@ public:
 	void UpdateDisplay(wxTimerEvent& evt);
 	void OnClose(wxCommandEvent& evt);
 	void OnExit(wxCloseEvent& evt);
-	void OnSlideEvent(wxCommandEvent& evt);
-	DECLARE_EVENT_TABLE();
+	void OnTextEvent(wxCommandEvent& evt);
+	DECLARE_EVENT_TABLE()
 
 private:
 	wxTimer *timer;

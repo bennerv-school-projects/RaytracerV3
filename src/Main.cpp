@@ -10,7 +10,7 @@
 
 /* STB Image write definition needed for writing png file */
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#define MAX_THREADS 2 // Must be at least 2
+#define MAX_THREADS 6 // Must be at least 2
 
 /* Standard libs */
 #include <cassert>
@@ -65,12 +65,13 @@ Color _ColorMapping(OBJECTS_FILE);
 Config _Configuration(OBJECTS_FILE);
 Perspective _Perspective(_Configuration, OBJECTS_FILE);
 bool pthreadDone = false;
-GLuint tex1, tex2;
+GLuint tex[4] = { 0 };
+int _PixelOffset = 0;
 
 /* Image arrays */
 unsigned char * imageArray0 = (unsigned char *) malloc(3 * _Configuration.GetPixelLength() * _Configuration.GetPixelHeight() * sizeof(unsigned char));
 unsigned char * imageArray1 = (unsigned char *)malloc(3 * _Configuration.GetPixelLength() * _Configuration.GetPixelHeight() * sizeof(unsigned char));
-unsigned char * anaglyphImage = (unsigned char *)malloc(3 * _Configuration.GetPixelLength() * _Configuration.GetPixelHeight() * sizeof(unsigned char));
+unsigned char * anaglyphImage = (unsigned char *)malloc(3 *( _Configuration.GetPixelLength()+_Configuration.GetPixelLength()) * _Configuration.GetPixelHeight() * sizeof(unsigned char));
 
 void setPixelColor(Vec3<unsigned char> color, Vec2<int> coordinate, unsigned char * array, int width) {
     
@@ -562,8 +563,8 @@ void *ShootRays(void * arg) {
                         
                         // Switch on the first versus second image perspective
                         if(args.isSecondary) {
-                            tempRay = Vec3<float>::Normalize(aliasTotalOffset - Vec3<float>::vec3((_Perspective.GetCameraPosition().x + _Perspective.GetIntereyeDistance()), _Perspective.GetCameraPosition().y, _Perspective.GetCameraPosition().z));
-                            rayHit = GetRay(tempRay, Vec3<float>::vec3((_Perspective.GetCameraPosition().x + _Perspective.GetIntereyeDistance()), _Perspective.GetCameraPosition().y, _Perspective.GetCameraPosition().z), *(args.geometryArray), 0);
+                            tempRay = Vec3<float>::Normalize(aliasTotalOffset - Vec3<float>::vec3((_Perspective.GetCameraPosition().x - _Perspective.GetIntereyeDistance()), _Perspective.GetCameraPosition().y, _Perspective.GetCameraPosition().z));
+                            rayHit = GetRay(tempRay, Vec3<float>::vec3((_Perspective.GetCameraPosition().x - _Perspective.GetIntereyeDistance()), _Perspective.GetCameraPosition().y, _Perspective.GetCameraPosition().z), *(args.geometryArray), 0);
                         } else {
                             tempRay = Vec3<float>::Normalize(aliasTotalOffset - _Perspective.GetCameraPosition());
                             rayHit = GetRay(tempRay, _Perspective.GetCameraPosition(), *(args.geometryArray), 0);
@@ -597,8 +598,8 @@ void *ShootRays(void * arg) {
                 
                 // Switch on the first versus second image perspective
                 if(args.isSecondary) {
-                    tempRay = Vec3<float>::Normalize(trueOffset - Vec3<float>::vec3((_Perspective.GetCameraPosition().x + _Perspective.GetIntereyeDistance()), _Perspective.GetCameraPosition().y, _Perspective.GetCameraPosition().z));
-                    rayHit = GetRay(tempRay, Vec3<float>::vec3((_Perspective.GetCameraPosition().x + _Perspective.GetIntereyeDistance()), _Perspective.GetCameraPosition().y, _Perspective.GetCameraPosition().z), *(args.geometryArray), 0);
+                    tempRay = Vec3<float>::Normalize(trueOffset - Vec3<float>::vec3((_Perspective.GetCameraPosition().x - _Perspective.GetIntereyeDistance()), _Perspective.GetCameraPosition().y, _Perspective.GetCameraPosition().z));
+                    rayHit = GetRay(tempRay, Vec3<float>::vec3((_Perspective.GetCameraPosition().x - _Perspective.GetIntereyeDistance()), _Perspective.GetCameraPosition().y, _Perspective.GetCameraPosition().z), *(args.geometryArray), 0);
                 } else {
                     tempRay = Vec3<float>::Normalize(trueOffset - _Perspective.GetCameraPosition());
                     rayHit = GetRay(tempRay, _Perspective.GetCameraPosition(), *(args.geometryArray), 0);
@@ -646,6 +647,59 @@ void ConvertImageToGrayScale(unsigned char * imageArray, int length, int height)
     }
 }
 
+void CreateAnaglyph() {
+
+	// Copy the images on top of oneanother
+	for (int i = 0; i < _Configuration.GetPixelLength() + _PixelOffset; i++) {
+		for (int j = 0; j < _Configuration.GetPixelHeight(); j++) {
+
+			Vec2<int> coord(i, j);
+			Vec2<int> offsetCoord(i - abs(_PixelOffset), j);
+			Vec3<unsigned char> newColor, imageOneColor, imageTwoColor;
+
+			if (_PixelOffset == 0) {
+				imageOneColor = getPixelColor(coord, imageArray0, _Configuration.GetPixelLength());
+				imageTwoColor = getPixelColor(coord, imageArray1, _Configuration.GetPixelLength());
+				
+			}
+			else if (_PixelOffset > 0) { // Pixel offset is positive
+
+				// If the x coordinate is greater than the pixel length and we aren't done get the second image portion and use black for the first
+				if (coord.x > _Configuration.GetPixelLength()) {
+					imageOneColor = _ColorMapping.GetColor("BLACK");
+				}
+				else { // else set the first image color
+					imageOneColor = getPixelColor(coord, imageArray0, _Configuration.GetPixelLength());
+				}
+				// If the x coord of the offset is smaller than 0, then get black for the second image color
+				if (offsetCoord.x < 0) {
+					imageTwoColor = _ColorMapping.GetColor("BLACK");
+				}
+				else {
+					imageTwoColor = getPixelColor(offsetCoord, imageArray1, _Configuration.GetPixelLength());
+				}
+			}
+			else { // Pixel offset is negative
+				if (coord.x > _Configuration.GetPixelLength()) {
+					imageTwoColor = _ColorMapping.GetColor("BLACK");
+				} 
+				else { // set the second image color
+					imageTwoColor = getPixelColor(coord, imageArray1, _Configuration.GetPixelLength());
+				} 
+				if (offsetCoord.x < 0) {
+					imageOneColor = _ColorMapping.GetColor("BLACK");
+				} 
+				else {
+					imageOneColor = getPixelColor(offsetCoord, imageArray0, _Configuration.GetPixelLength());
+				}
+
+			}		
+			newColor.SetValues(min(imageOneColor.x + imageTwoColor.x, 255), min(imageOneColor.y + imageTwoColor.y, 255), min(imageOneColor.z + imageTwoColor.z, 255));
+			setPixelColor(newColor, coord, anaglyphImage, _Configuration.GetPixelLength());
+		}
+	}
+}
+
 
 void * anaglyphMain(void * args) {
     
@@ -670,7 +724,6 @@ void * anaglyphMain(void * args) {
     
     
     // Debug --- PERSPECTIVE INFORMATION
-    
     cout << endl << "Perspective Information" << endl;
     Vec3<float> temp = _Perspective.GetImagePlane()->GetCorner();
     cout << "Image Plane " << temp.x << " " << temp.y << " " << temp.z << endl;
@@ -770,19 +823,8 @@ void * anaglyphMain(void * args) {
             cout << "Failed to allocate memory.  Exiting" << endl;
             exit(10);
         }
-        
-        // Copy the images on top of oneanother
-        for(int i = 0; i < _Configuration.GetPixelLength(); i++) {
-            for(int j = 0; j < _Configuration.GetPixelHeight(); j++) {
-                Vec2<int> coord(i, j);
-                Vec3<unsigned char> imageOneColor = getPixelColor(coord, imageArray0, _Configuration.GetPixelLength());
-                Vec3<unsigned char> imageTwoColor = getPixelColor(coord, imageArray1, _Configuration.GetPixelLength());
-                
-                Vec3<unsigned char> newColor(min(imageOneColor.x + imageTwoColor.x, 255), min(imageOneColor.y + imageTwoColor.y, 255), min(imageOneColor.z + imageTwoColor.z, 255));
-                
-                setPixelColor(newColor, coord, anaglyphImage, _Configuration.GetPixelLength());
-            }
-        }
+		
+		CreateAnaglyph();
         
         // Gamma correction on images
         if(_Configuration.GammaCorrect()) {
@@ -860,7 +902,6 @@ bool MyApp::OnInit()
 		frame2->SetAutoLayout(true);
 		frame2->Show();
         
-        wxBoxSizer* sizer3 = new wxBoxSizer(wxHORIZONTAL);
         frame3 = new MyFrame(600, 512, 50+256, 50+512);
         frame3->Show();
 	}
@@ -880,8 +921,8 @@ MyFrame::MyFrame(int width, int height, int xPos, int yPos) : wxFrame(NULL, wxID
 	if (yPos > 50) {
 		wxBoxSizer* sizer = new wxBoxSizer(wxHORIZONTAL);
 		int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0 };
-		sizer->Add(new BasicGLPane((wxFrame*)this, args, anaglyphImage, 2), 2, wxEXPAND);
-		sizer->Add(new wxSlider((wxFrame*)this, -1, 0, -100, 100), 0, wxRIGHT);
+		sizer->Add(new BasicGLPane((wxFrame*)this, args, anaglyphImage, 3), 2, wxEXPAND);
+		sizer->Add(new wxTextCtrl((wxFrame*)this, -1, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_PROCESS_ENTER));
 		this->SetSizer(sizer);
 		this->SetAutoLayout(true);
 		this->Show();
@@ -905,9 +946,16 @@ void MyFrame::OnExit(wxCloseEvent& evt) {
     
 }
 
-void MyFrame::OnSlideEvent(wxCommandEvent& evt) {
+void MyFrame::OnTextEvent(wxCommandEvent& evt) {
+
 	if (pthreadDone) {
-		cout << "Slider event " << endl;
+
+		if (atoi(evt.GetString()) < _Configuration.GetPixelLength()) {
+			// Set the pixel offset of the two images
+			_PixelOffset = evt.GetInt();
+			_PixelOffset = atoi(evt.GetString());
+			CreateAnaglyph();
+		}
 	}
 }
 
@@ -915,7 +963,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
 EVT_TIMER(-1, MyFrame::UpdateDisplay)
 EVT_CLOSE(MyFrame::OnExit)
 EVT_MENU(wxID_EXIT, MyFrame::OnClose)
-EVT_SLIDER(-1, MyFrame::OnSlideEvent)
+EVT_TEXT_ENTER(-1, MyFrame::OnTextEvent)
 END_EVENT_TABLE()
 
 
@@ -939,7 +987,6 @@ BasicGLPane::~BasicGLPane()
 void BasicGLPane::resized(wxSizeEvent& evt)
 {
 	//	wxGLCanvas::OnSize(evt);
-
 	Refresh();
 }
 
@@ -990,24 +1037,14 @@ void BasicGLPane::render(wxPaintEvent& evt)
 	glColor4f(1, 1, 1, 1);
 
 	// Delete the old texture
-	if(_id == 1) {
-		glDeleteTextures(1, &tex1);
-		
-	    // Generate a texture to use
-	    glGenTextures(1, &tex1);
-	    
-		// Bind the texture
-		glBindTexture(GL_TEXTURE_2D, tex1);
-	}
-	else {
-		glDeleteTextures(1, &tex2);
+	glDeleteTextures(1, &tex[_id]);
 
-		// Generate a texture to use
-		glGenTextures(1, &tex2);
+	// Generate a texture to use
+	glGenTextures(1, &tex[_id]);
 
-		// Bind the texture
-		glBindTexture(GL_TEXTURE_2D, tex2);
-	}
+	// Bind the texture
+	glBindTexture(GL_TEXTURE_2D, tex[_id]);
+
     
     // Set glRepeat on
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -1016,7 +1053,15 @@ void BasicGLPane::render(wxPaintEvent& evt)
     // Set texture filtering parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _Configuration.GetPixelLength(), _Configuration.GetPixelHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+
+	// Larger image if the _id == 3 else normal sized
+	if (_id == 3) {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _Configuration.GetPixelLength()+abs(_PixelOffset), _Configuration.GetPixelHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+	}
+	else {
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _Configuration.GetPixelLength(), _Configuration.GetPixelHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+	}
+    
     
 	glBegin(GL_QUADS);
     glTexCoord2f(0.0, 0.0); glVertex3f(0, 0, 0);
