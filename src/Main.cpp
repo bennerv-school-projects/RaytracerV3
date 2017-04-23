@@ -531,9 +531,12 @@ void *ShootRays(void * arg) {
         if(_Perspective.GetAnaglyphMode() == ANAGLYPH_PARALLEL || !_Configuration.IsAnaglyph()) {
             heightOffset = _Perspective.GetImagePlane()->GetCorner().y - (_Perspective.GetUnitsPerHeightPixel() * (float)i);
         }
-        else {
+        else if(args.isSecondary && _Perspective.GetAnaglyphMode() == ANAGLYPH_CONVERGE) {
             heightOffset = _Perspective.GetSecondaryImagePlane()->GetCorner().y - (_Perspective.GetUnitsPerHeightPixel() * (float)i);
-        }
+		}
+		else {
+			heightOffset = _Perspective.GetImagePlane()->GetCorner().y - (_Perspective.GetUnitsPerHeightPixel() * (float)i);
+		}
         
         // Go through each length pixel (think columns) of the image
         for(int j = 0; j < _Configuration.GetPixelLength(); j++) {
@@ -541,7 +544,7 @@ void *ShootRays(void * arg) {
             
             // Start at the corner of the image plane (x length)
             float xStart;
-            if(_Perspective.GetAnaglyphMode() == ANAGLYPH_PARALLEL) {
+            if(_Perspective.GetAnaglyphMode() == ANAGLYPH_PARALLEL && args.isSecondary) {
                 xStart = _Perspective.GetSecondaryImagePlane()->GetCorner().x;
                 trueOffset = Vec3<float>::vec3(xStart + (_Perspective.GetUnitsPerLengthPixel() * (float)j), heightOffset, _Perspective.GetSecondaryImagePlane()->GetCorner().z);
             } else {
