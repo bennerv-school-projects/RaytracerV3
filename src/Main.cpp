@@ -663,42 +663,42 @@ void CreateAnaglyph() {
 			if (_PixelOffset == 0) {
 				imageOneColor = getPixelColor(coord, imageArray0, _Configuration.GetPixelLength());
 				imageTwoColor = getPixelColor(coord, imageArray1, _Configuration.GetPixelLength());
-				
 			}
-			else if (_PixelOffset > 0) { // Pixel offset is positive
-
-				// If the x coordinate is greater than the pixel length and we aren't done get the second image portion and use black for the first
+			else if (_PixelOffset > 0) { // pixel offset is greater than 0 (move right eye image to the right)
 				if (coord.x > _Configuration.GetPixelLength()) {
 					imageOneColor = _ColorMapping.GetColor("BLACK");
 				}
-				else { // else set the first image color
+				else {
 					imageOneColor = getPixelColor(coord, imageArray0, _Configuration.GetPixelLength());
 				}
-				// If the x coord of the offset is smaller than 0, then get black for the second image color
+				
 				if (offsetCoord.x < 0) {
 					imageTwoColor = _ColorMapping.GetColor("BLACK");
 				}
 				else {
 					imageTwoColor = getPixelColor(offsetCoord, imageArray1, _Configuration.GetPixelLength());
 				}
+				
 			}
-			else { // Pixel offset is negative
+			else { // Pixel offset is negative (move right eye image in front of the left (red))
 				if (coord.x > _Configuration.GetPixelLength()) {
 					imageTwoColor = _ColorMapping.GetColor("BLACK");
-				} 
-				else { // set the second image color
+				}
+				else {
 					imageTwoColor = getPixelColor(coord, imageArray1, _Configuration.GetPixelLength());
-				} 
+				}
+
 				if (offsetCoord.x < 0) {
 					imageOneColor = _ColorMapping.GetColor("BLACK");
-				} 
+				}
 				else {
 					imageOneColor = getPixelColor(offsetCoord, imageArray0, _Configuration.GetPixelLength());
 				}
-
-			}		
+			}
 			newColor.SetValues(min(imageOneColor.x + imageTwoColor.x, 255), min(imageOneColor.y + imageTwoColor.y, 255), min(imageOneColor.z + imageTwoColor.z, 255));
-			setPixelColor(newColor, coord, anaglyphImage, _Configuration.GetPixelLength());
+			memset(anaglyphImage, 0, sizeof(anaglyphImage));
+			setPixelColor(newColor, coord, anaglyphImage, _Configuration.GetPixelLength()+_PixelOffset);
+			
 		}
 	}
 }
@@ -953,10 +953,9 @@ void MyFrame::OnTextEvent(wxCommandEvent& evt) {
 
 	if (pthreadDone) {
 
-		if (atoi(evt.GetString()) < _Configuration.GetPixelLength()) {
+		if (atoi(evt.GetString()) > 0 && atoi(evt.GetString())*4 < _Configuration.GetPixelLength()) {
 			// Set the pixel offset of the two images
-			_PixelOffset = evt.GetInt();
-			_PixelOffset = atoi(evt.GetString());
+			_PixelOffset = 4*atoi(evt.GetString());
 			CreateAnaglyph();
 		}
 	}
@@ -1064,8 +1063,7 @@ void BasicGLPane::render(wxPaintEvent& evt)
 	else {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _Configuration.GetPixelLength(), _Configuration.GetPixelHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 	}
-    
-    
+        
 	glBegin(GL_QUADS);
     glTexCoord2f(0.0, 0.0); glVertex3f(0, 0, 0);
     glTexCoord2f(1.0, 0.0); glVertex3f(getWidth(), 0, 0);
