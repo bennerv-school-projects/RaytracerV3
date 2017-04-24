@@ -1,0 +1,1069 @@
+<?xml version="1.0" ?>
+
+<!-- Configuration -->
+<configuration>
+  <anti_aliasing>true</anti_aliasing>
+  <ambient_light>0.2</ambient_light>
+  <image_length>1024</image_length>
+  <image_height>1024</image_height>
+  <gamma_correction>false</gamma_correction>
+  <anaglyph>true</anaglyph>
+</configuration>
+
+<!-- Image plane and camera information -->
+<image_plane>
+  
+  <!-- Camera location in world space -->
+  <camera>
+    <location x="0" y="-0.25" z="0"/>
+  </camera>
+
+  <!-- Top left corner of the image plane -->
+  <corner x="-1" y="1" z="2" />
+
+  <!-- These must be a positive non-zero integer -->
+  <length>2</length>
+  <height>2</height>
+
+  <!-- Anaglyph settings. Will be ignored if anaglyph mode is false -->
+  <anaglyph>
+    <mode>CONVERGE</mode> <!-- PARALLEL or CONVERGE -->
+    <intereye_distance>.06</intereye_distance>
+  </anaglyph>
+  
+</image_plane>
+
+<!-- Lights in world space -->
+<lights>
+  <point>
+    <location x="0" y="5" z="10"/>
+  </point>
+</lights>
+  
+
+<!-- Geometry in world space and color parsing -->
+<objects>
+
+  <!-- Left wall -->
+  <square>
+	<vertex x="-4" y="-2" z="3"/>
+	<vertex x="-4" y="5" z="3"/>
+    <vertex x="-4" y="-2" z="16"/>
+	<vertex x="-4" y="5" z="16"/>
+    <color>LIGHTCORAL</color>
+    <material>NONE</material>
+  </square>
+  
+    <!-- Right wall -->
+  <square>
+	<vertex x="4" y="-2" z="3"/>
+	<vertex x="4" y="5" z="3"/>
+    <vertex x="4" y="-2" z="16"/>
+	<vertex x="4" y="5" z="16"/>
+    <color>NAVY</color>
+    <material>NONE</material>
+  </square>
+  
+  <!-- Back wall -->
+  <square>
+	<vertex x="-4" y="-2" z="16"/>
+	<vertex x=" 4" y="-2" z="16"/>
+    <vertex x="-4" y=" 5" z="16"/>
+	<vertex x=" 4" y=" 5" z="16"/>
+    <color>GRAY</color>
+    <material>NONE</material>
+  </square>
+  
+  <!-- Objects in the space -->
+  <sphere>
+	<center x="-2" y="-1" z="12"/>
+	<radius>1</radius>
+	<color>WHITE</color>
+	<material>REFLECTIVE</material>  
+  </sphere>
+  
+  <sphere>
+	<center x="2" y="-1" z="6"/>
+	<radius>1</radius>
+	<color>CYAN</color>
+	<material>NONE</material>  
+  </sphere>
+  
+  <square>
+    <vertex x="-4" y="-2" z="3"/>
+	<vertex x="-3" y="-2" z="3"/>
+    <vertex x="-4" y="-2" z="4"/>
+	<vertex x="-3" y="-2" z="4"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+
+  <!-- Floor -->
+  <square>
+    <vertex x="-4" y="-2" z="3"/>
+	<vertex x="-3" y="-2" z="3"/>
+    <vertex x="-4" y="-2" z="4"/>
+	<vertex x="-3" y="-2" z="4"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-4" y="-2" z="4"/>
+	<vertex x="-3" y="-2" z="4"/>
+    <vertex x="-4" y="-2" z="5"/>
+	<vertex x="-3" y="-2" z="5"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-4" y="-2" z="5"/>
+	<vertex x="-3" y="-2" z="5"/>
+    <vertex x="-4" y="-2" z="6"/>
+	<vertex x="-3" y="-2" z="6"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-4" y="-2" z="6"/>
+	<vertex x="-3" y="-2" z="6"/>
+    <vertex x="-4" y="-2" z="7"/>
+	<vertex x="-3" y="-2" z="7"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-4" y="-2" z="7"/>
+	<vertex x="-3" y="-2" z="7"/>
+    <vertex x="-4" y="-2" z="8"/>
+	<vertex x="-3" y="-2" z="8"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-4" y="-2" z="8"/>
+	<vertex x="-3" y="-2" z="8"/>
+    <vertex x="-4" y="-2" z="9"/>
+	<vertex x="-3" y="-2" z="9"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-4" y="-2" z="9"/>
+	<vertex x="-3" y="-2" z="9"/>
+    <vertex x="-4" y="-2" z="10"/>
+	<vertex x="-3" y="-2" z="10"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-4" y="-2" z="10"/>
+	<vertex x="-3" y="-2" z="10"/>
+    <vertex x="-4" y="-2" z="11"/>
+	<vertex x="-3" y="-2" z="11"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-4" y="-2" z="11"/>
+	<vertex x="-3" y="-2" z="11"/>
+    <vertex x="-4" y="-2" z="12"/>
+	<vertex x="-3" y="-2" z="12"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-4" y="-2" z="12"/>
+    <vertex x="-3" y="-2" z="12"/>
+    <vertex x="-4" y="-2" z="13"/>
+	<vertex x="-3" y="-2" z="13"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-4" y="-2" z="13"/>
+	<vertex x="-3" y="-2" z="13"/>
+    <vertex x="-4" y="-2" z="14"/>
+	<vertex x="-3" y="-2" z="14"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-4" y="-2" z="14"/>
+    <vertex x="-3" y="-2" z="14"/>
+    <vertex x="-4" y="-2" z="15"/>
+	<vertex x="-3" y="-2" z="15"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-4" y="-2" z="15"/>
+	<vertex x="-3" y="-2" z="15"/>
+    <vertex x="-4" y="-2" z="16"/>
+	<vertex x="-3" y="-2" z="16"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <!-- Part two-->
+  <square>
+    <vertex x="-3" y="-2" z="3"/>
+	<vertex x="-2" y="-2" z="3"/>
+    <vertex x="-3" y="-2" z="4"/>
+	<vertex x="-2" y="-2" z="4"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-3" y="-2" z="4"/>
+	<vertex x="-2" y="-2" z="4"/>
+    <vertex x="-3" y="-2" z="5"/>
+	<vertex x="-2" y="-2" z="5"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-3" y="-2" z="5"/>
+	<vertex x="-2" y="-2" z="5"/>
+    <vertex x="-3" y="-2" z="6"/>
+	<vertex x="-2" y="-2" z="6"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-3" y="-2" z="6"/>
+	<vertex x="-2" y="-2" z="6"/>
+    <vertex x="-3" y="-2" z="7"/>
+	<vertex x="-2" y="-2" z="7"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-3" y="-2" z="7"/>
+	<vertex x="-2" y="-2" z="7"/>
+    <vertex x="-3" y="-2" z="8"/>
+	<vertex x="-2" y="-2" z="8"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-3" y="-2" z="8"/>
+	<vertex x="-2" y="-2" z="8"/>
+    <vertex x="-3" y="-2" z="9"/>
+	<vertex x="-2" y="-2" z="9"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-3" y="-2" z="9"/>
+	<vertex x="-2" y="-2" z="9"/>
+    <vertex x="-3" y="-2" z="10"/>
+	<vertex x="-2" y="-2" z="10"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-3" y="-2" z="10"/>
+	<vertex x="-2" y="-2" z="10"/>
+    <vertex x="-3" y="-2" z="11"/>
+	<vertex x="-2" y="-2" z="11"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-3" y="-2" z="11"/>
+	<vertex x="-2" y="-2" z="11"/>
+    <vertex x="-3" y="-2" z="12"/>
+	<vertex x="-2" y="-2" z="12"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-3" y="-2" z="12"/>
+    <vertex x="-2" y="-2" z="12"/>
+    <vertex x="-3" y="-2" z="13"/>
+	<vertex x="-2" y="-2" z="13"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-3" y="-2" z="13"/>
+	<vertex x="-2" y="-2" z="13"/>
+    <vertex x="-3" y="-2" z="14"/>
+	<vertex x="-2" y="-2" z="14"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-3" y="-2" z="14"/>
+    <vertex x="-2" y="-2" z="14"/>
+    <vertex x="-3" y="-2" z="15"/>
+	<vertex x="-2" y="-2" z="15"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-3" y="-2" z="15"/>
+	<vertex x="-2" y="-2" z="15"/>
+    <vertex x="-3" y="-2" z="16"/>
+	<vertex x="-2" y="-2" z="16"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <!-- Part 3 -->
+  <square>
+    <vertex x="-2" y="-2" z="3"/>
+	<vertex x="-1" y="-2" z="3"/>
+    <vertex x="-2" y="-2" z="4"/>
+	<vertex x="-1" y="-2" z="4"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-2" y="-2" z="4"/>
+	<vertex x="-1" y="-2" z="4"/>
+    <vertex x="-2" y="-2" z="5"/>
+	<vertex x="-1" y="-2" z="5"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-2" y="-2" z="5"/>
+	<vertex x="-1" y="-2" z="5"/>
+    <vertex x="-2" y="-2" z="6"/>
+	<vertex x="-1" y="-2" z="6"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-2" y="-2" z="6"/>
+	<vertex x="-1" y="-2" z="6"/>
+    <vertex x="-2" y="-2" z="7"/>
+	<vertex x="-1" y="-2" z="7"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-2" y="-2" z="7"/>
+	<vertex x="-1" y="-2" z="7"/>
+    <vertex x="-2" y="-2" z="8"/>
+	<vertex x="-1" y="-2" z="8"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-2" y="-2" z="8"/>
+	<vertex x="-1" y="-2" z="8"/>
+    <vertex x="-2" y="-2" z="9"/>
+	<vertex x="-1" y="-2" z="9"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-2" y="-2" z="9"/>
+	<vertex x="-1" y="-2" z="9"/>
+    <vertex x="-2" y="-2" z="10"/>
+	<vertex x="-1" y="-2" z="10"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-2" y="-2" z="10"/>
+	<vertex x="-1" y="-2" z="10"/>
+    <vertex x="-2" y="-2" z="11"/>
+	<vertex x="-1" y="-2" z="11"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-2" y="-2" z="11"/>
+	<vertex x="-1" y="-2" z="11"/>
+    <vertex x="-2" y="-2" z="12"/>
+	<vertex x="-1" y="-2" z="12"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-2" y="-2" z="12"/>
+    <vertex x="-1" y="-2" z="12"/>
+    <vertex x="-2" y="-2" z="13"/>
+	<vertex x="-1" y="-2" z="13"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-2" y="-2" z="13"/>
+	<vertex x="-1" y="-2" z="13"/>
+    <vertex x="-2" y="-2" z="14"/>
+	<vertex x="-1" y="-2" z="14"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-2" y="-2" z="14"/>
+    <vertex x="-1" y="-2" z="14"/>
+    <vertex x="-2" y="-2" z="15"/>
+	<vertex x="-1" y="-2" z="15"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-2" y="-2" z="15"/>
+	<vertex x="-1" y="-2" z="15"/>
+    <vertex x="-2" y="-2" z="16"/>
+	<vertex x="-1" y="-2" z="16"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <!-- Part 4 -->
+  <square>
+    <vertex x="-1" y="-2" z="3"/>
+	<vertex x=" 0" y="-2" z="3"/>
+    <vertex x="-1" y="-2" z="4"/>
+	<vertex x=" 0" y="-2" z="4"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-1" y="-2" z="4"/>
+	<vertex x=" 0" y="-2" z="4"/>
+    <vertex x="-1" y="-2" z="5"/>
+	<vertex x=" 0" y="-2" z="5"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-1" y="-2" z="5"/>
+	<vertex x=" 0" y="-2" z="5"/>
+    <vertex x="-1" y="-2" z="6"/>
+	<vertex x=" 0" y="-2" z="6"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-1" y="-2" z="6"/>
+	<vertex x=" 0" y="-2" z="6"/>
+    <vertex x="-1" y="-2" z="7"/>
+	<vertex x=" 0" y="-2" z="7"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-1" y="-2" z="7"/>
+	<vertex x=" 0" y="-2" z="7"/>
+    <vertex x="-1" y="-2" z="8"/>
+	<vertex x=" 0" y="-2" z="8"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-1" y="-2" z="8"/>
+	<vertex x=" 0" y="-2" z="8"/>
+    <vertex x="-1" y="-2" z="9"/>
+	<vertex x=" 0" y="-2" z="9"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-1" y="-2" z="9"/>
+	<vertex x=" 0" y="-2" z="9"/>
+    <vertex x="-1" y="-2" z="10"/>
+	<vertex x=" 0" y="-2" z="10"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-1" y="-2" z="10"/>
+	<vertex x=" 0" y="-2" z="10"/>
+    <vertex x="-1" y="-2" z="11"/>
+	<vertex x=" 0" y="-2" z="11"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-1" y="-2" z="11"/>
+	<vertex x=" 0" y="-2" z="11"/>
+    <vertex x="-1" y="-2" z="12"/>
+	<vertex x=" 0" y="-2" z="12"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-1" y="-2" z="12"/>
+    <vertex x=" 0" y="-2" z="12"/>
+    <vertex x="-1" y="-2" z="13"/>
+	<vertex x=" 0" y="-2" z="13"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-1" y="-2" z="13"/>
+	<vertex x=" 0" y="-2" z="13"/>
+    <vertex x="-1" y="-2" z="14"/>
+	<vertex x=" 0" y="-2" z="14"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-1" y="-2" z="14"/>
+    <vertex x=" 0" y="-2" z="14"/>
+    <vertex x="-1" y="-2" z="15"/>
+	<vertex x=" 0" y="-2" z="15"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="-1" y="-2" z="15"/>
+	<vertex x=" 0" y="-2" z="15"/>
+    <vertex x="-1" y="-2" z="16"/>
+	<vertex x=" 0" y="-2" z="16"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <!-- Part 5 -->
+  <square>
+    <vertex x="0" y="-2" z="3"/>
+	<vertex x="1" y="-2" z="3"/>
+    <vertex x="0" y="-2" z="4"/>
+	<vertex x="1" y="-2" z="4"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="0" y="-2" z="4"/>
+	<vertex x="1" y="-2" z="4"/>
+    <vertex x="0" y="-2" z="5"/>
+	<vertex x="1" y="-2" z="5"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="0" y="-2" z="5"/>
+	<vertex x="1" y="-2" z="5"/>
+    <vertex x="0" y="-2" z="6"/>
+	<vertex x="1" y="-2" z="6"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="0" y="-2" z="6"/>
+	<vertex x="1" y="-2" z="6"/>
+    <vertex x="0" y="-2" z="7"/>
+	<vertex x="1" y="-2" z="7"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="0" y="-2" z="7"/>
+	<vertex x="1" y="-2" z="7"/>
+    <vertex x="0" y="-2" z="8"/>
+	<vertex x="1" y="-2" z="8"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="0" y="-2" z="8"/>
+	<vertex x="1" y="-2" z="8"/>
+    <vertex x="0" y="-2" z="9"/>
+	<vertex x="1" y="-2" z="9"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="0" y="-2" z="9"/>
+	<vertex x="1" y="-2" z="9"/>
+    <vertex x="0" y="-2" z="10"/>
+	<vertex x="1" y="-2" z="10"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="0" y="-2" z="10"/>
+	<vertex x="1" y="-2" z="10"/>
+    <vertex x="0" y="-2" z="11"/>
+	<vertex x="1" y="-2" z="11"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="0" y="-2" z="11"/>
+	<vertex x="1" y="-2" z="11"/>
+    <vertex x="0" y="-2" z="12"/>
+	<vertex x="1" y="-2" z="12"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="0" y="-2" z="12"/>
+    <vertex x="1" y="-2" z="12"/>
+    <vertex x="0" y="-2" z="13"/>
+	<vertex x="1" y="-2" z="13"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="0" y="-2" z="13"/>
+	<vertex x="1" y="-2" z="13"/>
+    <vertex x="0" y="-2" z="14"/>
+	<vertex x="1" y="-2" z="14"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="0" y="-2" z="14"/>
+    <vertex x="1" y="-2" z="14"/>
+    <vertex x="0" y="-2" z="15"/>
+	<vertex x="1" y="-2" z="15"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="0" y="-2" z="15"/>
+	<vertex x="1" y="-2" z="15"/>
+    <vertex x="0" y="-2" z="16"/>
+	<vertex x="1" y="-2" z="16"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <!-- Part 6 -->
+  <square>
+    <vertex x="1" y="-2" z="3"/>
+	<vertex x="2" y="-2" z="3"/>
+    <vertex x="1" y="-2" z="4"/>
+	<vertex x="2" y="-2" z="4"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="1" y="-2" z="4"/>
+	<vertex x="2" y="-2" z="4"/>
+    <vertex x="1" y="-2" z="5"/>
+	<vertex x="2" y="-2" z="5"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="1" y="-2" z="5"/>
+	<vertex x="2" y="-2" z="5"/>
+    <vertex x="1" y="-2" z="6"/>
+	<vertex x="2" y="-2" z="6"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="1" y="-2" z="6"/>
+	<vertex x="2" y="-2" z="6"/>
+    <vertex x="1" y="-2" z="7"/>
+	<vertex x="2" y="-2" z="7"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="1" y="-2" z="7"/>
+	<vertex x="2" y="-2" z="7"/>
+    <vertex x="1" y="-2" z="8"/>
+	<vertex x="2" y="-2" z="8"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="1" y="-2" z="8"/>
+	<vertex x="2" y="-2" z="8"/>
+    <vertex x="1" y="-2" z="9"/>
+	<vertex x="2" y="-2" z="9"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="1" y="-2" z="9"/>
+	<vertex x="2" y="-2" z="9"/>
+    <vertex x="1" y="-2" z="10"/>
+	<vertex x="2" y="-2" z="10"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="1" y="-2" z="10"/>
+	<vertex x="2" y="-2" z="10"/>
+    <vertex x="1" y="-2" z="11"/>
+	<vertex x="2" y="-2" z="11"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="1" y="-2" z="11"/>
+	<vertex x="2" y="-2" z="11"/>
+    <vertex x="1" y="-2" z="12"/>
+	<vertex x="2" y="-2" z="12"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="1" y="-2" z="12"/>
+    <vertex x="2" y="-2" z="12"/>
+    <vertex x="1" y="-2" z="13"/>
+	<vertex x="2" y="-2" z="13"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="1" y="-2" z="13"/>
+	<vertex x="2" y="-2" z="13"/>
+    <vertex x="1" y="-2" z="14"/>
+	<vertex x="2" y="-2" z="14"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="1" y="-2" z="14"/>
+    <vertex x="2" y="-2" z="14"/>
+    <vertex x="1" y="-2" z="15"/>
+	<vertex x="2" y="-2" z="15"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="1" y="-2" z="15"/>
+	<vertex x="2" y="-2" z="15"/>
+    <vertex x="1" y="-2" z="16"/>
+	<vertex x="2" y="-2" z="16"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <!-- Part 7 -->
+  <square>
+    <vertex x="2" y="-2" z="3"/>
+	<vertex x="3" y="-2" z="3"/>
+    <vertex x="2" y="-2" z="4"/>
+	<vertex x="3" y="-2" z="4"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="2" y="-2" z="4"/>
+	<vertex x="3" y="-2" z="4"/>
+    <vertex x="2" y="-2" z="5"/>
+	<vertex x="3" y="-2" z="5"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="2" y="-2" z="5"/>
+	<vertex x="3" y="-2" z="5"/>
+    <vertex x="2" y="-2" z="6"/>
+	<vertex x="3" y="-2" z="6"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="2" y="-2" z="6"/>
+	<vertex x="3" y="-2" z="6"/>
+    <vertex x="2" y="-2" z="7"/>
+	<vertex x="3" y="-2" z="7"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="2" y="-2" z="7"/>
+	<vertex x="3" y="-2" z="7"/>
+    <vertex x="2" y="-2" z="8"/>
+	<vertex x="3" y="-2" z="8"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="2" y="-2" z="8"/>
+	<vertex x="3" y="-2" z="8"/>
+    <vertex x="2" y="-2" z="9"/>
+	<vertex x="3" y="-2" z="9"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="2" y="-2" z="9"/>
+	<vertex x="3" y="-2" z="9"/>
+    <vertex x="2" y="-2" z="10"/>
+	<vertex x="3" y="-2" z="10"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="2" y="-2" z="10"/>
+	<vertex x="3" y="-2" z="10"/>
+    <vertex x="2" y="-2" z="11"/>
+	<vertex x="3" y="-2" z="11"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="2" y="-2" z="11"/>
+	<vertex x="3" y="-2" z="11"/>
+    <vertex x="2" y="-2" z="12"/>
+	<vertex x="3" y="-2" z="12"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="2" y="-2" z="12"/>
+    <vertex x="3" y="-2" z="12"/>
+    <vertex x="2" y="-2" z="13"/>
+	<vertex x="3" y="-2" z="13"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="2" y="-2" z="13"/>
+	<vertex x="3" y="-2" z="13"/>
+    <vertex x="2" y="-2" z="14"/>
+	<vertex x="3" y="-2" z="14"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="2" y="-2" z="14"/>
+    <vertex x="3" y="-2" z="14"/>
+    <vertex x="2" y="-2" z="15"/>
+	<vertex x="3" y="-2" z="15"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="2" y="-2" z="15"/>
+	<vertex x="3" y="-2" z="15"/>
+    <vertex x="2" y="-2" z="16"/>
+	<vertex x="3" y="-2" z="16"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <!-- Part 8 Final floor -->
+  <square>
+    <vertex x="3" y="-2" z="3"/>
+	<vertex x="4" y="-2" z="3"/>
+    <vertex x="3" y="-2" z="4"/>
+	<vertex x="4" y="-2" z="4"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="3" y="-2" z="4"/>
+	<vertex x="4" y="-2" z="4"/>
+    <vertex x="3" y="-2" z="5"/>
+	<vertex x="4" y="-2" z="5"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="3" y="-2" z="5"/>
+	<vertex x="4" y="-2" z="5"/>
+    <vertex x="3" y="-2" z="6"/>
+	<vertex x="4" y="-2" z="6"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="3" y="-2" z="6"/>
+	<vertex x="4" y="-2" z="6"/>
+    <vertex x="3" y="-2" z="7"/>
+	<vertex x="4" y="-2" z="7"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="3" y="-2" z="7"/>
+	<vertex x="4" y="-2" z="7"/>
+    <vertex x="3" y="-2" z="8"/>
+	<vertex x="4" y="-2" z="8"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="3" y="-2" z="8"/>
+	<vertex x="4" y="-2" z="8"/>
+    <vertex x="3" y="-2" z="9"/>
+	<vertex x="4" y="-2" z="9"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="3" y="-2" z="9"/>
+	<vertex x="4" y="-2" z="9"/>
+    <vertex x="3" y="-2" z="10"/>
+	<vertex x="4" y="-2" z="10"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="3" y="-2" z="10"/>
+	<vertex x="4" y="-2" z="10"/>
+    <vertex x="3" y="-2" z="11"/>
+	<vertex x="4" y="-2" z="11"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="3" y="-2" z="11"/>
+	<vertex x="4" y="-2" z="11"/>
+    <vertex x="3" y="-2" z="12"/>
+	<vertex x="4" y="-2" z="12"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="3" y="-2" z="12"/>
+    <vertex x="4" y="-2" z="12"/>
+    <vertex x="3" y="-2" z="13"/>
+	<vertex x="4" y="-2" z="13"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="3" y="-2" z="13"/>
+	<vertex x="4" y="-2" z="13"/>
+    <vertex x="3" y="-2" z="14"/>
+	<vertex x="4" y="-2" z="14"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="3" y="-2" z="14"/>
+    <vertex x="4" y="-2" z="14"/>
+    <vertex x="3" y="-2" z="15"/>
+	<vertex x="4" y="-2" z="15"/>
+    <color>WHITE</color>
+    <material>NONE</material>
+  </square>
+  
+  <square>
+    <vertex x="3" y="-2" z="15"/>
+	<vertex x="4" y="-2" z="15"/>
+    <vertex x="3" y="-2" z="16"/>
+	<vertex x="4" y="-2" z="16"/>
+    <color>BLUE</color>
+    <material>NONE</material>
+  </square>
+  
+</objects>
+
+<!-- COLORS AS DEFINED BELOW -->
+<colors>
+  <!-- http://htmlcolorcodes.com/color-names/ -->
+  <color name="AQUA" r="0" g="255" b="255"/>
+  <color name="BLACK" r="0" g="0" b="0"/>
+  <color name="BLUE" r="0" g="0" b="255"/>
+  <color name="CRIMSON" r="220" g="20" b="60"/>
+  <color name="CYAN" r="0" g="255" b="255"/>
+  <color name="DARKRED" r="139" g="0" b="0"/>
+  <color name="DARKSALMON" r="233" g="150" b="122"/>
+  <color name="FIREBRICK" r="178" g="34" b="34"/>
+  <color name="GRAY" r="128" g="128" b="128"/>
+  <color name="GREEN" r="0" g="255" b="0"/>
+  <color name="INDIANRED" r="205" g="92" b="92"/>
+  <color name="LIGHTCORAL" r="240" g="128" b="128"/>
+  <color name="LIGHTGRAY" r="211" g="211" b="211"/>
+  <color name="LIGHTSALMON" r="255" g="160" b="122"/>
+  <color name="RED" r="255" g="0" b="0"/>
+  <color name="SALMON" r="250" g="128" b="114"/>
+  <color name="YELLOW" r="255" g="255" b="0"/>
+  <color name="WHITE" r="255" g="255" b="255"/>  
+  <color name="NAVY" r="0" g="102" b="204"/>
+</colors>

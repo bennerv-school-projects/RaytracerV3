@@ -1,9 +1,7 @@
 #if defined(__linux) || defined(__APPLE__)
 #define OBJECTS_FILE "../Objects.xml"
-#define CONFIG_FILE "../Config.ini"
 #else
-#define OBJECTS_FILE "Objects.xml"
-#define CONFIG_FILE "Config.ini"
+#define OBJECTS_FILE "./Objects.xml"
 #define HAVE_STRUCT_TIMESPEC // For pthread on windows VS2015
 #define PTW32_STATIC_LIB
 #endif
@@ -396,7 +394,7 @@ void initGeometry(std::vector<Geometry *> &geom, std::vector<Geometry *> &lights
                     }
                     assert(vertexCount == 4);
                     
-                    // Create a new triangle object and add it to the arrayj
+                    // Create a new square object and add it to the array
                     if (isObject) {
                         geom.push_back(new Square(vertexA, vertexB, vertexC, vertexD, color, mat));
                     }
@@ -985,6 +983,12 @@ BasicGLPane::~BasicGLPane()
 		stbi_write_png("anaglyph.png", _Configuration.GetPixelLength()+_PixelOffset, _Configuration.GetPixelHeight(), 3, anaglyphImage, (_PixelOffset + _Configuration.GetPixelLength()) * 3);
 	}
 	free(image);
+
+	// Free all the image arrays if they aren't freed normally
+	if (!_Configuration.IsAnaglyph()) {
+		free(imageArray1);
+		free(anaglyphImage);
+	}
 }
 
 void BasicGLPane::resized(wxSizeEvent& evt)
