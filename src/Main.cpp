@@ -8,7 +8,7 @@
 
 /* STB Image write definition needed for writing png file */
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#define MAX_THREADS 6 // Must be at least 2
+#define MAX_THREADS 50 // Must be at least 2
 
 /* Standard libs */
 #include <cassert>
@@ -487,13 +487,15 @@ Vec3<unsigned char> CheckShadows(float ambientLight, std::shared_ptr<RayHit> ray
         Vec3<float> toLightRay = Vec3<float>::Normalize(randomPoint - (rayHit->GetHitLocation() + (rayHit->GetNormal() * .00005f)) ); // Bump
         Vec3<float> toLightSecondary = Vec3<float>::Normalize(randomPoint - (rayHit->GetHitLocation() + (rayHit->GetSecondaryNormal() * .00005f))); // Bump
         
+        float maxTime = randomPoint.x / toLightRay.x;
+        
         // See if the ray from the light source is in shadow or figure out the dot product between the two
         for (size_t j = 0; j < geometry.size(); j++) {
             std::shared_ptr<RayHit> tempHit;
             if ((tempHit = geometry.at(j)->Intersect(toLightRay, rayHit->GetHitLocation())) != nullptr || (tempHit = geometry.at(j)->Intersect(toLightSecondary, rayHit->GetHitLocation())) != nullptr) {
                 
                 //Make sure we didn't hit anything behind us
-                if (tempHit->GetTime() > 0.0005f) {
+                if (tempHit->GetTime() > 0.0005f && tempHit->GetTime() < maxTime) {
                     intersected = true;
                 }
             }
@@ -693,7 +695,6 @@ void CreateAnaglyph() {
 				}
 			}
 			newColor.SetValues(min(imageOneColor.x + imageTwoColor.x, 255), min(imageOneColor.y + imageTwoColor.y, 255), min(imageOneColor.z + imageTwoColor.z, 255));
-			memset(anaglyphImage, 0, sizeof(anaglyphImage));
 			setPixelColor(newColor, coord, anaglyphImage, _Configuration.GetPixelLength()+_PixelOffset);
 			
 		}
