@@ -4,18 +4,10 @@
 <configuration>
   <anti_aliasing>true</anti_aliasing>
   <ambient_light>0.2</ambient_light>
-  <image_length>1024</image_length>
-  <image_height>1024</image_height>
-  <gamma_correction>true</gamma_correction>
-  <anaglyph>true</anaglyph>
-  <normal_correction>false</normal_correction>
-  
-  <!-- Background gradient OPTIONAL
-  <background_gradient>
-    <hsl_interpolation>true</hsl_interpolation>
-    <start>RED</start>
-    <end>GREEN</end>
-  </background_gradient> OPTIONAL -->
+  <image_length>512</image_length>
+  <image_height>512</image_height>
+  <gamma_correction>false</gamma_correction>
+  <anaglyph>false</anaglyph>
 </configuration>
 
 <!-- Image plane and camera information -->
@@ -27,7 +19,7 @@
   </camera>
 
   <!-- Top left corner of the image plane -->
-  <corner x="-1" y="1" z="-2" />
+  <corner x="-1" y="1" z="2" />
 
   <!-- These must be a positive non-zero integer -->
   <length>2</length>
@@ -44,7 +36,7 @@
 <!-- Lights in world space -->
 <lights>
   <point>
-    <location x="3" y="5" z="-15"/>
+    <location x="3" y="5" z="15"/>
   </point>
 </lights>
   
@@ -52,75 +44,57 @@
 <!-- Geometry in world space and color parsing -->
 <objects>
   <sphere>
-    <center x="0" y="0" z="-16"/>
+    <center x="0" y="0" z="16"/>
     <radius>2</radius>
     <color>RED</color>
-    <material>REFLECTIVE</material> <!-- NONE, GLASS, REFLECTIVE, SPECULAR (reflective and none currently supported) -->
+    <material>REFLECTIVE</material> <!-- NONE, REFLECTIVE -->
   </sphere>
 
   <sphere>
-    <center x="3" y="-1" z="-14"/>
+    <center x="3" y="-1" z="14"/>
     <radius>1</radius>
     <color>RED</color>
     <material>REFLECTIVE</material>
   </sphere>
 
   <sphere>
-    <center x="-3" y="-1" z="-14"/>
+    <center x="-3" y="-1" z="14"/>
     <radius>1</radius>
     <color>RED</color>
     <material>NONE</material>
   </sphere>
 
   <square>
-  	<vertex x="-8" y="-2" z="-20"/>
-  	<vertex x="8" y="-2" z="-20"/>
-  	<vertex x="-8" y="10" z="-20"/>
-  	<vertex x="8" y="10" z="-20"/>
+  	<vertex x="-8" y="-2" z="20"/>
+  	<vertex x="8" y="-2" z="20"/>
+  	<vertex x="-8" y="10" z="20"/>
+  	<vertex x="8" y="10" z="20"/>
   	<color>YELLOW</color>
     <material>NONE</material>
-</square>
-
-  <!-- Back wall
-  <triangle>
-    <vertex x="-8" y="-2" z="-20"/>
-    <vertex x="8" y="-2" z="-20"/>
-    <vertex x="8" y="10" z="-20"/>
-    <color>YELLOW</color>
-    <material>NONE</material>
-  </triangle>
-
-  <triangle>
-    <vertex x="-8" y="-2" z="-20"/>
-    <vertex x="8" y="10" z="-20"/>
-    <vertex x="-8" y="10" z="-20"/>
-    <color>YELLOW</color>
-    <material>NONE</material>
-  </triangle>
-  -->
+  </square>
 
   <!-- Floor -->
   <triangle>
-    <vertex x="-8" y="-2" z="-20"/>
-    <vertex x="8" y="-2" z="-10"/>
-    <vertex x="8" y="-2" z="-20"/>
+    <vertex x="-8" y="-2" z="20"/>
+    <vertex x="8" y="-2" z="10"/>
+    <vertex x="8" y="-2" z="20"/>
     <color>WHITE</color>
     <material>NONE</material>
   </triangle>
 
   <triangle>
-    <vertex x="-8" y="-2" z="-20"/>
-    <vertex x="-8" y="-2" z="-10"/>
-    <vertex x="8" y="-2" z="-10"/>
+    <vertex x="-8" y="-2" z="20"/>
+    <vertex x="-8" y="-2" z="10"/>
+    <vertex x="8" y="-2" z="10"/>
     <color>WHITE</color>
     <material>NONE</material>
   </triangle>
   
   <!-- Right red triangle -->
   <triangle>
-    <vertex x="8" y="-2" z="-20"/>
-    <vertex x="8" y="-2" z="-10"/>
-    <vertex x="8" y="10" z="-20"/>
+    <vertex x="8" y="-2" z="20"/>
+    <vertex x="8" y="-2" z="10"/>
+    <vertex x="8" y="10" z="20"/>
     <color>RED</color>
     <material>NONE</material>
   </triangle>

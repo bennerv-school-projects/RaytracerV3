@@ -17,14 +17,13 @@
 #include <iostream>
 #include <pthread.h>
 #include <vector>
-
 #include <wx/wxprec.h>
+#include <wx/glcanvas.h>
 
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
 
-#include <wx/glcanvas.h>
 #ifdef __WXMAC__
 	#include <GLUT/glut.h>
 #else
@@ -475,7 +474,7 @@ std::shared_ptr<RayHit> GetRay(Vec3<float> ray, Vec3<float> startingPos, vector<
             return nullptr;
         }
         return GetRay(GetReflection(minHit->GetRay(), minHit->GetNormal()), minHit->GetHitLocation() + (minHit->GetNormal() * .00005f), geom, depth+1);
-	}
+	} 
     return minHit;
 }
 
@@ -505,9 +504,9 @@ Vec3<unsigned char> CheckShadows(float ambientLight, std::shared_ptr<RayHit> ray
         // We didn't hit anything so take the dot product
         if (!intersected) {
             float temp1 = toLightRay * rayHit->GetNormal();
-            float temp2 = toLightRay * rayHit->GetSecondaryNormal();
+			float temp2 = toLightRay * rayHit->GetSecondaryNormal();
             
-            // Ambient light calculation (with multiple normals)
+            // Diffuse light shading
             if (temp1 > scale) {
                 scale = temp1;
             }
@@ -838,7 +837,6 @@ void * anaglyphMain(void * args) {
         
         // Write out the images
         stbi_write_png("output2.png", _Configuration.GetPixelLength(), _Configuration.GetPixelHeight(), 3, imageArray1, _Configuration.GetPixelLength()*3);
-        stbi_write_png("anaglyph.png", _Configuration.GetPixelLength(), _Configuration.GetPixelHeight(), 3, anaglyphImage, _Configuration.GetPixelLength()*3);
     }
     
     
@@ -983,6 +981,9 @@ BasicGLPane::BasicGLPane(wxFrame* parent, int* args, unsigned char * image, int 
 BasicGLPane::~BasicGLPane()
 {
 	delete m_context;
+	if (_id == 3) {
+		stbi_write_png("anaglyph.png", _Configuration.GetPixelLength()+_PixelOffset, _Configuration.GetPixelHeight(), 3, anaglyphImage, (_PixelOffset + _Configuration.GetPixelLength()) * 3);
+	}
 	free(image);
 }
 
