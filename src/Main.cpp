@@ -486,8 +486,25 @@ Vec3<unsigned char> CheckShadows(float ambientLight, std::shared_ptr<RayHit> ray
         Vec3<float> randomPoint = lights.at(i)->GetRandomPoint();
         Vec3<float> toLightRay = Vec3<float>::Normalize(randomPoint - (rayHit->GetHitLocation() + (rayHit->GetNormal() * .00005f)) ); // Bump
         Vec3<float> toLightSecondary = Vec3<float>::Normalize(randomPoint - (rayHit->GetHitLocation() + (rayHit->GetSecondaryNormal() * .00005f))); // Bump
+        float maxTime = __FLT_MAX__;
         
-        float maxTime = randomPoint.x / toLightRay.x;
+        // Find the max time before we hit the light source
+        if(toLightRay.x == 0) {
+            if(toLightRay.y == 0) {
+                if(toLightRay.z == 0) {
+                    
+                } else {
+                    maxTime = randomPoint.z / toLightRay.z;
+                }
+            }
+            else {
+                maxTime = randomPoint.y / toLightRay.y;
+            }
+        }
+        else {
+            maxTime = randomPoint.x / toLightRay.x;
+        }
+        
         
         // See if the ray from the light source is in shadow or figure out the dot product between the two
         for (size_t j = 0; j < geometry.size(); j++) {
