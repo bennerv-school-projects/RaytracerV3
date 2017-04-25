@@ -17,7 +17,7 @@ Using the Objects.xml file, one can add geometry to the program, customize setti
 
 * [wxWidgets](http://www.wxwidgets.org)
 
-* [tinyxml2](https://github.com/leethomason/tinyxml2) - Must build the static library by using 'make staticlib' before building
+* [tinyxml2](https://github.com/leethomason/tinyxml2) - Included as a submodule.  Must build the static library by using 'make staticlib' before building
 
 ### Windows:
   
